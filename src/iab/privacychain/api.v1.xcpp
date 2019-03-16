@@ -1,0 +1,95 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+namespace iab::privacychain::api {
+  inline namespace v1 { }
+}
+#endiv
+#divert <hpp>
+//
+// These match 1-for-1 the interface of the Privacy Chain Code
+// They allow you to call the chaincode API "as if" it were a local function call.
+// In fact, it's just a *remote* procedure call to the stored procedure in the database.
+//
+// All these calls block the calling thread.
+// If you want multiple concurrent calls (multi-threading) you have to set that up yourself.
+//
+#import std.string_literals
+namespace iab::privacychain::api::v1 {
+  namespace constants {
+    //
+    // The canonical function names of the Privacy Chain Code.
+    //
+    // e.g. 
+    //   {"Args":["init","chicken"]}
+    //   {"Args":["set","chicken", "egg"]}
+    //   {"Args":["get","chicken"]}
+    //   {"Args":["history","chicken"]}
+    //
+    using namespace std::string_literals;
+    inline constexpr auto GET = "get"s;
+    inline constexpr auto SET = "set"s;
+    inline constexpr auto HISTORY = "history"s;
+  }
+  using namespace constants;
+}
+#import iab.privacychain.Outcome
+#import iab.privacychain.Success
+#import iab.privacychain.Key
+#import iab.privacychain.Value
+#import iab.privacychain.Operation
+#import iab.privacychain.History
+namespace iab::privacychain::api::v1 {
+  //
+  // Usage:
+  //
+  //   Operation<Query> qq{...somehow...};
+  //   auto got = qq.get(key);
+  //   if (ok(got)) {
+  //      auto const &vv = value(got);
+  //      ...use vv...
+  //   } else {
+  //      auto ec = error_code(got);
+  //      cerr << "fail: " << ec.message() << '\n';
+  //   }
+  //
+  inline auto get(Operation<QUERY> &, Key const &) -> Outcome<Value>;
+  auto history(Operation<QUERY> &, Key const &, Value const &) -> Outcome<History>;
+}
+#import iab.privacychain.fabric.Operation
+namespace iab::privacychain::api::v1 {
+  //
+  // Usage: same (you have the idea, surely).
+  //
+  inline auto get(Operation<INVOKE> &, Key const &) -> Outcome<Value>;
+  inline auto set(Operation<INVOKE> &, Key const &, Value const &) -> Success;
+  auto history(Operation<INVOKE> &, Key const &) -> Outcome<History>;
+}
+#endiv
+#divert <ipp>
+namespace iab::privacychain::api {
+  using namespace std::string_literals; // everyone gets this
+}
+namespace iab::privacychain::api {
+  auto v1::get(Operation<QUERY> &op, Key const &key) -> Outcome<Value> {
+    return op.run(GET, key);
+  }
+  auto v1::get(Operation<INVOKE> &op, Key const &key) -> Outcome<Value> {
+    return op.run(GET, key);
+  }
+}
+namespace iab::privacychain::api {
+  auto v1::set(Operation<INVOKE> &op, Key const &key, Value const &value) -> Success {
+    return op.run(SET, key, value);
+  }
+}
+#import iab.privacychain.deserialize.History
+namespace iab::privacychain::api {
+  auto v1::history(Operation<QUERY> &op, Key const &key) -> Outcome<History> {
+    return deserialize<History>(op.run(HISTORY, key));
+  }
+  auto v1::history(Operation<INVOKE> &op, Key const &key) -> Outcome<History> {
+    return deserialize<History>(op.run(HISTORY, key));
+  }
+}
+#endiv

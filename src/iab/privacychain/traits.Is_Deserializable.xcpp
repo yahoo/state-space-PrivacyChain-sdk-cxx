@@ -1,0 +1,40 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+#import iab.privacychain.time.Point
+#import json.Value
+#import iab.privacychain.transaction.Identifier
+namespace iab::privacychain::traits {
+  //
+  // Is this TYPE a return type of deserializable(...)?
+  // Most are not.
+  //
+  template<typename TYPE> struct Is_Deserializable;
+  template<> struct Is_Deserializable<bool>;
+  template<> struct Is_Deserializable<time::Point>;
+  template<> struct Is_Deserializable<json::Value>;
+  template<> struct Is_Deserializable<transaction::Identifier>;
+  // Other specializations are with the respective class name declarations; e.g. transaction::History
+}
+#endiv
+#divert <hpp>
+#import std.false_type
+namespace iab::privacychain {
+  template<typename TYPE> struct traits::Is_Deserializable : public std::false_type {};
+}
+namespace iab::privacychain::traits {
+  template<> struct Is_Deserializable<bool> : public std::true_type { };
+  template<> struct Is_Deserializable<time::Point> : public std::true_type { };
+  template<> struct Is_Deserializable<json::Value> : public std::true_type { };
+  template<> struct Is_Deserializable<transaction::Identifier> : public std::true_type { };
+}
+#endiv
+#divert <cpp>
+// this is test code
+namespace iab::privacychain {
+  static_assert(traits::Is_Deserializable<bool>::value);
+  static_assert(traits::Is_Deserializable<time::Point>::value);
+  static_assert(traits::Is_Deserializable<json::Value>::value);
+  static_assert(traits::Is_Deserializable<transaction::Identifier>::value);
+}
+#endiv

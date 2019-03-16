@@ -1,0 +1,51 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+namespace iab::privacychain::transaction {
+  //
+  // The history of a ledger entry (at a key)
+  //
+  // Usage:
+  //
+  // Observation
+  //
+  //   auto query = Operation<QUERY>{...somehow...};
+  //   auto key = Key{...somehow...};
+  //   auto got = history(query, key);
+  //   if (ok(got)) {
+  //     auto history = deserialize<History>(value(got));
+  //     for (auto const &each : history) {
+  //        ... what happened ... and why...
+  //     }
+  //   }
+  //
+  // Creation
+  //
+  //   auto tx        = force<Result>(deserialize<Transaction>(record[TXID]));
+  //   auto collected = force<Result>(deserialize<Value>(record[COLLECTED]));
+  //   auto stamp     = force<Result>(deserialize<time::Point>(record[STAMP]));
+  //   auto deleet    = force<Result>(deserialize<bool>(record[STAMP]));
+  //   history.emplace_back(std::make_unique<History::Record>(std::move(tx), std::move(collected), std::move(stamp), std::move(deleet)));
+  //
+  class History;
+}
+#import iab.privacychain.traits.Is_Deserializable
+namespace iab::privacychain::traits {
+  template<> struct Is_Deserializable<transaction::History>;
+}
+#endiv
+#divert <hpp>
+#import std.true_type
+namespace iab::privacychain::traits {
+  template<> struct Is_Deserializable<transaction::History> : public std::true_type { };
+}
+#import iab.privacychain.transaction.Record
+#import std.unique_ptr
+#import std.list
+class iab::privacychain::transaction::History : public std::list<std::unique_ptr<Record>> {
+  using ancestor = std::list<std::unique_ptr<Record>>;
+public:
+  History() = default;
+  using ancestor::list;
+};
+#endiv

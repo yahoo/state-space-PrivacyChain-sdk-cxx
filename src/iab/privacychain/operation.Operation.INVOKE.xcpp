@@ -1,0 +1,59 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+#forward iab.privacychain.operation.Operation
+namespace iab::privacychain::operation {
+  //
+  // A write (capable) query on the data base; also see Operation<QUERY>.
+  //
+  // A write-capable query; also see query.
+  // Named after the similar verb in Hyperledger Fabric (but may be configured to not use Fabric at all).
+  //
+  // Guaranteed to write through back to the origin server.
+  // A "transaction is committed" when using a SQL-type storage engine.
+  //    always runs a transaction.
+  // A "transaction is appended" when using a ledger-type data store.
+  //    always invokes chain code.
+  //
+  // The lifetime of the context must be longer than that of the Operation<QUERY>
+  //
+  // Usage:
+  //
+  //   auto value = Value{...somehow...};
+  //   Operation<INVOKE> write{context};
+  //   auto set = write(key, value);
+  //   if (ok(set)) {
+  //     ...neat!...
+  //   } else {
+  //     auto ec = error_code(got);
+  //     ...
+  //   }
+  //
+  template<> class Operation<INVOKE>;
+}
+#endiv
+#divert <hpp>
+#import iab.privacychain.operation.Basis
+namespace iab::privacychain::operation {
+  template<> class Operation<INVOKE> : public Basis {
+    using ancestor = Basis;
+  public:
+    inline explicit Operation(Context const &);
+    auto run(Function const &, Key const &) override -> Outcome<Value>;
+    auto run(Function const &, Key const &, Value const &) override -> Success;
+  };
+}
+#endiv
+#divert <ipp>
+namespace iab::privacychain::operation {
+  Operation<INVOKE>::Operation(Context const &context) : ancestor{context} { }
+}
+#endiv
+#divert <cpp>
+namespace iab::privacychain::operation {
+  auto Operation<INVOKE>::run(Function const &function, Key const &key) -> Outcome<Value> {
+  }
+  auto Operation<INVOKE>::run(Function const &function, Key const &key, Value const &value) -> Success {
+  }
+}
+#endiv

@@ -1,0 +1,39 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <hpp>
+#import iab.privacychain.deserialize
+#import iab.privacychain.transaction.Identifier
+namespace iab::privacychain {
+  //
+  // Deserialize the transaction identifier, which is a hex-encoded 256-bit number.
+  // See acxiom_cc.go v1.0
+  //
+  // Specimen:
+  //
+  //   {"data": [
+  //       {"txId":"2a2bab9a6ce2e022a505df5fa2c4deea94ee843d1463c5b499315d459198bb07", ...etc... },
+  //       {"txId":"345a58b9ad6fa6d28089a166e4be443a1f25185f7ab32de7f75971466c31fd4d", ...etc... },
+  //       {"txId":"3f167b4ffdb6f757baa185d4a455b69f2320607df694f5211a03c8cf7d4e6b68", ...etc... },
+  //       ...etc...
+  //   }
+  //
+  template<> auto deserialize<transaction::Identifier>(Outcome<Value>) -> Outcome<transaction::Identifier>;
+}
+#endiv
+#divert <cpp>
+#import iab.privacychain.transaction.identifier.from_string
+#import iab.privacychain.error.Code
+#import std.error_code
+#import json.exception.Generic
+template<> auto iab::privacychain::deserialize<iab::privacychain::transaction::Identifier>(Outcome<Value> in) -> Outcome<transaction::Identifier> {
+  using Result = Outcome<transaction::Identifier>;
+  if (!ok(in)) {
+    return Result{error_code(in)};
+  }
+  try {
+    return identifier::from_string(value(in).asString());
+  } catch (json::exception::Generic const &) {
+    return Result{std::error_code{error::Code::BAD_PAYLOAD_FIELD}};
+  }
+}
+#endiv

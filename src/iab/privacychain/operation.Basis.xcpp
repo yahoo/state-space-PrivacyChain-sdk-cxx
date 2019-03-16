@@ -1,0 +1,43 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+namespace iab::privacychain::operation {
+  //
+  // The basis of every operation on the database
+  // Descendants only.
+  //
+  // The lifetime of the supplied Context must be longer than that of the Operation
+  //
+  // Descendants: Operation<QUERY>, Operation<INVOKE>
+  //
+  // Usage:
+  //
+  //   class my::Operation : public operation::Basis {
+  //     ancestor = operation::Basis;
+  //   public:
+  //     explicit Operation(Context const &context) : ancestor{context} { }
+  //   };
+  //
+  class Basis;
+}
+#endiv
+#divert <hpp>
+#import hyperledger.fabric.context.Chaincode
+#import iab.privacychain.Outcome
+#import iab.privacychain.Success
+#import iab.privacychain.Function
+#import iab.privacychain.Key
+#import iab.privacychain.Value
+class iab::privacychain::operation::Basis {
+public:
+  using Context = hyperledger::fabric::Context;
+protected:
+  virtual ~Basis() = default;
+  inline explicit Basis(Context const &context) : context{context} { }
+public:
+  virtual run(Function const &name, Key const &key) -> Outcome<Value> = 0;
+  virtual run(Function const &name, Key const &key, Value const &value) -> Success = 0;
+protected:
+  Context const &context;
+};
+#endiv

@@ -1,0 +1,57 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+namespace iab::privacychain::error {
+  //
+  // The error category descriptor of the PrivacyChain
+  //
+  // Usage:
+  //
+  //   auto const &c = category();
+  //   auto cond = c.default_error_condition(99);
+  //   auto mess = c.message(99);
+  //
+  class Category;
+}
+#endiv
+#divert <hpp>
+#import iab.privacychain.error.category
+#import std.error_category
+#import std.error_condition
+#import std.string
+class iab::privacychain::error::Category : public std::error_category {
+  using ancestor = std::error_category;
+  Category() = default;
+  friend auto category() -> Category const &;
+public:
+  auto name() const noexcept -> char const * override;
+  auto default_error_condition(int code) const noexcept -> std::error_condition override;
+  auto message(int code) const -> std::string override;
+};
+#endiv
+#divert <cpp>
+#import iab.privacychain.error.Code
+#import std.to_string
+namespace iab::privacychain::error {
+  auto Category::name() const noexcept -> char const * {
+    return "iab::privacychain";
+  }
+  auto Category::default_error_condition(int code) const noexcept -> std::error_condition {
+    return std::error_condition{0 != code, *this};
+  }
+  auto Category::message(int code) const -> std::string {
+    switch (Code{code}) {
+    case Code::SUCCESS:
+      return "success";
+    case Code::FAILURE:
+      return "failure"; // totally generic, no further details given
+    case Code::BAD_PAYLOAD_RECORD:
+      return "bad payload, record-level";
+    case Code::BAD_PAYLOAD_FIELD:
+      return "bad payload, field-level";
+    default:
+      return "error code " + std::to_string(code);
+    }
+  }
+}
+#endiv

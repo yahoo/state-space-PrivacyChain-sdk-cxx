@@ -1,0 +1,51 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <hpp>
+#import iab.privacychain.deserialize
+namespace iab::privacychain {
+  //
+  // Deserialize the isDelete boolean blob
+  // They seem to have chosen to use alpha as well as numeric representations.
+  // See acxiom_cc.go v1.0
+  //
+  // Specimen:
+  //
+  //   {"data": [
+  //       { ...etc... "isDelete":"false"},
+  //       { ...etc... "isDelete":"true"},
+  //       ...etc...
+  //   }
+  //
+  template<> auto deserialize<bool>(Outcome<Value>) -> Outcome<bool>;
+}
+#endiv
+#divert <cpp>
+#import iab.privacychain.error.Code
+#import std.error_code
+#import json.as
+#import json.exception.Generic
+template<> auto iab::privacychain::deserialize<bool>(Outcome<Value> in) -> Outcome<bool> {
+  using Result = Outcome<bool>;
+  if (!ok(in)) {
+    return Result{error_code(in)};
+  }
+  try {
+    //
+    // [[FIXTHIS,ANSWERTHIS]] if the locale is set to non-English, will on-the-wire record transfers break?
+    // The syntax *seems* to be among
+    //
+    //     boolean_literal ::= "true" | "false" | 1 | 0
+    //
+    // as formatted with the Go string conversion function FormatBool https://golang.org/pkg/strconv/
+    // From acxiom_cc.go
+    //
+    //   buffer.WriteString(strconv.FormatBool(response.IsDelete))
+    //
+    return Result{json::as<bool>(value(in))};
+  } catch (std::error_code const &ec) {
+    return Result{ec};
+  } catch (json::exception::Generic const &) {
+    return Result{std::error_code{error::Code::BAD_PAYLOAD_FIELD}};
+  }
+}
+#endiv

@@ -1,0 +1,90 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <hpp>
+#import iab.privacychain.deserialize
+#import json.Value
+namespace iab::privacychain {
+  //
+  // Deserialize the payload (a json::Value), which is a base32-encoded json string.
+  // Why was base32 chosen?  Because, that's why (i.e. no real technical reason).
+  //                         ... and cause never was the reason for the evening, or the Tropic of Sir Gallahad.
+  // See acxiom_cc.go v1.0
+  //
+  // Specimen:
+  //
+  //   {"data": [
+  //       {...etc... "collectData":PAYLOAD ...etc... },
+  //       {...etc... "collectData":PAYLOAD ...etc... },
+  //       {...etc... "collectData":PAYLOAD ...etc... },
+  //       ...etc...
+  //   }
+  //
+  // Where PAYLOAD is constructed as:
+  //
+  //   PAYLOAD ::= null                  as in "null"
+  //             | BASE64-of-JSON        this avoids all the nasty quote and escaping problems
+  //
+  // See acxiom_cc.go
+  //
+  //   func getHistory(stub shim.ChaincodeStubInterface, args []string) (string, error)
+  //
+  // And
+  //
+  //   if response.IsDelete {
+  //     buffer.WriteString("null")
+  //   } else {
+  //     buffer.WriteString(string(response.Value))
+  //   }
+  //
+  template<> auto deserialize<json::Value>(Outcome<Value>) -> Outcome<json::Value>;
+}
+#endiv
+#divert <cpp>
+#import iab.privacychain.detail.deserialize
+#import iab.privacychain.error.Code
+#import tunitas.base64.decode
+#import tunitas.base64.Exception
+#import std.error_code
+#import std.move
+#import json.exception.Generic
+#import json.parse
+template<> auto iab::privacychain::deserialize<json::Value>(Outcome<Value> in) -> Outcome<json::Value> {
+  using Result = Outcome<json::Value>;
+  if (!ok(in)) {
+    return Result{error_code(in)};
+  }
+  try {
+    //
+    // [[FIXTHIS]] need a record versioning indicator; v1, v2, v3
+    // [[FIXTHIS]] need a more efficient storage scheme than "base64 of JSON" and JSON being schemaless.
+    //
+    // From acxiom_cc.go v1.0
+    //
+    //   if response.IsDelete {
+    //     buffer.WriteString("null")
+    //   } else {
+    //     buffer.WriteString(string(response.Value)) <----------------- WATCHOUT - does not quote the string
+    //   }
+    //
+    // WATCHOUT - because the chaincode does not quote the payload (string) in the Hyperledger Fabric,
+    //           the returned JSON object is dubious, being either 'null' or an unquoted base64 string.
+    // it must be the case that the *database* itself stores the quotes as part of the direct record payload.
+    //
+    auto parsed = json::parse(tunitas::base64::decode(value(in).asString()));
+    if (ok(parsed)) {
+      //
+      // No consistency checking is done to ensure that the payload-level JSON blob has "enough stuff
+      // Indeed, the payload-level JSON blob may merely be 'null'
+      // 
+      return Result{std::move(parsed)};
+    }
+    return Result{std::error_code{error::BAD_PAYLOAD_FIELD}};
+  } catch (std::error_code const &ec) {
+    return Result{ec};
+  } catch (tunitas::base64::Exception const &) {
+    return Result{std::error_code{error::BAD_PAYLOAD_FIELD}};
+  } catch (json::exception::Generic const &) {
+    return Result{std::error_code{error::BAD_PAYLOAD_FIELD}};
+  }
+}
+#endiv

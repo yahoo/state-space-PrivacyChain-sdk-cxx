@@ -1,0 +1,57 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+#forward iab.privacychain.operation.Operation
+namespace iab::privacychain {
+  //
+  // A read (only) query on the data base; also see Operation<INVOKE>.
+  //
+  // May use locally-cached data.
+  // May use process-local cached data
+  // May use cluster-local cached data.
+  //
+  // When using a SQL data store ... may use data cached anywhere back to the origin server.
+  // When using a Ledger database, does not invoke chaincode.
+  //
+  // The lifetime of the context must be longer than that of the Operation<QUERY>
+  //
+  // Usage:
+  //
+  //   Operation<QUERY> read{context};
+  //   auto got = read(key);
+  //   if (ok(got)) {
+  //     auto payload = value(std::move(got));
+  //     ...
+  //   } else {
+  //     auto ec = error_code(got);
+  //     ...
+  //   }
+  //
+  template<> class Operation<QUERY>;
+}
+#endiv
+#divert <hpp>
+#import iab.privacychain.operation.Basis
+namespace iab::privacychain::operation {
+  template<> class Operation<QUERY> : public Basis {
+    using ancestor = Basis;
+  public:
+    inline explicit Operation(Context const &);
+    auto run(Function const &, Key const &) override -> Outcome<Value>;
+    auto run(Function const &, Key const &, Value const &) override -> Success;
+  };
+}
+#endiv
+#divert <ipp>
+namespace iab::privacychain::operation {
+  Operation<QUERY>::Operation(Context const &context) : ancestor{context} { }
+}
+#endiv
+#divert <cpp>
+namespace iab::privacychain::operation {
+  auto Operation<QUERY>::run(Function const &function, Key const &key) -> Outcome<Value> {
+  }
+  auto Operation<QUERY>::run(Function const &function, Key const &key, Value const &value) -> Success {
+  }
+}
+#endiv

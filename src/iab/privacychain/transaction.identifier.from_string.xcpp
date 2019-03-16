@@ -1,0 +1,57 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <hpp>
+#forward iab.privacychain.transaction.Identifier
+#import c.const_stringz
+#import re.string
+#import iab.privacychain.Outcome
+namespace iab::privacychain::transaction::identifier {
+  //
+  // Extract a transaction identifier from a string
+  // Throws if it cannot accomplish its mission (of constructing an Identifier)
+  //
+  // This is a separable function because...
+  //   it is a friend of the class
+  //   for testability
+  //
+  // Requires:
+  //   64 == length
+  //   hexidecimal characters
+  //
+  // Usage:
+  //
+  //    auto out = from_string(syntax);
+  //    if (ok(out)) {
+  //      ... you know the drill...
+  //    } else {
+  //      ... you know the drill...
+  //    }
+  //
+  inline auto from_string(re::string<c::const_stringz>) -> Outcome<Identifier>;
+}
+#endiv
+#divert <ipp>
+#import iab.privacychain.transaction.Identifier
+#import iab.privacychain.detail.deserialize
+#import nonstd.range.reverse
+auto iab::privacychain::transaction::identifier::from_string(re::string<c::const_stringz> syntax) -> Outcome<Identifier> {
+  using Result = Outcome<Identifier>;
+  try {
+    if (64 == syntax.size()) {
+      using namespace detail::deserialize;
+      transaction::Identifier ret;
+      unsigned i{0};
+      for (auto c : syntax) {
+        // reminder: dehex will throw if it cannot dehex the character into bits
+        for (auto b : nonstd::range::reverse(dehex(c))) {
+          ret[i++] = b;
+        }
+      }
+      return Result{ret};
+    }
+    return Result{std::error_code{error::Code::BAD_PAYLOAD_FIELD}};
+  } catch (std::error_code const &ec) {
+    return Result{ec};
+  }
+}
+#endiv

@@ -1,0 +1,55 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+namespace iab::privacychain::transaction {
+  //
+  // A chaincode transaction is a 256-bit "number"
+  // Here we're eliding the sense of whether this number is "little endian" or "big endian" by not using host integers.
+  // We just have the ordered b undle of the 256 bits.
+  //
+  // Usage:
+  //
+  //   rly?
+  //
+  class Identifier;
+}
+#endiv
+#divert <hpp>
+namespace iab::privacychain::transaction {
+  inline auto operator==(Identifier const &, Identifier const &) -> bool;
+  inline auto operator!=(Identifier const &, Identifier const &) -> bool;
+}
+#import std.array
+#import iab.privacychain.transaction.identifier.from_string
+#import std.string
+class iab::privacychain::transaction::Identifier : private std::array<bool, 256> {
+  using ancestor = std::array<bool, 256>;
+  // DO NOT DO THIS ---> static_assert(64 == sizeof (std::array<unsigned char, 64>)) <--- DO NOT DO THIS
+  // DO NOT DO THIS ---> static_assert(64 == std::array<std::byte, 64>) <--- DO NOT DO THIS
+  // DO NOT DO THIS ---> static_assert(64 == sizeof (ancestor)) <--- DO NOT DO THIS
+  friend auto operator==(Identifier const &, Identifier const &) -> bool;
+  friend auto operator!=(Identifier const &, Identifier const &) -> bool;
+  friend auto identifier::from_string(std::string const &) -> Identifier;
+public:
+  Identifier() = default;
+  using ancestor::array;
+};
+#endiv
+#divert <ipp>
+#import std.equal
+#import std.mismatch
+namespace iab::privacychain {
+  // [[FIXTHIS]] use operator<=>
+  auto transaction::operator==(Identifier const &a, Identifier const &b) -> bool {
+    // [[FIXTHIS]] .. surely there is a faster way
+    return std::equal(a.begin(), a.end(), b.begin(), b.end());
+  };
+  auto transaction::operator!=(Identifier const &a, Identifier const &b) -> bool {
+    // [[FIXTHIS]] .. surely there is a faster way
+    auto const ae = a.end();
+    auto const be = b.end();
+    auto const there = std::mismatch(a.begin(), ae, b.begin(), be);
+    return there.first != ae || there.second != be;
+  }
+}
+#endiv

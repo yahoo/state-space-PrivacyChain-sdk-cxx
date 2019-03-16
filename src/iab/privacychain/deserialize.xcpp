@@ -1,0 +1,28 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <hpp>
+#import iab.privacychain.required.Deserializable
+#import iab.privacychain.Value
+#import iab.privacychain.Outcome
+namespace iab::privacychain {
+  //
+  // Overloaded on the return type
+  //
+  // Usage:
+  //
+  //   auto des = deserialize<History>(...stringy_payload...); .............................. maybe not ok(des)
+  //   auto truth = exceptional(deserialize<bool>(...stringy_payload...)); .................. force the exception
+  //
+  template<required::Deserializable RESULT> auto deserialize(Outcome<Value>) -> Outcome<RESULT>;
+  static_assert(traits::Is_Deserializable<bool>::value);
+  static_assert(required::Deserializable<bool>);
+                                 template<> auto deserialize<bool>(Outcome<Value>) -> Outcome<bool>;
+}
+#endiv
+#divert <tpp>
+#import iab.privacychain.deserialize.History
+#import iab.privacychain.deserialize.bool
+#import iab.privacychain.deserialize.json.Value
+#import iab.privacychain.deserialize.time.Point
+#import iab.privacychain.deserialize.transaction.Identifier
+#endiv

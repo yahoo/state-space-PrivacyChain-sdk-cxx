@@ -1,0 +1,81 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <hpp>
+#import iab.privacychain.deserialize
+#import iab.privacychain.time.Point
+namespace iab::privacychain {
+  //
+  // Deserialize the isDelete boolean blob
+  // They seem to have chosen to use alpha as well as numeric representations.
+  // See acxiom_cc.go v1.0
+  //
+  // Specimen:
+  //
+  //   {"data": [
+  //       { ...etc... "timestamp":"2019-03-06 01:35:00.166102034 +0000 UTC", ...etc... },
+  //       { ...etc... "timestamp":"2019-03-06 01:35:39.630594093 +0000 UTC", ...etc... },
+  //       ...etc...
+  //   }
+  //
+  template<> auto deserialize<time::Point>(Outcome<Value>) -> Outcome<time::Point>;
+}
+#endiv
+#divert <cpp>
+#import iab.privacychain.error.Code
+#import json.exception
+#import nonstd.uninitialized.zero
+#import std.error_code
+#import std.string_literals
+#import sys.time.tm
+#import sys.time.as
+#import std.uintmax_t
+#import std.chrono.duration
+template<> auto iab::privacychain::deserialize<iab::privacychain::time::Point>(Outcome<Value> in) -> Outcome<time::Point> {
+  using Result = Outcome<time::Point>;
+  using namespace std::string_literals;
+  if (!ok(in)) {
+    return Result{error_code(in)};
+  }
+  try {
+    // [[FIXTHIS]] use C++20's std::chrono::from_stream, BUT ALSO get those nanoseconds
+    // [[FIXTHIS,ANSWERTHIS]] if the locale is set to non-English, will on-the-wire record transfers break?
+    //
+    // The time is formatted in the Go Language using the 2-argument Time constructor
+    //   https://golang.org/pkg/time/#Unix
+    // which has a printed representation according to the locale
+    //   https://golang.org/pkg/time/#Time.String
+    //
+    // From acxiom_cc.go
+    //
+    //   buffer.WriteString(time.Unix(response.Timestamp.Seconds, int64(response.Timestamp.Nanos)).String())
+    //
+    std::uintmax_t yyyy, mm, dd, HH, MM, SS, nanos, oooo;
+    char sign, utc[4];
+    auto scanned = sscanf(value(in).asCString(), "%ju-%ju-%ju %ju:%ju:%ju.%ju.%ju %c%ju %3c", &yyyy, &mm, &dd, &HH, &MM, &SS, &nanos, &sign, &oooo, &utc[0]);
+    if (9 != scanned) {
+      sys::time::tm tmb;
+      nonstd::uninitialized::zero(tmb);
+      tmb.tm_year = yyyy - 1900;
+      tmb.tm_month = mm - 1;
+      tmb.tm_day = dd;
+      tmb.tm_hour = HH;
+      tmb.tm_min = MM;
+      tmb.tm_sec = SS;
+      if (0 == oooo) {
+        if ("UTC"s == utc) {
+          // WATCHOUT - we need this to compute the time in UTC
+          //            we CANNOT have this computing the time point "as if" localtime
+          auto seconds = sys::time::as<time::Point>(tmb);
+          auto nanoseconds = std::chrono::duration<std::chrono::nanoseconds>(nanos);
+          return Result{seconds + nanoseconds};
+        }
+      }
+    }
+    return Result{std::error_code{error::BAD_PAYLOAD_FIELD}};
+  } catch (std::error_code const &ec) {
+    return Result{ec};
+  } catch (json::exception::Generic const &) {
+    return Result{std::error_code{error::BAD_PAYLOAD_FIELD}};
+  }
+}
+#endiv

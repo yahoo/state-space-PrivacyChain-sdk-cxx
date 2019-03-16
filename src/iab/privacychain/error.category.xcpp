@@ -1,0 +1,33 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <hpp>
+#forward iab.privacychain.error.Category
+namespace iab::privacychain::error {
+  //
+  // Recover (a reference to the) the error category singleton.
+  //
+  // Usage:
+  //
+  //   auto const &c = category();
+  //   auto cond = c.default_error_condition(99);
+  //   auto mess = c.message(99);
+  //
+  auto category() -> Category const &;
+}
+#endiv
+#divert <ipp>
+#import iab.privacychain.error.Category
+#endiv
+#divert <cpp>
+#import std.mutex
+#import std.lock_guard
+auto iab::privacychain::error::category() -> Category const & {
+  // WATCHOUT - This is only thread-safe because the constructor is trivial.
+  //            Else mutex-guard this to ensure only single construction.
+  //            But we guard it anyway, because it might not be one day.
+  static std::mutex exclusive;
+  std::lock_guard<std::mutex> guard{exclusive};
+  static Category const singleton;
+  return singleton;
+}
+#endiv

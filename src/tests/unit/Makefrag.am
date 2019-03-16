@@ -1,0 +1,27 @@
+# Not so obviously, this is a GNU -*- Makefile -*- which is included by automake, not by GNU make
+# Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+check_bin_unit = check/bin/unit
+check_bin_unit_LDADD = \
+  $(lib_libwant_la) \
+  $(end)
+# Reminder: autotools does not put $(AM_LDFLAGS) into check_bin_unit_LDFLAGS, like it does with CPPFLAGS and CXXFLAGS
+check_bin_unit_LDFLAGS = \
+  $(AM_LDFLAGS) \
+  -ltunitas \
+  -lrigging-bench-module \
+  $(end)
+check_bin_unit_MODULES = $(call TF_SOURCEStoMODULES, $(check_bin_unit_SOURCES))
+check_bin_unit_SOURCES = \
+  obj/src/tests/unit/main.cpp \
+  obj/src/tests/unit/namespace.cpp \
+  obj/src/tests/unit/api.Fixture.cpp \
+  obj/src/tests/unit/iab.Fixture.cpp \
+  obj/src/tests/unit/privacychain.Fixture.cpp \
+  obj/src/tests/unit/want.Fixture.cpp \
+  $(end)
+$(scold_cxxdir)/tests/unit/dependencies.mk:
+	$(TF_V_DIS) $(call TF_DISAGGREGATE, $(check_bin_unit_SOURCES))
+	$(TF_V_DONE) test -e $@
+include $(scold_cxxdir)/tests/unit/dependencies.mk
+clean-dependencies::
+	rm -f $(scold_cxxdir)/tests/unit/dependencies.mk

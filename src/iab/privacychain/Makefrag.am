@@ -1,0 +1,87 @@
+# Not so obviously, this is a GNU -*- Makefile -*- which is included by automake, not by GNU make
+# Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+
+# DSO API versioning; see the README which is nearby.
+# else https://wiki.scold-lang.org/page/DSO
+#
+#   CURRENT <= CURRENT+1 if any interfaces were added
+#           <= CURRENT+1 if any interfaces were removed
+#           <= CURRENT+1 if any interfaces were changed
+#           <= CURRENT   if no interface change, but any other (source code) change
+#
+#   REVISION <= 0          if any interfaces were added
+#            <= 0          if any interfaces were removed
+#            <= 0          if any interfaces were changed
+#            <= REVISION+1 if no interface change, but any other (source code) change
+#
+#   AGE <= AGE+1 if any interaces were added
+#       <= 0     if any interfaces were removed
+#       <= 0     if any interfaces were changed
+#       <= AGE   if no interface change, but any other (source code) change
+#
+lib_libiab_privacychain_la_CURRENT = 1
+lib_libiab_privacychain_la_REVISION = 0
+lib_libiab_privacychain_la_AGE = 0
+lib_libiab_privacychain_la_CRA = $(lib_libiab_privacychain_la_CURRENT):$(lib_libiab_privacychain_la_REVISION):$(lib_libiab_privacychain_la_AGE)
+
+lib_libiab_privacychain_la = lib/libiab-privacychain.la
+lib_libiab_privacychain_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET) -version-info $(lib_libiab_privacychain_la_CRA)
+lib_libiab_privacychain_la_LIBADD = -lhyperledger-fabric
+lib_libiab_privacychain_la_MODULES = $(call TF_SOURCEStoMODULES, $(lib_libiab_privacychain_la_SOURCES))
+lib_libiab_privacychain_la_SOURCES = \
+  obj/src/iab/privacychain/namespace.cpp \
+  \
+  obj/src/iab/privacychain/api.cpp \
+  obj/src/iab/privacychain/api.v1.cpp \
+  obj/src/iab/privacychain/chaincode.v1.cpp \
+  \
+  obj/src/iab/privacychain/error.Code.cpp \
+  obj/src/iab/privacychain/error.Condition.cpp \
+  obj/src/iab/privacychain/error.Category.cpp \
+  obj/src/iab/privacychain/error.category.cpp \
+  \
+  obj/src/iab/privacychain/detail.dehex.cpp \
+  \
+  obj/src/iab/privacychain/deserialize.cpp \
+  obj/src/iab/privacychain/deserialize.History.cpp \
+  obj/src/iab/privacychain/deserialize.bool.cpp \
+  obj/src/iab/privacychain/deserialize.json.Value.cpp \
+  obj/src/iab/privacychain/deserialize.time.Point.cpp \
+  obj/src/iab/privacychain/deserialize.transaction.Identifier.cpp \
+  \
+  obj/src/iab/privacychain/Operation.cpp \
+  obj/src/iab/privacychain/operation.Basis.cpp \
+  obj/src/iab/privacychain/operation.Operation.cpp \
+  obj/src/iab/privacychain/operation.Operation.INVOKE.cpp \
+  obj/src/iab/privacychain/operation.Operation.QUERY.cpp \
+  \
+  obj/src/iab/privacychain/Key.cpp \
+  obj/src/iab/privacychain/key.Key.cpp \
+  obj/src/iab/privacychain/key.Generator.cpp \
+  obj/src/iab/privacychain/Value.cpp \
+  obj/src/iab/privacychain/Function.cpp \
+  obj/src/iab/privacychain/function.Function.cpp \
+  \
+  obj/src/iab/privacychain/Outcome.cpp \
+  obj/src/iab/privacychain/Success.cpp \
+  \
+  obj/src/iab/privacychain/required.Deserializable.cpp \
+  obj/src/iab/privacychain/traits.Is_Deserializable.cpp \
+  \
+  obj/src/iab/privacychain/time.Clock.cpp \
+  obj/src/iab/privacychain/time.Duration.cpp \
+  obj/src/iab/privacychain/time.Point.cpp \
+  \
+  obj/src/iab/privacychain/History.cpp \
+  obj/src/iab/privacychain/transaction.History.cpp \
+  obj/src/iab/privacychain/transaction.Record.cpp \
+  obj/src/iab/privacychain/transaction.Identifier.cpp \
+  obj/src/iab/privacychain/transaction.identifier.from_string.cpp \
+  $(end)
+$(info DEBUG $(TF_V_DC) $(call TF_DISAGGREGATE, $(lib_libiab_privacychain_la_SOURCES)))
+$(scold_cxxdir)/iab/privacychain/dependencies.mk:
+	$(TF_V_DC) $(call TF_DISAGGREGATE, $(lib_libiab_privacychain_la_SOURCES))
+	$(TF_V_DONE) test -e $@
+include $(scold_cxxdir)/iab/privacychain/dependencies.mk
+clean-dependencies::
+	rm -f $(scold_cxxdir)/iab/privacychain/dependencies.mk
