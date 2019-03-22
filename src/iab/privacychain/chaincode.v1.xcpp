@@ -3,14 +3,17 @@
 #divert <hpp>
 #import std.string_literals
 namespace iab::privacychain::chaincode::v1 {
-  using namespace std::string_literals;
-  //
-  // WATCHOUT - these names are defined in acxiom_cc.go in the printf statements therein.
-  //
-  inline auto const DATA = "data"s;
-  inline auto const TXID = "txId"s;
-  inline auto const COLLECTED = "collectData"s;
-  inline auto const STAMP = "timestamp"s;
-  inline auto const DELEET = "isDelete"s;
+  namespace constants {
+    using namespace std::string_literals;
+    //
+    // WATCHOUT - these names are defined in acxiom_cc.go in the printf statements therein.
+    //
+    inline auto const DATA = "data"s;
+    inline auto const TXID = "txId"s;
+    inline auto const COLLECTED = "collectData"s;
+    inline auto const STAMP = "timestamp"s;
+    inline auto const DELEET = "isDelete"s;
+  }
+  using namespace constants;
 }
 #endiv

@@ -4,6 +4,7 @@
 #import iab.privacychain.time.Point
 #import json.Value
 #import iab.privacychain.transaction.Identifier
+#import std.string
 namespace iab::privacychain::traits {
   //
   // Is this TYPE a return type of deserializable(...)?
@@ -11,6 +12,7 @@ namespace iab::privacychain::traits {
   //
   template<typename TYPE> struct Is_Deserializable;
   template<> struct Is_Deserializable<bool>;
+  template<> struct Is_Deserializable<std::string>;
   template<> struct Is_Deserializable<time::Point>;
   template<> struct Is_Deserializable<json::Value>;
   template<> struct Is_Deserializable<transaction::Identifier>;
@@ -24,6 +26,7 @@ namespace iab::privacychain {
 }
 namespace iab::privacychain::traits {
   template<> struct Is_Deserializable<bool> : public std::true_type { };
+  template<> struct Is_Deserializable<std::string> : public std::true_type { };
   template<> struct Is_Deserializable<time::Point> : public std::true_type { };
   template<> struct Is_Deserializable<json::Value> : public std::true_type { };
   template<> struct Is_Deserializable<transaction::Identifier> : public std::true_type { };

@@ -21,14 +21,17 @@ namespace iab::privacychain {
 }
 #endiv
 #divert <cpp>
-#import iab.privacychain.transaction.Identifier
-#import iab.privacychain.time.Point
+#import iab.privacychain.chaincode.v1 // constants
 #import iab.privacychain.error.Code
+#import iab.privacychain.time.Point
+#import iab.privacychain.transaction.Identifier
+#import iab.privacychain.transaction.Record
 #import std.error_code
 #import std.move
+#import std.make_unique
 #import json.parse
 #import json.exception.Generic
-template<> auto iab::privacychain::deserialize<History>(Outcome<Value> in) -> Outcome<History> {
+template<> auto iab::privacychain::deserialize<iab::privacychain::History>(Outcome<Value> in) -> Outcome<History> {
   using Result = Outcome<History>;
   if (!ok(in)) {
     return Result{error_code(in)};
@@ -37,21 +40,22 @@ template<> auto iab::privacychain::deserialize<History>(Outcome<Value> in) -> Ou
     // If the payload is not an shaped appropriately then these will throw.
     // See the specimen above.
     //
-    // SOMEWHERE ELSE ---> json::parse(json::failure::THROWN, value(in); <--- SOMEWHERE ELSE
-    auto &record = value(in);
+    // SOMEWHERE ELSE ---> in = json::parse(json::failure::THROWN, value(in); <--- SOMEWHERE ELSE
+    auto const &container = value(in);
     History history;
-    for (auto &record : value(in)) {
+    using namespace chaincode::v1::constants;
+    for (auto const &record : container[DATA]) {
       auto tx        = exceptional(deserialize<transaction::Identifier>(record[TXID]));
-      auto collected = exceptional(deserialize<json::Value>(record[COLLECTED]));
+      auto collected = exceptional(deserialize<std::string>(record[COLLECTED]));  // NOT decoding as JSON
       auto stamp     = exceptional(deserialize<time::Point>(record[STAMP]));
-      auto deleet    = exceptional(deserialize<bool>(record[STAMP]));
-      history.emplace_back(std::make_unique<history::Record>(std::move(tx), std::move(collected), std::move(stamp), std::move(deleet)));
+      auto deleet    = exceptional(deserialize<bool>(record[DELEET]));
+      history.emplace_back(std::make_unique<transaction::Record>(transaction::Record{std::move(tx), std::move(collected), std::move(stamp), std::move(deleet)}));
     }
     return Result{std::move(history)};
   } catch (std::error_code const &ec) {
     return Result{ec};
   } catch (json::exception::Generic const &) {
-    return Result{std::error_code{error::BAD_PAYLOAD_RECORD}};
+    return Result{std::error_code{error::Code::PAYLOAD_BAD_RECORD}};
   }
 }
 #endiv

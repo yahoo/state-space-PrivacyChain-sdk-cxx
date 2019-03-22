@@ -22,7 +22,7 @@ namespace iab::privacychain::operation {
 }
 #endiv
 #divert <hpp>
-#import hyperledger.fabric.context.Chaincode
+#import hyperledger.fabric.peer.chaincode.Call
 #import iab.privacychain.Outcome
 #import iab.privacychain.Success
 #import iab.privacychain.Function
@@ -30,13 +30,13 @@ namespace iab::privacychain::operation {
 #import iab.privacychain.Value
 class iab::privacychain::operation::Basis {
 public:
-  using Context = hyperledger::fabric::Context;
+  using Context = hyperledger::fabric::peer::chaincode::Call;
 protected:
   virtual ~Basis() = default;
   inline explicit Basis(Context const &context) : context{context} { }
 public:
-  virtual run(Function const &name, Key const &key) -> Outcome<Value> = 0;
-  virtual run(Function const &name, Key const &key, Value const &value) -> Success = 0;
+  virtual auto run(Function const &name, Key const &key) -> Outcome<Value> = 0;
+  virtual auto run(Function const &name, Key const &key, Value const &value) -> Success = 0;
 protected:
   Context const &context;
 };

@@ -13,11 +13,10 @@ public:
 };
 #endiv
 #divert <cpp>
-#import privacychain
+#import iab.privacychain
 auto tests::unit::privacychain::Fixture::test_something() -> void {
   CPPUNIT_ASSERT(true);
 }
-#import tests.unit.privacychain.nonstd.Fixture
 #import unit.rigging.suite.Stream
 #import unit.rigging.suite.call
 #import unit.rigging.suite.add
@@ -25,7 +24,6 @@ auto tests::unit::privacychain::Fixture::suite() -> cppunit::Test * {
   using namespace ::unit::rigging::suite;
   Stream series("privacychain");
   series << call("something", &Fixture::test_something)
-	 << add(nonstd::Fixture::suite())
     ;
   return series.release();
 }

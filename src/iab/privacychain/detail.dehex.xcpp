@@ -2,12 +2,12 @@
 // Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
 #divert <hpp>
 #import std.array
-namespace iab::privacychain::detail::deserialize {
+namespace iab::privacychain::detail {
   //
   // Convert a hexidecimal character into its 8-bit format
   //
   // The dehex is an implementation detail envisioned for use within transaction payload parsing.
-  // It throws std::error_code{BAD_PAYLOAD_FIELD} if it cannot perform its function.
+  // It throws std::error_code{PAYLOAD_BAD_FIELD} if it cannot perform its function.
   // Such non-performance is expected to be very exceptional (rare).
   //
   // Usage:
@@ -23,11 +23,11 @@ namespace iab::privacychain::detail::deserialize {
 #import std.isxdigit
 #import std.toupper
 #import std.move
-auto iab::privacychain::detail::deserialize::dehex(char candidate_hexchar_syntax) -> std::array<bool, 8> {
+auto iab::privacychain::detail::dehex(char candidate_hexchar_syntax) -> std::array<bool, 8> {
   using Result = std::array<bool, 8>;
   auto i = [](char syntax) {
              if (!std::isxdigit(syntax)) {
-               throw std::error_code{error::Code::BAD_PAYLOAD_FIELD};
+               throw std::error_code{error::Code::PAYLOAD_BAD_FIELD};
              }
              if ('0' <= syntax && syntax <= '9') {
                return syntax - '0';

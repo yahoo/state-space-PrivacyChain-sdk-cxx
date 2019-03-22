@@ -40,7 +40,7 @@ namespace iab::privacychain {
 }
 #endiv
 #divert <cpp>
-#import iab.privacychain.detail.deserialize
+#import iab.privacychain.deserialize
 #import iab.privacychain.error.Code
 #import tunitas.base64.decode
 #import tunitas.base64.Exception
@@ -48,6 +48,8 @@ namespace iab::privacychain {
 #import std.move
 #import json.exception.Generic
 #import json.parse
+#import json.to
+#import json.failure.constants
 template<> auto iab::privacychain::deserialize<json::Value>(Outcome<Value> in) -> Outcome<json::Value> {
   using Result = Outcome<json::Value>;
   if (!ok(in)) {
@@ -70,21 +72,21 @@ template<> auto iab::privacychain::deserialize<json::Value>(Outcome<Value> in) -
     //           the returned JSON object is dubious, being either 'null' or an unquoted base64 string.
     // it must be the case that the *database* itself stores the quotes as part of the direct record payload.
     //
-    auto parsed = json::parse(tunitas::base64::decode(value(in).asString()));
+    auto parsed = json::parse(json::failure::RETURNING, json::to(json::STRING{}, tunitas::base64::decode(value(in).asString())));
     if (ok(parsed)) {
       //
       // No consistency checking is done to ensure that the payload-level JSON blob has "enough stuff
       // Indeed, the payload-level JSON blob may merely be 'null'
       // 
-      return Result{std::move(parsed)};
+      return Result{value(std::move(parsed))};
     }
-    return Result{std::error_code{error::BAD_PAYLOAD_FIELD}};
+    return Result{std::error_code{error::Code::PAYLOAD_BAD_FIELD}};
   } catch (std::error_code const &ec) {
     return Result{ec};
   } catch (tunitas::base64::Exception const &) {
-    return Result{std::error_code{error::BAD_PAYLOAD_FIELD}};
+    return Result{std::error_code{error::Code::PAYLOAD_BAD_FIELD}};
   } catch (json::exception::Generic const &) {
-    return Result{std::error_code{error::BAD_PAYLOAD_FIELD}};
+    return Result{std::error_code{error::Code::PAYLOAD_BAD_FIELD}};
   }
 }
 #endiv

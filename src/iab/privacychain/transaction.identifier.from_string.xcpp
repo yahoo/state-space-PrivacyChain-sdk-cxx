@@ -1,9 +1,9 @@
 // This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
 // Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
 #divert <hpp>
-#forward iab.privacychain.transaction.Identifier
 #import c.const_stringz
 #import re.string
+#import iab.privacychain.transaction.Identifier
 #import iab.privacychain.Outcome
 namespace iab::privacychain::transaction::identifier {
   //
@@ -31,25 +31,28 @@ namespace iab::privacychain::transaction::identifier {
 }
 #endiv
 #divert <ipp>
-#import iab.privacychain.transaction.Identifier
-#import iab.privacychain.detail.deserialize
+#import iab.privacychain.transaction.identifier.From_String
+#import iab.privacychain.detail.dehex
+#import iab.privacychain.error.Code
 #import nonstd.range.reverse
+#import std.error_code
 auto iab::privacychain::transaction::identifier::from_string(re::string<c::const_stringz> syntax) -> Outcome<Identifier> {
   using Result = Outcome<Identifier>;
   try {
     if (64 == syntax.size()) {
-      using namespace detail::deserialize;
       transaction::Identifier ret;
+      From_String fs{ret};
       unsigned i{0};
       for (auto c : syntax) {
         // reminder: dehex will throw if it cannot dehex the character into bits
+        using privacychain::detail::dehex;
         for (auto b : nonstd::range::reverse(dehex(c))) {
-          ret[i++] = b;
+          fs[i++] = b;
         }
       }
       return Result{ret};
     }
-    return Result{std::error_code{error::Code::BAD_PAYLOAD_FIELD}};
+    return Result{std::error_code{error::Code::PAYLOAD_BAD_FIELD}};
   } catch (std::error_code const &ec) {
     return Result{ec};
   }

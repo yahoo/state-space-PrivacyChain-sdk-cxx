@@ -6,9 +6,13 @@ namespace iab::privacychain::operation {
   // There are two operations
   // readonly - QUERY
   //
-  enum Operator
-    { QUERY,      // read cached some ledger replica
-      INVOKE };   // invoke chaincode to get best known values
+  namespace constants {
+    // packaged up for use elsewhere, e.g. namespace api::v1
+    enum Operator
+      { QUERY,      // read cached some ledger replica
+        INVOKE };   // invoke chaincode to get best known values
+  }
+  using namespace constants;
   template<Operator> class Operation;
 }
 #endiv

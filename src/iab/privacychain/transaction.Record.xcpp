@@ -23,7 +23,7 @@ namespace iab::privacychain::transaction {
 #import std.string
 struct iab::privacychain::transaction::Record {
   Identifier txid;
-  std::string collected; // still in some unspecified serialized format (e.g. TCF base64).
+  std::string collected; // "out" payload still in some unspecified serialized format (e.g. v1 payload is TCF's base64).
   time::Point timestamp;
   bool isDelete;
 };

@@ -2,7 +2,7 @@
 // Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
 #divert <fpp>
 #forward iab.privacychain.operation.Operation
-namespace iab::privacychain {
+namespace iab::privacychain::operation {
   //
   // A read (only) query on the data base; also see Operation<INVOKE>.
   //
@@ -37,8 +37,8 @@ namespace iab::privacychain::operation {
     using ancestor = Basis;
   public:
     inline explicit Operation(Context const &);
-    auto run(Function const &, Key const &) override -> Outcome<Value>;
-    auto run(Function const &, Key const &, Value const &) override -> Success;
+    auto run(Function const &, Key const &) -> Outcome<Value> override;
+    auto run(Function const &, Key const &, Value const &) -> Success override;
   };
 }
 #endiv
@@ -50,8 +50,10 @@ namespace iab::privacychain::operation {
 #divert <cpp>
 namespace iab::privacychain::operation {
   auto Operation<QUERY>::run(Function const &function, Key const &key) -> Outcome<Value> {
+#warning WRITETHIS auto Operation<QUERY>::run(Function const &function, Key const &key) -> Outcome<Value>
   }
   auto Operation<QUERY>::run(Function const &function, Key const &key, Value const &value) -> Success {
+#warning WRITETHIS auto Operation<QUERY>::run(Function const &function, Key const &key, Value const &value) -> Success
   }
 }
 #endiv

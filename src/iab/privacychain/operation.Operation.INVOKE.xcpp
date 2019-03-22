@@ -39,8 +39,8 @@ namespace iab::privacychain::operation {
     using ancestor = Basis;
   public:
     inline explicit Operation(Context const &);
-    auto run(Function const &, Key const &) override -> Outcome<Value>;
-    auto run(Function const &, Key const &, Value const &) override -> Success;
+    auto run(Function const &, Key const &)  -> Outcome<Value> override;
+    auto run(Function const &, Key const &, Value const &) -> Success override;
   };
 }
 #endiv
@@ -52,8 +52,10 @@ namespace iab::privacychain::operation {
 #divert <cpp>
 namespace iab::privacychain::operation {
   auto Operation<INVOKE>::run(Function const &function, Key const &key) -> Outcome<Value> {
+#warning WRITETHIS auto Operation<INVOKE>::run(Function const &function, Key const &key) -> Outcome<Value>
   }
   auto Operation<INVOKE>::run(Function const &function, Key const &key, Value const &value) -> Success {
+#warning WRITETHIS auto Operation<INVOKE>::run(Function const &function, Key const &key, Value const &value) -> Success
   }
 }
 #endiv

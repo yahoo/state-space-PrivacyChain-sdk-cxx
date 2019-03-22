@@ -1,3 +1,9 @@
 tests_unit_TESTS = \
+  tests/unit/list.test \
+  \
+  tests/unit/api.test \
+  tests/unit/iab.test \
+  tests/unit/privacychain.test \
+  \
   tests/unit/all.test \
   $(end)

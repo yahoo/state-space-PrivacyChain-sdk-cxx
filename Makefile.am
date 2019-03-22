@@ -25,6 +25,7 @@ DEVELOPMENT_AREAS = \
   $(module_json_prefix) \
   $(module_nonstd_prefix) \
   $(module_posix_prefix) \
+  $(module_rabinpoly_prefix) \
   $(module_std_prefix) \
   $(module_string_prefix) \
   $(module_sys_prefix) \

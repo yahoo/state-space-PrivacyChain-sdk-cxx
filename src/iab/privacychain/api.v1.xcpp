@@ -15,6 +15,8 @@ namespace iab::privacychain::api {
 // If you want multiple concurrent calls (multi-threading) you have to set that up yourself.
 //
 #import std.string_literals
+#forward iab.privacychain.operation.Operation
+#forward iab.privacychain.Function
 namespace iab::privacychain::api::v1 {
   namespace constants {
     //
@@ -27,9 +29,10 @@ namespace iab::privacychain::api::v1 {
     //   {"Args":["history","chicken"]}
     //
     using namespace std::string_literals;
-    inline constexpr auto GET = "get"s;
-    inline constexpr auto SET = "set"s;
-    inline constexpr auto HISTORY = "history"s;
+    inline auto const GET = Function{"get"};
+    inline auto const SET = Function{"set"};
+    inline auto const HISTORY = Function{"history"};
+    using namespace operation::constants; // QUERY, INVOKE
   }
   using namespace constants;
 }
@@ -54,16 +57,16 @@ namespace iab::privacychain::api::v1 {
   //   }
   //
   inline auto get(Operation<QUERY> &, Key const &) -> Outcome<Value>;
-  auto history(Operation<QUERY> &, Key const &, Value const &) -> Outcome<History>;
+  inline auto history(Operation<QUERY> &, Key const &) -> Outcome<History>;
 }
-#import iab.privacychain.fabric.Operation
+#import iab.privacychain.Operation
 namespace iab::privacychain::api::v1 {
   //
   // Usage: same (you have the idea, surely).
   //
   inline auto get(Operation<INVOKE> &, Key const &) -> Outcome<Value>;
   inline auto set(Operation<INVOKE> &, Key const &, Value const &) -> Success;
-  auto history(Operation<INVOKE> &, Key const &) -> Outcome<History>;
+  inline auto history(Operation<INVOKE> &, Key const &) -> Outcome<History>;
 }
 #endiv
 #divert <ipp>

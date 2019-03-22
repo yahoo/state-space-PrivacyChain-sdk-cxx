@@ -22,6 +22,7 @@ namespace iab::privacychain {
 #endiv
 #divert <cpp>
 #import iab.privacychain.transaction.identifier.from_string
+#import iab.privacychain.detail.dehex
 #import iab.privacychain.error.Code
 #import std.error_code
 #import json.exception.Generic
@@ -31,9 +32,9 @@ template<> auto iab::privacychain::deserialize<iab::privacychain::transaction::I
     return Result{error_code(in)};
   }
   try {
-    return identifier::from_string(value(in).asString());
+    return transaction::identifier::from_string(value(in).asString());
   } catch (json::exception::Generic const &) {
-    return Result{std::error_code{error::Code::BAD_PAYLOAD_FIELD}};
+    return Result{std::error_code{error::Code::PAYLOAD_BAD_FIELD}};
   }
 }
 #endiv

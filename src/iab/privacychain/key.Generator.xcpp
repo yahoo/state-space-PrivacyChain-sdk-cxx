@@ -35,44 +35,46 @@ namespace iab::privacychain::key {
 #import std.uint32_t
 #import std.uint64_t
 #import std.iterator_traits
-#import nosntd.uint128_t
+#import nonstd.uint128_t
 #import nonstd.required.Octet
 #import nonstd.required.container.Type
 #import nonstd.required.container.Holding
+#import nonstd.required.iterator.Forward
+#import iab.privacychain.required // cascades the namespaces
 namespace iab::privacychain::key {
   namespace packaging::generate::function {
     auto generate(std::string const &) -> Key;
-    using nonstd::required::container::Holding;
-    using nonstd::required::Octet
-    using nonstd::iterator::required::iterator::Forward;
-    template<template<typename> class CONTAINER, typename OCTET> auto generate(CONTAINER<TYPE> const &) -> Key requires Holding<CONTAINER<OCTET>, OCTET> && Octet<OCTET>;
-    template<typename ITERATOR>  requires Forward<ITERATOR> && Octet<typename std::iterator_traits<ITERATOR>::value_type> auto generate(ITERATOR start, ITERATOR finish) -> Key;
+    using required::container::Holding;
+    using required::Octet;
+    using required::iterator::Forward;
+    template<template<typename> class CONTAINER, typename OCTET> inline auto generate(CONTAINER<OCTET> const &) -> Key requires Holding<CONTAINER<OCTET>, OCTET> && Octet<OCTET>;
+    template<typename ITERATOR> inline auto generate(ITERATOR start, ITERATOR finish) -> Key requires Forward<ITERATOR> && Octet<typename std::iterator_traits<ITERATOR>::value_type>;
     // These are defined on the byte series pattern of the big-endian ordering.
-    auto generate(std::uint8_t) -> Key;
-    auto generate(std::uint16_t) -> Key;
-    auto generate(std::uint32_t) -> Key;
-    auto generate(std::uint64_t) -> Key;
-    auto generate(nonstd::uint128_t) -> Key;
+    inline auto generate(std::uint8_t) -> Key;
+    inline auto generate(std::uint16_t) -> Key;
+    inline auto generate(std::uint32_t) -> Key;
+    inline auto generate(std::uint64_t) -> Key;
+    inline auto generate(nonstd::uint128_t) -> Key;
   }
-  using packaging::generate::function;
+  using packaging::generate::function::generate;
 }
 #endiv
 #divert <ipp>
 #import rabinpoly.generate
 namespace iab::privacychain::key::packaging::generate {
-  auto function::generate(std::uint8_t value) -> Key { return Key(rabinpoly::generate(value)}; }
-  auto function::generate(std::uint16_t value) -> Key { return Key(rabinpoly::generate(value)}; }
-  auto function::generate(std::uint32_t value) -> Key { return Key(rabinpoly::generate(value)}; }
-  auto function::generate(std::uint64_t value) -> Key { return Key(rabinpoly::generate(value)}; }
-  auto function::generate(nonstd::uint128_t value) -> Key { return Key(rabinpoly::generate(value)}; }
+  auto function::generate(std::uint8_t value) -> Key { return Key{rabinpoly::generate(value)}; }
+  auto function::generate(std::uint16_t value) -> Key { return Key{rabinpoly::generate(value)}; }
+  auto function::generate(std::uint32_t value) -> Key { return Key{rabinpoly::generate(value)}; }
+  auto function::generate(std::uint64_t value) -> Key { return Key{rabinpoly::generate(value)}; }
+  auto function::generate(nonstd::uint128_t value) -> Key { return Key{rabinpoly::generate(value)}; }
 }
 namespace iab::privacychain::key::packaging::generate {
-  template<template<typename> class CONTAINER, typename OCTET> auto generate(CONTAINER<TYPE> const &container) -> Key requires Holding<CONTAINER<OCTET>, OCTET> && Octet<OCTET> {
+  template<template<typename> class CONTAINER, typename OCTET> auto function::generate(CONTAINER<OCTET> const &container) -> Key requires Holding<CONTAINER<OCTET>, OCTET> && Octet<OCTET> {
     return Key{rabinpoly::generate(std::begin(container), std::end(container))};
   }
 }
 namespace iab::privacychain::key::packaging::generate {
-  template<typename ITERATOR> Forward<ITERATOR> auto function::generate(ITERATOR start, ITERATOR finish) -> Key requires Forward<ITERATOR> && Octet<typename std::iterator_traits<ITERATOR>::value_type> {
+  template<typename ITERATOR> auto function::generate(ITERATOR start, ITERATOR finish) -> Key requires Forward<ITERATOR> && Octet<typename std::iterator_traits<ITERATOR>::value_type> {
     return Key{rabinpoly::generate(start, finish)};
   }
 }

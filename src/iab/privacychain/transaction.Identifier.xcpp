@@ -4,8 +4,9 @@
 namespace iab::privacychain::transaction {
   //
   // A chaincode transaction is a 256-bit "number"
+  // Let's just pretend it's 256 ordered bits and cease with the "unsigned number" stuff.  Else use nonstd::uint128_t.
   // Here we're eliding the sense of whether this number is "little endian" or "big endian" by not using host integers.
-  // We just have the ordered b undle of the 256 bits.
+  // We just have the ordered bundle of the 256 bits.
   //
   // Usage:
   //
@@ -19,9 +20,8 @@ namespace iab::privacychain::transaction {
   inline auto operator==(Identifier const &, Identifier const &) -> bool;
   inline auto operator!=(Identifier const &, Identifier const &) -> bool;
 }
+#forward iab.privacychain.transaction.identifier.From_String
 #import std.array
-#import iab.privacychain.transaction.identifier.from_string
-#import std.string
 class iab::privacychain::transaction::Identifier : private std::array<bool, 256> {
   using ancestor = std::array<bool, 256>;
   // DO NOT DO THIS ---> static_assert(64 == sizeof (std::array<unsigned char, 64>)) <--- DO NOT DO THIS
@@ -29,7 +29,7 @@ class iab::privacychain::transaction::Identifier : private std::array<bool, 256>
   // DO NOT DO THIS ---> static_assert(64 == sizeof (ancestor)) <--- DO NOT DO THIS
   friend auto operator==(Identifier const &, Identifier const &) -> bool;
   friend auto operator!=(Identifier const &, Identifier const &) -> bool;
-  friend auto identifier::from_string(std::string const &) -> Identifier;
+  friend class identifier::From_String; // because from_string(...) can't be a friend and also return Outcome<Identifier>
 public:
   Identifier() = default;
   using ancestor::array;
@@ -51,5 +51,17 @@ namespace iab::privacychain {
     auto const there = std::mismatch(a.begin(), ae, b.begin(), be);
     return there.first != ae || there.second != be;
   }
+}
+#endiv
+#divert <cpp>
+#import std.is_default_constructible
+#import std.is_move_constructible
+#import std.is_copy_constructible
+#import iab.privacychain.Outcome
+namespace iab::privacychain {
+  static_assert(std::is_default_constructible<transaction::Identifier>::value);
+  static_assert(std::is_move_constructible<transaction::Identifier>::value);
+  static_assert(std::is_copy_constructible<transaction::Identifier>::value);
+  static_assert(0 != sizeof (Outcome<transaction::Identifier>));
 }
 #endiv

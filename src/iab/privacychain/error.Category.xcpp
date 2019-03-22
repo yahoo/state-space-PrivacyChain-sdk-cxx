@@ -45,9 +45,9 @@ namespace iab::privacychain::error {
       return "success";
     case Code::FAILURE:
       return "failure"; // totally generic, no further details given
-    case Code::BAD_PAYLOAD_RECORD:
+    case Code::PAYLOAD_BAD_RECORD:
       return "bad payload, record-level";
-    case Code::BAD_PAYLOAD_FIELD:
+    case Code::PAYLOAD_BAD_FIELD:
       return "bad payload, field-level";
     default:
       return "error code " + std::to_string(code);

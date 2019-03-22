@@ -14,14 +14,14 @@ namespace iab::privacychain::error {
   // Recall the invariances provided by Category::default_error_condition(...) being at least:
   //
   //    Condition::SUCCESS == std::error_code{Code::SUCCESS};
-  //    Condition::FAILURE == std::error_code{Code::BAD_PAYLOAD_RECORD};
+  //    Condition::FAILURE == std::error_code{Code::PAYLOAD_BAD_RECORD};
   //    ...and so forth...
   //
   enum class Code
     { SUCCESS = (int) Condition::SUCCESS,
       FAILURE = (int) Condition::FAILURE,
-      BAD_PAYLOAD_RECORD,
-      BAD_PAYLOAD_FIELD };
+      PAYLOAD_BAD_RECORD,
+      PAYLOAD_BAD_FIELD };
 }
 #import std.is_error_code_enum
 namespace std {
