@@ -1,0 +1,81 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+namespace iab::privacychain::constructor {
+  //
+  // Process an argument for the constructor.
+  // This is an implementation detail of the nearby generate(...) function
+  // It produces a type-indexed version modulation of to_string(...)
+  //
+  // Usage:
+  //
+  //   see generate(..)
+  //
+  struct Arguments;
+}
+#endiv
+#divert <hpp>
+#import std.to_string
+namespace iab::privacychain::constructor {
+  namespace packaging::to_string::function {
+    using std::to_string; // packaged for later importation
+  }
+}
+#import iab.privacychain.constructor.generate
+#import json.Value
+#import std.string
+class iab::privacychain::constructor::Arguments {
+  template<typename... TYPES> friend auto constructor::generate(TYPES const &...) -> std::string;
+  inline explicit Arguments(/*[[inout]]*/ json::Value &);
+  json::Value &array;
+public:
+  // A candidate for specialization when the default to_string
+  template<typename TYPE> inline static auto stringify(TYPE const &) -> std::string;
+  inline auto append() -> void { }
+  template<typename FIRST, typename... REST> inline auto append(FIRST const &, REST const &...) -> void;
+};
+#forward iab.privacychain.Record
+namespace iab::privacychain::constructor {
+  template<> inline auto Arguments::stringify<Record>(Record const &) -> std::string;
+}
+#endiv
+#divert <ipp>
+iab::privacychain::constructor::Arguments::Arguments(json::Value &array)
+  : array{array}
+{ }
+template<typename TYPE> auto iab::privacychain::constructor::Arguments::stringify(TYPE const &candidate) -> std::string {
+  using namespace packaging::to_string::function;
+  return to_string(candidate); // or else ADL will find it.
+}
+template<typename FIRST, typename... REST> auto iab::privacychain::constructor::Arguments::append(FIRST const &first, REST const &...rest) -> void {
+  array.append(stringify(first));
+  append(rest...);
+}
+#endiv
+#divert <cpp>
+#import iab.privacychain.error.Code
+#import iab.privacychain.Record
+#import iab.privacychain.record.Visitor
+#import json.Value
+#import json.as
+#import tunitas.base64.Exception
+#import tunitas.base64.Encoder // [[FIXTHIS]] remove this in lieu of the iterator interface of encode(...)
+#import tunitas.base64.encode // [[FIXTHIS]] one day this will have an iterator interface
+#import std.error_code
+#import std.visit
+template<> auto iab::privacychain::constructor::Arguments::stringify<iab::privacychain::Record>(Record const &record) -> std::string try {
+  auto const visitor = record::Visitor{[](auto const &) -> std::string { throw std::error_code{error::Code::RECORD_UNENCODABLE}; },
+                                       [](record::Json const &r) -> std::string { return json::as<std::string>(r); },
+                                       [](record::Bytes const &r) -> std::string {
+                                         // [[FIXTHIS]] whereas tunitas::base64::encode(...) does not have either an iterator interface or a std::byte interface, we have to open code it
+                                         using namespace tunitas::base64;
+                                         Encoder enc;
+                                         for (auto b : r) { enc.put(char(b)); }
+                                         enc.put(Encoder::PAD8);
+                                         return enc.finalize();
+                                       }};
+  return std::visit(visitor, record);
+} catch (tunitas::base64::Exception const &) {
+  throw std::error_code{error::Code::RECORD_UNENCODABLE};
+}
+#endiv

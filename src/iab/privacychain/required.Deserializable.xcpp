@@ -6,8 +6,7 @@
 #include <hpp/iab.privacychain.traits.Is_Deserializable> // need the complete type and all the specializations
 namespace iab::privacychain::required {
   //
-  // Is this TYPE a return type of deserializable(...)?
-  //
+  // Is this TYPE a return type of deserializable<...>(...)?
   // The answer is delegated to a traits.
   //
   // Usage:
@@ -20,14 +19,14 @@ namespace iab::privacychain::required {
 #divert <cpp>
 // this is test code
 #import std.string
-#import iab.privacychain.time.Point
 #import json.Value
+#import iab.privacychain.History
 #import iab.privacychain.transaction.Identifier
 namespace iab::privacychain {
-  static_assert(required::Deserializable<bool>);
-  static_assert(required::Deserializable<std::string>);
-  static_assert(required::Deserializable<time::Point>);
-  static_assert(required::Deserializable<json::Value>);
-  static_assert(required::Deserializable<transaction::Identifier>);
+  static_assert(!required::Deserializable<bool>);
+  static_assert(!required::Deserializable<time::Point>);
+  static_assert(!required::Deserializable<json::Value>);
+  static_assert(!required::Deserializable<transaction::Identifier>);
+  static_assert(required::Deserializable<History>);
 }
 #endiv

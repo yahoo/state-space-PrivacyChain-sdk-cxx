@@ -39,6 +39,7 @@ namespace iab::privacychain {
 }
 #endiv
 #divert <ipp>
+#import std.move
 template<typename TYPE> auto iab::privacychain::exceptional(Outcome<TYPE> in) -> TYPE {
   if (!ok(in)) {
     throw error_code(in);

@@ -26,7 +26,12 @@ lib_libiab_privacychain_la_CRA = $(lib_libiab_privacychain_la_CURRENT):$(lib_lib
 
 lib_libiab_privacychain_la = lib/libiab-privacychain.la
 lib_libiab_privacychain_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET) -version-info $(lib_libiab_privacychain_la_CRA)
-lib_libiab_privacychain_la_LIBADD = -lhyperledger-fabric
+lib_libiab_privacychain_la_LIBADD = \
+  $(lib_libiab_privacychain_schema_la) \
+  $(lib_libiab_privacychain_history_la) \
+  $(lib_libiab_want.la) \
+  -lhyperledger-fabric \
+  $(end)
 lib_libiab_privacychain_la_MODULES = $(call TF_SOURCEStoMODULES, $(lib_libiab_privacychain_la_SOURCES))
 lib_libiab_privacychain_la_SOURCES = \
   obj/src/iab/privacychain/namespace.cpp \
@@ -35,21 +40,15 @@ lib_libiab_privacychain_la_SOURCES = \
   obj/src/iab/privacychain/api.v1.cpp \
   obj/src/iab/privacychain/chaincode.v1.cpp \
   \
+  obj/src/iab/privacychain/constructor.Arguments.cpp \
+  obj/src/iab/privacychain/constructor.generate.cpp \
+  \
   obj/src/iab/privacychain/error.Code.cpp \
   obj/src/iab/privacychain/error.Condition.cpp \
   obj/src/iab/privacychain/error.Category.cpp \
   obj/src/iab/privacychain/error.category.cpp \
   \
   obj/src/iab/privacychain/detail.dehex.cpp \
-  \
-  obj/src/iab/privacychain/deserialize.cpp \
-  obj/src/iab/privacychain/deserialize.string.cpp \
-  obj/src/iab/privacychain/deserialize.History.cpp \
-  obj/src/iab/privacychain/deserialize.bool.cpp \
-  obj/src/iab/privacychain/deserialize.json.Value.cpp \
-  obj/src/iab/privacychain/deserialize.time.Point.cpp \
-  obj/src/iab/privacychain/deserialize.transaction.Identifier.cpp \
-  obj/src/iab/privacychain/deserialize.ALL.cpp \
   \
   obj/src/iab/privacychain/Operation.cpp \
   obj/src/iab/privacychain/operation.Basis.cpp \
@@ -60,16 +59,19 @@ lib_libiab_privacychain_la_SOURCES = \
   obj/src/iab/privacychain/Key.cpp \
   obj/src/iab/privacychain/key.Key.cpp \
   obj/src/iab/privacychain/key.Generator.cpp \
-  obj/src/iab/privacychain/Value.cpp \
   obj/src/iab/privacychain/Function.cpp \
   obj/src/iab/privacychain/function.Function.cpp \
+  obj/src/iab/privacychain/Record.cpp \
+  obj/src/iab/privacychain/record.Visitor.cpp \
   \
   obj/src/iab/privacychain/Outcome.cpp \
   obj/src/iab/privacychain/Success.cpp \
   \
   obj/src/iab/privacychain/required.cpp \
   obj/src/iab/privacychain/required.Deserializable.cpp \
+  obj/src/iab/privacychain/required.Dejsonizable.cpp \
   obj/src/iab/privacychain/traits.Is_Deserializable.cpp \
+  obj/src/iab/privacychain/traits.Is_Dejsonizable.cpp \
   \
   obj/src/iab/privacychain/time.Clock.cpp \
   obj/src/iab/privacychain/time.Duration.cpp \
@@ -82,7 +84,6 @@ lib_libiab_privacychain_la_SOURCES = \
   obj/src/iab/privacychain/transaction.identifier.from_string.cpp \
   obj/src/iab/privacychain/transaction.identifier.From_String.cpp \
   $(end)
-$(info DEBUG $(TF_V_DC) $(call TF_DISAGGREGATE, $(lib_libiab_privacychain_la_SOURCES)))
 $(scold_cxxdir)/iab/privacychain/dependencies.mk:
 	$(TF_V_DC) $(call TF_DISAGGREGATE, $(lib_libiab_privacychain_la_SOURCES))
 	$(TF_V_DONE) test -e $@

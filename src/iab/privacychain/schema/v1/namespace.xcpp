@@ -1,0 +1,10 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+namespace iab::privacychain::schema::v1 {
+  //
+  // The Version 1 Schema is json::Value
+  // Unchecked & uninterpreted.  Good luck with it.
+  //
+}
+#endiv

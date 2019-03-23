@@ -39,7 +39,7 @@ namespace iab::privacychain::api::v1 {
 #import iab.privacychain.Outcome
 #import iab.privacychain.Success
 #import iab.privacychain.Key
-#import iab.privacychain.Value
+#import iab.privacychain.Record
 #import iab.privacychain.Operation
 #import iab.privacychain.History
 namespace iab::privacychain::api::v1 {
@@ -56,7 +56,7 @@ namespace iab::privacychain::api::v1 {
   //      cerr << "fail: " << ec.message() << '\n';
   //   }
   //
-  inline auto get(Operation<QUERY> &, Key const &) -> Outcome<Value>;
+  inline auto get(Operation<QUERY> &, Key const &) -> Outcome<Record>;
   inline auto history(Operation<QUERY> &, Key const &) -> Outcome<History>;
 }
 #import iab.privacychain.Operation
@@ -64,8 +64,8 @@ namespace iab::privacychain::api::v1 {
   //
   // Usage: same (you have the idea, surely).
   //
-  inline auto get(Operation<INVOKE> &, Key const &) -> Outcome<Value>;
-  inline auto set(Operation<INVOKE> &, Key const &, Value const &) -> Success;
+  inline auto get(Operation<INVOKE> &, Key const &) -> Outcome<Record>;
+  inline auto set(Operation<INVOKE> &, Key const &, Record const &) -> Success;
   inline auto history(Operation<INVOKE> &, Key const &) -> Outcome<History>;
 }
 #endiv
@@ -74,25 +74,25 @@ namespace iab::privacychain::api {
   using namespace std::string_literals; // everyone gets this
 }
 namespace iab::privacychain::api {
-  auto v1::get(Operation<QUERY> &op, Key const &key) -> Outcome<Value> {
+  auto v1::get(Operation<QUERY> &op, Key const &key) -> Outcome<Record> {
     return op.run(GET, key);
   }
-  auto v1::get(Operation<INVOKE> &op, Key const &key) -> Outcome<Value> {
+  auto v1::get(Operation<INVOKE> &op, Key const &key) -> Outcome<Record> {
     return op.run(GET, key);
   }
 }
 namespace iab::privacychain::api {
-  auto v1::set(Operation<INVOKE> &op, Key const &key, Value const &value) -> Success {
+  auto v1::set(Operation<INVOKE> &op, Key const &key, Record const &value) -> Success {
     return op.run(SET, key, value);
   }
 }
-#import iab.privacychain.deserialize.History
+#import iab.privacychain.history.v1.deserialize
 namespace iab::privacychain::api {
   auto v1::history(Operation<QUERY> &op, Key const &key) -> Outcome<History> {
-    return deserialize<History>(op.run(HISTORY, key));
+    return history::v1::deserialize(op.run(HISTORY, key));
   }
   auto v1::history(Operation<INVOKE> &op, Key const &key) -> Outcome<History> {
-    return deserialize<History>(op.run(HISTORY, key));
+    return history::v1::deserialize(op.run(HISTORY, key));
   }
 }
 #endiv

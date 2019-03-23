@@ -1,0 +1,44 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+#import iab.privacychain.time.Point
+#import json.Value
+#import std.string
+namespace iab::privacychain::traits {
+  //
+  // Is this TYPE a return type of dejsonizable(...)?
+  // Most are not.
+  //
+  template<typename TYPE> struct Is_Dejsonizable;
+  template<> struct Is_Dejsonizable<bool>;
+  template<> struct Is_Dejsonizable<std::string>;
+  template<> struct Is_Dejsonizable<time::Point>;
+  template<> struct Is_Dejsonizable<json::Value>;
+  // Specializations for privacychain types are with the respective class name declarations; e.g. transaction::History
+}
+#endiv
+#divert <hpp>
+#import std.false_type
+namespace iab::privacychain {
+  template<typename TYPE> struct traits::Is_Dejsonizable : public std::false_type {};
+}
+namespace iab::privacychain::traits {
+  // Specialization for the iab::privacychain types are with their declarations.
+  // Specializations for general and non-iab::privacychain types are here
+  template<> struct Is_Dejsonizable<bool> : public std::true_type { };
+  template<> struct Is_Dejsonizable<std::string> : public std::true_type { };
+  template<> struct Is_Dejsonizable<time::Point> : public std::true_type { };
+  template<> struct Is_Dejsonizable<json::Value> : public std::true_type { };
+}
+#endiv
+#divert <cpp>
+// this is test code
+#import iab.privacychain.History
+namespace iab::privacychain {
+  static_assert(traits::Is_Dejsonizable<bool>::value);
+  static_assert(traits::Is_Dejsonizable<time::Point>::value);
+  static_assert(traits::Is_Dejsonizable<json::Value>::value);
+  static_assert(traits::Is_Dejsonizable<transaction::Identifier>::value);
+  static_assert(!traits::Is_Dejsonizable<History>::value);
+}
+#endiv

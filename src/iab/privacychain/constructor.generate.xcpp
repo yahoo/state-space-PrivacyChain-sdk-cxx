@@ -1,0 +1,41 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <hpp>
+#import std.string
+namespace iab::privacychain::constructor {
+  //
+  // Generate a constructor call from the flexible types given
+  //
+  // The "constructor" is what the Hyperledger Fabric crew calls
+  //   "remote procedure call"
+  //   "stored procedure call"
+  //   "chain code call"
+  //
+  // Schema:
+  //
+  //   { "Args" : [ ... values... ] }
+  //
+  // Usage:
+  //
+  //   auto ctor = generate("init", 123456);
+  //   auto ctor = generate("set", 123456, "fd28e534850d425c93e5e145452ba455");
+  //   auto ctor = generate("get", 123456);
+  //   auto ctor = generate("history", 123456);
+  // 
+  template<typename... TYPES> inline auto generate(TYPES const &...) -> std::string;
+}
+#endiv
+#divert <ipp>
+#import iab.privacychain.constructor.Arguments
+#import json.as
+#import json.Value
+namespace iab::privacychain {
+  template<typename... TYPES> auto constructor::generate(TYPES const &...items) -> std::string {
+    json::Value args;
+    auto &array = args.append("Args"); // [[FIXTHIS]] "Args" is documented where?
+    Arguments arguments{array};
+    arguments.append(items...);
+    return json::as<std::string>(array);
+  }
+}
+#endiv

@@ -1,0 +1,36 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+#import iab.privacychain.required // not yet matryoshka
+#import iab.privacychain.traits.Is_Dejsonizable
+#include <hpp/iab.privacychain.traits.Is_Dejsonizable> // need the complete type and all the specializations
+namespace iab::privacychain::required {
+  //
+  // Is this TYPE a return type of dejsonizable(...)?
+  // The answer is delegated to a traits.
+  //
+  // Usage:
+  //
+  //   template<required::Dejsonizable RESULT> auto dejsonizable(...arguments...) -> RESULT;
+  //
+  template<typename TYPE> concept bool Dejsonizable = traits::Is_Dejsonizable<TYPE>::value;
+}
+#endiv
+#divert <cpp>
+// this is test code
+#import std.string
+#import iab.privacychain.time.Point
+#import json.Value
+#import iab.privacychain.transaction.Identifier
+#import iab.privacychain.History
+namespace iab::privacychain {
+  static_assert(required::Dejsonizable<bool>);
+  static_assert(required::Dejsonizable<std::string>);
+  static_assert(required::Dejsonizable<time::Point>);
+  static_assert(required::Dejsonizable<json::Value>);
+  static_assert(required::Dejsonizable<transaction::Identifier>);
+  static_assert(!traits::Is_Dejsonizable<char const *>::value);
+  static_assert(!traits::Is_Dejsonizable<History>::value);
+  static_assert(!required::Dejsonizable<History>);
+}
+#endiv

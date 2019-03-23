@@ -28,3 +28,15 @@ namespace iab::privacychain::function {
   using Function = std::basic_string<char, Traits>;
 }
 #endiv
+#divert <hpp>
+#import std.to_string
+namespace iab::privacychain::function {
+  inline auto to_string(Function) -> std::string;
+}
+#endiv
+#divert <ipp>
+auto iab::privacychain::function::to_string(Function f) -> std::string {
+  // [[FIXTHIS]] this is a gratuitous copy (of something small); but there is no way to move-semantic between different string-by-traits
+  return std::string{f.begin(), f.end()};
+}
+#endiv

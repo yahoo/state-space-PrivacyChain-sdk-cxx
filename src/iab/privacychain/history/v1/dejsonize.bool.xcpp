@@ -1,10 +1,10 @@
 // This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
 // Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
 #divert <hpp>
-#import iab.privacychain.deserialize
-namespace iab::privacychain {
+#import iab.privacychain.history.v1.dejsonize
+namespace iab::privacychain::history::v1 {
   //
-  // Deserialize the isDelete boolean blob
+  // Dejsonize the isDelete boolean blob
   // They seem to have chosen to use alpha as well as numeric representations.
   // See acxiom_cc.go v1.0
   //
@@ -16,7 +16,7 @@ namespace iab::privacychain {
   //       ...etc...
   //   }
   //
-  template<> auto deserialize<bool>(Outcome<Value>) -> Outcome<bool>;
+  template<> auto dejsonize<bool>(Outcome<json::Value>) -> Outcome<bool>;
 }
 #endiv
 #divert <cpp>
@@ -24,7 +24,7 @@ namespace iab::privacychain {
 #import std.error_code
 #import json.as
 #import json.exception.Generic
-template<> auto iab::privacychain::deserialize<bool>(Outcome<Value> in) -> Outcome<bool> {
+template<> auto iab::privacychain::history::v1::dejsonize<bool>(Outcome<json::Value> in) -> Outcome<bool> {
   using Result = Outcome<bool>;
   if (!ok(in)) {
     return Result{error_code(in)};

@@ -21,7 +21,11 @@ namespace iab::privacychain::error {
     { SUCCESS = (int) Condition::SUCCESS,
       FAILURE = (int) Condition::FAILURE,
       PAYLOAD_BAD_RECORD,
-      PAYLOAD_BAD_FIELD };
+      PAYLOAD_BAD_FIELD,
+      RECORD_UNENCODABLE,
+      RECORD_UNDECODABLE,
+      TRANSACTION_READ,
+      TRANSACTION_WRITE };
 }
 #import std.is_error_code_enum
 namespace std {

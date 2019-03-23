@@ -36,24 +36,39 @@ namespace iab::privacychain::operation {
   template<> class Operation<QUERY> : public Basis {
     using ancestor = Basis;
   public:
-    inline explicit Operation(Context const &);
-    auto run(Function const &, Key const &) -> Outcome<Value> override;
-    auto run(Function const &, Key const &, Value const &) -> Success override;
+    inline explicit Operation(Context &);
+    auto run(Function const &, Key const &) -> Outcome<Record> override;
+    auto run(Function const &, Key const &, Record const &) -> Success override;
   };
 }
 #endiv
 #divert <ipp>
 namespace iab::privacychain::operation {
-  Operation<QUERY>::Operation(Context const &context) : ancestor{context} { }
+  Operation<QUERY>::Operation(Context &context) : ancestor{context} { }
 }
 #endiv
 #divert <cpp>
+#import hyperledger.fabric.peer.chaincode.query
+#import iab.privacychain.constructor.generate
+#import std.vector
+#import std.byte
 namespace iab::privacychain::operation {
-  auto Operation<QUERY>::run(Function const &function, Key const &key) -> Outcome<Value> {
-#warning WRITETHIS auto Operation<QUERY>::run(Function const &function, Key const &key) -> Outcome<Value>
+  auto Operation<QUERY>::run(Function const &function, Key const &key) -> Outcome<Record> try {
+    using Result = Outcome<Record>;
+    auto called = hyperledger::fabric::peer::chaincode::query<std::vector<std::byte>>(context, constructor::generate(function, key));
+    if (!ok(called)) {
+      return Result{error_code(called)};
+    }
+#warning WRITETHIS parse the versioned schema and materialize a fully formed "latest" Value.
+    return Result{value(std::move(called))};
+  } catch (std::error_code const &ec) {
+    return Outcome<Record>{ec};
   }
-  auto Operation<QUERY>::run(Function const &function, Key const &key, Value const &value) -> Success {
-#warning WRITETHIS auto Operation<QUERY>::run(Function const &function, Key const &key, Value const &value) -> Success
+  auto Operation<QUERY>::run(Function const &function, Key const &key, Record const &record) -> Success try {
+    auto called = hyperledger::fabric::peer::chaincode::query(context, constructor::generate(function, key, record));
+    return !ok(called) ? Success{error_code(called)} : Success{SUCCESS};
+  } catch (std::error_code const &ec) {
+    return Success{ec};
   }
 }
 #endiv

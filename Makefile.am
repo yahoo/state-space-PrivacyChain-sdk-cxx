@@ -58,6 +58,8 @@ clean-dependencies::
 clean-local:: clean-dependencies
 
 include src/iab/privacychain/Makefrag.am
+include src/iab/privacychain/history/Makefrag.am
+include src/iab/privacychain/schema/Makefrag.am
 include src/tests/unit/Makefrag.am
 include src/want/Makefrag.am
 
@@ -68,6 +70,8 @@ lib_LTLIBRARIES = \
   $(end)
 noinst_LTLIBRARIES = \
   $(lib_libwant_la) \
+  $(lib_libiab_privacychain_history_la) \
+  $(lib_libiab_privacychain_schema_la) \
   $(end)
 check_PROGRAMS = \
   $(check_bin_unit) \

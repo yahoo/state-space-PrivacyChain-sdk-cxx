@@ -1,11 +1,11 @@
 // This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
 // Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
 #divert <hpp>
-#import iab.privacychain.deserialize
+#import iab.privacychain.history.v1.dejsonize
 #import iab.privacychain.transaction.Identifier
-namespace iab::privacychain {
+namespace iab::privacychain::history::v1 {
   //
-  // Deserialize the transaction identifier, which is a hex-encoded 256-bit number.
+  // Dejsonize the transaction identifier, which is a hex-encoded 256-bit number.
   // See acxiom_cc.go v1.0
   //
   // Specimen:
@@ -17,7 +17,7 @@ namespace iab::privacychain {
   //       ...etc...
   //   }
   //
-  template<> auto deserialize<transaction::Identifier>(Outcome<Value>) -> Outcome<transaction::Identifier>;
+  template<> auto dejsonize<transaction::Identifier>(Outcome<json::Value>) -> Outcome<transaction::Identifier>;
 }
 #endiv
 #divert <cpp>
@@ -26,7 +26,7 @@ namespace iab::privacychain {
 #import iab.privacychain.error.Code
 #import std.error_code
 #import json.exception.Generic
-template<> auto iab::privacychain::deserialize<iab::privacychain::transaction::Identifier>(Outcome<Value> in) -> Outcome<transaction::Identifier> {
+template<> auto iab::privacychain::history::v1::dejsonize<iab::privacychain::transaction::Identifier>(Outcome<json::Value> in) -> Outcome<transaction::Identifier> {
   using Result = Outcome<transaction::Identifier>;
   if (!ok(in)) {
     return Result{error_code(in)};

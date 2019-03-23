@@ -72,9 +72,11 @@ eval \
     ${with_temerarious_flagship:+with_temerarious_flagship=$with_temerarious_flagship} \
     ./buildconf &&
 ./configure \
-    --enable-configure-verbose \
-    --disable-mock-build \
     ${prefix:+--prefix=$prefix} \
+    --disable-mock-build \
+    ${enable_configure_verbose:+--enable-dependency-tracking=$enable_configure_verbose} \
+    ${enable_configure_debug:+--enable-dependency-tracking=$enable_configure_debug} \
+    ${enable_dependency_tracking:+--enable-dependency-tracking=$enable_dependency_tracking} \
     ${with_scold_nearby:+--with-nearby=$with_scold_nearby} ${with_external:+--with-external=$with_external} \
     ${with_submodules:+--with-submodules=$with_submodules} \
     ${with_hypogeal_twilight:+--with-hypogeal-twilight=$with_hypogeal_twilight} \

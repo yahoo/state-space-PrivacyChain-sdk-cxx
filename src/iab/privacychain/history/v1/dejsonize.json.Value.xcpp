@@ -1,11 +1,11 @@
 // This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
 // Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
 #divert <hpp>
-#import iab.privacychain.deserialize
+#import iab.privacychain.history.v1.dejsonize
 #import json.Value
-namespace iab::privacychain {
+namespace iab::privacychain::history::v1 {
   //
-  // Deserialize the payload (a json::Value), which is a base32-encoded json string.
+  // Dejsonize the payload (a json::Value), which is a base64-encoded JSON string.
   // Why was base32 chosen?  Because, that's why (i.e. no real technical reason).
   //                         ... and cause never was the reason for the evening, or the Tropic of Sir Gallahad.
   // See acxiom_cc.go v1.0
@@ -36,11 +36,10 @@ namespace iab::privacychain {
   //     buffer.WriteString(string(response.Value))
   //   }
   //
-  template<> auto deserialize<json::Value>(Outcome<Value>) -> Outcome<json::Value>;
+  template<> auto dejsonize<json::Value>(Outcome<json::Value>) -> Outcome<json::Value>;
 }
 #endiv
 #divert <cpp>
-#import iab.privacychain.deserialize
 #import iab.privacychain.error.Code
 #import tunitas.base64.decode
 #import tunitas.base64.Exception
@@ -50,15 +49,14 @@ namespace iab::privacychain {
 #import json.parse
 #import json.to
 #import json.failure.constants
-template<> auto iab::privacychain::deserialize<json::Value>(Outcome<Value> in) -> Outcome<json::Value> {
+template<> auto iab::privacychain::history::v1::dejsonize<json::Value>(Outcome<json::Value> in) -> Outcome<json::Value> {
   using Result = Outcome<json::Value>;
   if (!ok(in)) {
     return Result{error_code(in)};
   }
+#warning WRITETHIS need a record versioning indicator; v1, v2, v3
+#warning WRITETHIS need a more efficient storage scheme than "base64 of JSON" and JSON being schemaless.
   try {
-    //
-    // [[FIXTHIS]] need a record versioning indicator; v1, v2, v3
-    // [[FIXTHIS]] need a more efficient storage scheme than "base64 of JSON" and JSON being schemaless.
     //
     // From acxiom_cc.go v1.0
     //

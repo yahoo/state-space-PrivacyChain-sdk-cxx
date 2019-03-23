@@ -1,0 +1,19 @@
+# Not so obviously, this is a GNU -*- Makefile -*- which is included by automake, not by GNU make
+# Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+
+lib_libiab_privacychain_schema_la = lib/libiab-privacychain-schema.la
+lib_libiab_privacychain_schema_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
+lib_libiab_privacychain_schema_la_LIBADD = 
+lib_libiab_privacychain_schema_la_MODULES = $(call TF_SOURCEStoMODULES, $(lib_libiab_privacychain_schema_la_SOURCES))
+lib_libiab_privacychain_schema_la_SOURCES = \
+  obj/src/iab/privacychain/schema/namespace.cpp \
+  obj/src/iab/privacychain/schema/v0/namespace.cpp \
+  obj/src/iab/privacychain/schema/v1/namespace.cpp \
+  obj/src/iab/privacychain/schema/v2/namespace.cpp \
+  $(end)
+$(scold_cxxdir)/iab/privacychain/schema/dependencies.mk:
+	$(TF_V_DC) $(call TF_DISAGGREGATE, $(lib_libiab_privacychain_schema_la_SOURCES))
+	$(TF_V_DONE) test -e $@
+include $(scold_cxxdir)/iab/privacychain/schema/dependencies.mk
+clean-dependencies::
+	rm -f $(scold_cxxdir)/iab/privacychain/schema/dependencies.mk

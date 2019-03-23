@@ -14,6 +14,8 @@ namespace iab::privacychain::transaction {
   //
   class Identifier;
 }
+#import iab.privacychain.traits.Is_Dejsonizable
+namespace iab::privacychain::traits { template<> struct Is_Dejsonizable<transaction::Identifier>; }
 #endiv
 #divert <hpp>
 namespace iab::privacychain::transaction {
@@ -34,6 +36,8 @@ public:
   Identifier() = default;
   using ancestor::array;
 };
+#import std.true_type
+template<> struct iab::privacychain::traits::Is_Dejsonizable<iab::privacychain::transaction::Identifier> : public std::true_type { };
 #endiv
 #divert <ipp>
 #import std.equal

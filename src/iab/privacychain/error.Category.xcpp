@@ -49,6 +49,14 @@ namespace iab::privacychain::error {
       return "bad payload, record-level";
     case Code::PAYLOAD_BAD_FIELD:
       return "bad payload, field-level";
+    case Code::RECORD_UNENCODABLE:
+      return "the record is unencodable"; // e.g. that schema version has no encoding
+    case Code::RECORD_UNDECODABLE:
+      return "the record is undecodable"; // e.g. bad coding or other
+    case Code::TRANSACTION_READ:
+      return "read transaction failed";
+    case Code::TRANSACTION_WRITE:
+      return "write transation failed";
     default:
       return "error code " + std::to_string(code);
     }

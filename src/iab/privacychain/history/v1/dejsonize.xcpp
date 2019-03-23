@@ -1,0 +1,25 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <hpp>
+#import iab.privacychain.required.Dejsonizable
+#import iab.privacychain.Outcome
+#import json.Value
+namespace iab::privacychain::history::v1 {
+  //
+  // Overloaded on the return type
+  //
+  // Usage:
+  //
+  //   auto des = dejsonize<History>(...stringy_payload...); .............................. maybe not ok(des)
+  //   auto truth = exceptional(dejsonize<bool>(...stringy_payload...)); .................. force the exception
+  //
+  template<required::Dejsonizable RESULT> auto dejsonize(Outcome<json::Value>) -> Outcome<RESULT>;
+}
+#endiv
+#divert <cpp>
+#import iab.privacychain.traits.Is_Dejsonizable
+namespace iab::privacychain::history::v1 {
+  static_assert(traits::Is_Dejsonizable<bool>::value);
+  static_assert(required::Dejsonizable<bool>);
+}
+#endiv

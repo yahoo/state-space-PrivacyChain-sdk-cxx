@@ -1,0 +1,89 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <hpp>
+#import iab.privacychain.History
+#import iab.privacychain.Outcome
+#import iab.privacychain.Record
+namespace iab::privacychain::history::v1 {
+  //
+  // Deserialize the history blob
+  // See acxiom_cc.go v1.0
+  //
+  // Specimen:
+  //
+  //   {"data": [
+  //       {"txId":"2a2bab9a6ce2e022a505df5fa2c4deea94ee843d1463c5b499315d459198bb07", "collectData":PAYLOAD, "timestamp":"2019-03-06 01:35:00.166102034 +0000 UTC", "isDelete":"false"},
+  //       {"txId":"345a58b9ad6fa6d28089a166e4be443a1f25185f7ab32de7f75971466c31fd4d", "collectData":PAYLOAD, "timestamp":"2019-03-06 01:35:39.630594093 +0000 UTC", "isDelete":"false"},
+  //       {"txId":"3f167b4ffdb6f757baa185d4a455b69f2320607df694f5211a03c8cf7d4e6b68", "collectData":PAYLOAD, ...etc... },
+  //       ...etc...
+  //   }
+  //
+  auto deserialize(Outcome<Record>) -> Outcome<History>;
+}
+#endiv
+#divert <cpp>
+#import iab.privacychain.chaincode.v1 // constants
+#import iab.privacychain.error.Code
+#import iab.privacychain.time.Point
+#import iab.privacychain.transaction.Identifier
+#import iab.privacychain.transaction.Record
+#import iab.privacychain.record.Visitor
+#import iab.privacychain.history.v1.dejsonize.ALL
+#import std.error_code
+#import std.move
+#import std.make_unique
+#import std.transform
+#import std.visit
+#import json.failure.constants
+#import json.parse
+#import json.to
+#import json.exception.Generic
+#import tunitas.base64.decode
+#import tunitas.base64.Exception
+auto iab::privacychain::history::v1::deserialize(Outcome<Record> in) -> Outcome<History> try {
+  if (!ok(in)) {
+    return Outcome<History>{error_code(in)};
+  }
+  // If the payload is not an shaped appropriately then these will throw.
+  // See the specimen above.
+  //
+  auto const visitor = record::Visitor{[](record::Bytes &&r) -> record::Bytes { return std::forward<record::Bytes>(r); },
+                                       [](auto &&) -> record::Bytes { throw std::error_code{error::Code::PAYLOAD_BAD_RECORD}; }};
+  auto encoded = std::visit(visitor, value(std::move(in)));
+  auto container = [&encoded]() -> json::Value {
+                     std::string plain;
+                     tunitas::base64::Decoder dec{[&encoded]() -> std::string {
+                                                    // [[FIXTHIS]] this is a gratuitous copy because char != std::byte
+                                                    // Whereas tunitas' base64 decoder does not have an iterator interface or a std::byte interface
+                                                    // we have to hack it this way ... by running transform and copying the bytes into a string.
+                                                    std::string ugly;
+                                                    std::transform(encoded.begin(), encoded.end(), std::back_inserter(ugly), [](std::byte b) -> char { return char(b); });
+                                                    return std::move(ugly);
+                                                  }()};
+                     while ( !dec.eof() ) {
+                       plain.push_back(dec.get<char>());
+                     }
+                     auto parsed = json::parse(json::failure::RETURNING, json::to(json::STRING{}, plain)); // [[FIXTHIS]] another gratuitous copy to get the string typing set up
+                     if (!ok(parsed)) {
+                       throw std::error_code{error::Code::PAYLOAD_BAD_FIELD};
+                     }
+                     return value(std::move(parsed));
+                   }();
+  History history;
+  using namespace chaincode::v1::constants;
+  for (auto const &record : container[DATA]) {
+    auto tx        = exceptional(dejsonize<transaction::Identifier>(record[TXID]));
+    auto collected = exceptional(dejsonize<std::string>(record[COLLECTED]));  // NOT decoding as any particular schema
+    auto stamp     = exceptional(dejsonize<time::Point>(record[STAMP]));
+    auto deleet    = exceptional(dejsonize<bool>(record[DELEET]));
+    history.emplace_back(std::make_unique<transaction::Record>(transaction::Record{std::move(tx), std::move(collected), std::move(stamp), std::move(deleet)}));
+  }
+  return Outcome<History>{std::move(history)};
+} catch (std::error_code const &ec) {
+  return Outcome<History>{ec};
+} catch (json::exception::Generic const &) {
+  return Outcome<History>{std::error_code{error::Code::PAYLOAD_BAD_RECORD}};
+} catch (tunitas::base64::Exception const &) {
+  return Outcome<History>{std::error_code{error::Code::PAYLOAD_BAD_RECORD}};
+}
+#endiv

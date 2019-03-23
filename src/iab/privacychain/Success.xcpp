@@ -18,5 +18,20 @@ namespace iab::privacychain {
   //   }
   //
   using Success = tunitas::outcome::Success;
+  inline constexpr auto SUCCESS = tunitas::outcome::SUCCESS;
+  namespace literal {
+    using Success = std::decay<decltype(std::get<1>(Success{}))>::type;
+  }
+}
+#endiv
+#divert <cpp>
+#import std.is_same
+#import std.error_code
+#import iab.privacychain.Outcome
+namespace iab::privacychain {
+  // Self--check in case the ordering in Outcome<TYPE> changes and get<1>(OUTCOME) is no longer correct
+  static_assert(!std::is_same<std::error_code, literal::Success>::value);
+  // Remind us that this tautology still holds
+  static_assert(std::is_same<Success, Outcome<literal::Success>>::value);
 }
 #endiv

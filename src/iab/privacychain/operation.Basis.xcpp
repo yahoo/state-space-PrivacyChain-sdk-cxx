@@ -27,17 +27,18 @@ namespace iab::privacychain::operation {
 #import iab.privacychain.Success
 #import iab.privacychain.Function
 #import iab.privacychain.Key
-#import iab.privacychain.Value
+#import iab.privacychain.Record
 class iab::privacychain::operation::Basis {
 public:
   using Context = hyperledger::fabric::peer::chaincode::Call;
 protected:
   virtual ~Basis() = default;
-  inline explicit Basis(Context const &context) : context{context} { }
+  inline explicit Basis(Context &context) : context{context} { }
 public:
-  virtual auto run(Function const &name, Key const &key) -> Outcome<Value> = 0;
-  virtual auto run(Function const &name, Key const &key, Value const &value) -> Success = 0;
+  virtual auto run(Function const &, Key const &) -> Outcome<Record> = 0;
+  virtual auto run(Function const &, Key const &, Record const &) -> Success = 0;
 protected:
-  Context const &context;
+  // This needs to be mutable because all the remote procedure calls require mutable context
+  Context &context;
 };
 #endiv

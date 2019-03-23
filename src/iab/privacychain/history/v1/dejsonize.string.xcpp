@@ -1,0 +1,37 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <hpp>
+#import iab.privacychain.history.v1.dejsonize
+#import std.string
+namespace iab::privacychain::history::v1 {
+  //
+  // Dejsonize the PrivacyChain payload blob
+  // See dejsonize<json::Value>(...) for elaborated usage.
+  //
+  // Schema-versioned record decoding occurs higher up.
+  //
+  // Specimen:
+  //
+  //   {"data": [
+  //       {...etc... "collectData":PAYLOAD ...etc... },
+  //       {...etc... "collectData":PAYLOAD ...etc... },
+  //       {...etc... "collectData":PAYLOAD ...etc... },
+  //       ...etc...
+  //   }
+  //
+  template<> inline auto dejsonize<std::string>(Outcome<json::Value>) -> Outcome<std::string>;
+}
+#endiv
+#divert <ipp>
+#import iab.privacychain.error.Code
+#import std.error_code
+#import json.exception.Generic
+#import json.as
+template<> auto iab::privacychain::history::v1::dejsonize<std::string>(Outcome<json::Value> in) -> Outcome<std::string> try {
+  return !ok(in) ? Outcome<std::string>{error_code(in)} : Outcome<std::string>{json::as<std::string>(value(in))};
+} catch (json::exception::Generic const &) {
+  return Outcome<std::string>{std::error_code{error::Code::PAYLOAD_BAD_FIELD}};
+} catch (std::error_code const &ec) {
+  return Outcome<std::string>{ec};
+}
+#endiv

@@ -1,0 +1,27 @@
+# Not so obviously, this is a GNU -*- Makefile -*- which is included by automake, not by GNU make
+# Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+
+lib_libiab_privacychain_history_la = lib/libiab-privacychain-history.la
+lib_libiab_privacychain_history_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET)
+lib_libiab_privacychain_history_la_LIBADD = 
+lib_libiab_privacychain_history_la_MODULES = $(call TF_SOURCEStoMODULES, $(lib_libiab_privacychain_history_la_SOURCES))
+lib_libiab_privacychain_history_la_SOURCES = \
+  obj/src/iab/privacychain/history/namespace.cpp \
+  obj/src/iab/privacychain/history/v1/namespace.cpp \
+  \
+  obj/src/iab/privacychain/history/v1/deserialize.cpp \
+  \
+  obj/src/iab/privacychain/history/v1/dejsonize.cpp \
+  obj/src/iab/privacychain/history/v1/dejsonize.bool.cpp \
+  obj/src/iab/privacychain/history/v1/dejsonize.json.Value.cpp \
+  obj/src/iab/privacychain/history/v1/dejsonize.string.cpp \
+  obj/src/iab/privacychain/history/v1/dejsonize.time.Point.cpp \
+  obj/src/iab/privacychain/history/v1/dejsonize.transaction.Identifier.cpp \
+  obj/src/iab/privacychain/history/v1/dejsonize.ALL.cpp \
+  $(end)
+$(scold_cxxdir)/iab/privacychain/history/dependencies.mk:
+	$(TF_V_DC) $(call TF_DISAGGREGATE, $(lib_libiab_privacychain_history_la_SOURCES))
+	$(TF_V_DONE) test -e $@
+include $(scold_cxxdir)/iab/privacychain/history/dependencies.mk
+clean-dependencies::
+	rm -f $(scold_cxxdir)/iab/privacychain/history/dependencies.mk

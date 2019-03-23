@@ -17,8 +17,10 @@ check_bin_unit_SOURCES = \
   obj/src/tests/unit/main.cpp \
   obj/src/tests/unit/namespace.cpp \
   obj/src/tests/unit/api.Fixture.cpp \
+  obj/src/tests/unit/history.Fixture.cpp \
   obj/src/tests/unit/iab.Fixture.cpp \
   obj/src/tests/unit/privacychain.Fixture.cpp \
+  obj/src/tests/unit/schema.Fixture.cpp \
   obj/src/tests/unit/want.Fixture.cpp \
   $(end)
 $(scold_cxxdir)/tests/unit/dependencies.mk:
