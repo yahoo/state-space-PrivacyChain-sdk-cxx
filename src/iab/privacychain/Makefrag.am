@@ -26,11 +26,17 @@ lib_libiab_privacychain_la_CRA = $(lib_libiab_privacychain_la_CURRENT):$(lib_lib
 
 lib_libiab_privacychain_la = lib/libiab-privacychain.la
 lib_libiab_privacychain_la_LDFLAGS = $(PACKAGE_LDFLAGS_SET) -version-info $(lib_libiab_privacychain_la_CRA)
+# find the subsystem declarations in configure.ac driving the -l and -l*-module mentions
 lib_libiab_privacychain_la_LIBADD = \
   $(lib_libiab_privacychain_schema_la) \
   $(lib_libiab_privacychain_history_la) \
-  $(lib_libiab_want.la) \
+  $(lib_libwant.la) \
   -lhyperledger-fabric \
+  -ltunitas \
+  -ljson-module \
+  -lnonstd-module \
+  -lstring-module \
+  -lsys-posix-module \
   $(end)
 lib_libiab_privacychain_la_MODULES = $(call TF_SOURCEStoMODULES, $(lib_libiab_privacychain_la_SOURCES))
 lib_libiab_privacychain_la_SOURCES = \

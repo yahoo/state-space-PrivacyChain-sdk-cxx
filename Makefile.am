@@ -42,6 +42,8 @@ INSTALLATION_AREAS = \
   $(nonstd_jsoncpp_prefix) \
   $(std_scold_prefix) \
   $(std_tunitas_prefix) \
+  $(std_hyperledger_fabric_prefix) \
+  $(std_iab_privacychain_prefix) \
   $(end)
 
 default: all
@@ -95,7 +97,7 @@ LOADPATH   = $(LOADPATHPATH_SCOLD_MODULES)
 Makefile_COMPILER_CPPFLAGS_SET =
 Makefile_COMPILER_CFLAGS_SET   = -Wall @CFLAGS_gcc@   @CFLAGS_gdb@
 Makefile_COMPILER_CXXFLAGS_SET = -Wall @CXXFLAGS_gcc@ @CXXFLAGS_gdb@
-Makefile_COMPILER_LDFLAGS_SET  = -Wall @LDFLAGS_gcc@  @LDFLAGS_gdb@
+Makefile_COMPILER_LDFLAGS_SET  = -Wall @LDFLAGS_gcc@  @LDFLAGS_gdb@ @libstd_filesystem@
 
 Makefile_nonstd_PACKAGE_CPPFLAGS_SET = @usr_local_CPPFLAGS@
 Makefile_nonstd_PACKAGE_CFLAGS_SET   = @usr_local_CFLAGS@

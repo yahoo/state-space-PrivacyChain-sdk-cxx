@@ -72,5 +72,6 @@ TF_PROG_DC
 
 TF_CHECK_CPPUNIT
 TF_CHECK_JSONCPP
+TF_CHECK_STD_FILESYSTEM dnl get @libstd_filesystem@ for Makefile.am
 
 TF_FINALIZE

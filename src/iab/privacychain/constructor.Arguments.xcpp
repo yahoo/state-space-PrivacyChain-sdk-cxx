@@ -36,7 +36,7 @@ public:
 };
 #forward iab.privacychain.Record
 namespace iab::privacychain::constructor {
-  template<> inline auto Arguments::stringify<Record>(Record const &) -> std::string;
+  template<> auto Arguments::stringify<Record>(Record const &) -> std::string;
 }
 #endiv
 #divert <ipp>

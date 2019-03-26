@@ -2,10 +2,8 @@
 # Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
 check_bin_unit = check/bin/unit
 check_bin_unit_LDADD = \
+  $(lib_libiab_privacychain_la) \
   $(lib_libwant_la) \
-  $(end)
-check_bin_unit_LDADD = \
-  -ltunitas \
   -lrigging-bench-module \
   $(end)
 # Reminder: autotools does not put $(AM_LDFLAGS) into check_bin_unit_LDFLAGS, like it does with CPPFLAGS and CXXFLAGS
