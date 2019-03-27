@@ -1,0 +1,64 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+namespace tests::unit::record { class Fixture; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import iab.privacychain.Record
+#import cppunit.test.Fixture
+class tests::unit::record::Fixture : public cppunit::test::Fixture {
+public:
+  using Subject = ::iab::privacychain::Record;
+  auto test_none() -> void;
+  auto test_bytes() -> void;
+  auto test_json() -> void;
+  auto test_tcf_v1() -> void;
+  static auto suite() -> cppunit::Test *;
+};
+#endiv
+#divert <cpp>
+auto tests::unit::record::Fixture::test_none() -> void {
+  Subject none; 
+  none = none;
+  CPPUNIT_ASSERT(true);
+}
+#import std.move
+#import std.vector
+#import std.byte
+auto tests::unit::record::Fixture::test_bytes() -> void {
+  namespace record = ::iab::privacychain::record;
+  auto specimen = record::Bytes{};
+  Subject subject{std::move(specimen)};
+  subject = subject;
+  CPPUNIT_ASSERT(true);
+}
+#import json.Value
+auto tests::unit::record::Fixture::test_json() -> void {
+  namespace record = ::iab::privacychain::record;
+  auto specimen = record::Json{};
+  Subject subject{std::move(specimen)};
+  subject = subject;
+  CPPUNIT_ASSERT(true);
+}
+auto tests::unit::record::Fixture::test_tcf_v1() -> void {
+  namespace record = ::iab::privacychain::record;
+  auto specimen = record::tcf::V1{};
+  Subject subject{std::move(specimen)};
+  subject = subject;
+  CPPUNIT_ASSERT(true);
+}
+#import unit.rigging.suite.Stream
+#import unit.rigging.suite.call
+#import unit.rigging.suite.add
+auto tests::unit::record::Fixture::suite() -> cppunit::Test * {
+  using namespace ::unit::rigging::suite;
+  Stream series("record");
+  series << call("none", &Fixture::test_none)
+         << call("bytes", &Fixture::test_bytes)
+         << call("json", &Fixture::test_json)
+         << call("tcf.v1", &Fixture::test_tcf_v1)
+    ;
+  return series.release();
+}
+#endiv

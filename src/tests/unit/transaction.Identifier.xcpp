@@ -1,0 +1,49 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+namespace tests::unit::transaction { class Identifier; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+class tests::unit::transaction::Identifier : public cppunit::test::Fixture {
+public:
+  auto test_constructor() -> void;
+  auto test_from_string() -> void;
+  auto test_operator_eq() -> void;
+  auto test_operator_ne() -> void;
+  static auto suite() -> cppunit::Test *;
+};
+#endiv
+#divert <cpp>
+#import iab.privacychain.transaction.Identifier
+auto tests::unit::transaction::Identifier::test_constructor() -> void {
+#warning WRITETHIS auto tests::unit::transaction::Identifier::test_constructor() -> void
+  CPPUNIT_ASSERT(true);
+}
+auto tests::unit::transaction::Identifier::test_from_string() -> void {
+#warning WRITETHIS auto tests::unit::transaction::Identifier::test_from_string() -> void
+  CPPUNIT_ASSERT(true);
+}
+auto tests::unit::transaction::Identifier::test_operator_eq() -> void {
+#warning WRITETHIS auto tests::unit::transaction::Identifier::test_operator_eq() -> void
+  CPPUNIT_ASSERT(true);
+}
+auto tests::unit::transaction::Identifier::test_operator_ne() -> void {
+#warning WRITETHIS auto tests::unit::transaction::Identifier::test_operator_ne() -> void
+  CPPUNIT_ASSERT(true);
+}
+#import unit.rigging.suite.Stream
+#import unit.rigging.suite.call
+#import unit.rigging.suite.add
+auto tests::unit::transaction::Identifier::suite() -> cppunit::Test * {
+  using namespace ::unit::rigging::suite;
+  Stream series("Identifier");
+  series << call("constructor", &Identifier::test_constructor)
+         << call("from_string", &Identifier::test_from_string)
+         << call("operator==", &Identifier::test_operator_eq)
+         << call("operator!=", &Identifier::test_operator_ne)
+    ;
+  return series.release();
+}
+#endiv

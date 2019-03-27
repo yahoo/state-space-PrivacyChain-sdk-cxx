@@ -1,0 +1,42 @@
+!// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+namespace tests::unit::transaction { class History; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+class tests::unit::transaction::History : public cppunit::test::Fixture {
+public:
+  auto test_constructor_default() -> void;
+  auto test_deserialize() -> void;
+  static auto suite() -> cppunit::Test *;
+};
+#endiv
+#divert <cpp>
+#import iab.privacychain.transaction.History
+auto tests::unit::transaction::History::test_constructor_default() -> void {
+#warning WRITETHIS auto tests::unit::transaction::History::test_constructor_default() -> void
+  CPPUNIT_ASSERT(true);
+}
+auto tests::unit::transaction::History::test_deserialize() -> void {
+#warning WRITETHIS auto tests::unit::transaction::History::test_deserialize() -> void
+  CPPUNIT_ASSERT(true);
+}
+#import unit.rigging.suite.Stream
+#import unit.rigging.suite.call
+#import unit.rigging.suite.add
+auto tests::unit::transaction::History::suite() -> cppunit::Test * {
+  using namespace ::unit::rigging::suite;
+  Stream series("History");
+  {
+    Stream con("constructor");
+    con << call("default", &History::test_constructor_default)
+      ;
+    series << add(con.release());
+  }
+  series << call("deserialize", &History::test_deserialize)
+    ;
+  return series.release();
+}
+#endiv

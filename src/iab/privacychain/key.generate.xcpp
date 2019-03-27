@@ -43,7 +43,6 @@ namespace iab::privacychain::key {
 #import iab.privacychain.required // cascades the namespaces
 namespace iab::privacychain::key {
   namespace packaging::generate::function {
-    auto generate(std::string const &) -> Key;
     using required::container::Holding;
     using required::Octet;
     using required::iterator::Forward;

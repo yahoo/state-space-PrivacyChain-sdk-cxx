@@ -33,6 +33,7 @@ lib_libiab_privacychain_la_LIBADD = \
   $(lib_libwant.la) \
   -lhyperledger-fabric \
   -ltunitas \
+  -lrabinpoly-module \
   -ljson-module \
   -lnonstd-module \
   -lstring-module \
@@ -55,16 +56,12 @@ lib_libiab_privacychain_la_SOURCES = \
   obj/src/iab/privacychain/error.category.cpp \
   \
   obj/src/iab/privacychain/detail.dehex.cpp \
-  \
-  obj/src/iab/privacychain/Operation.cpp \
-  obj/src/iab/privacychain/operation.Basis.cpp \
-  obj/src/iab/privacychain/operation.Operation.cpp \
-  obj/src/iab/privacychain/operation.Operation.INVOKE.cpp \
-  obj/src/iab/privacychain/operation.Operation.QUERY.cpp \
+  obj/src/iab/privacychain/detail.Formatter.cpp \
+  obj/src/iab/privacychain/detail.Formatter.Key.cpp \
   \
   obj/src/iab/privacychain/Key.cpp \
   obj/src/iab/privacychain/key.Key.cpp \
-  obj/src/iab/privacychain/key.Generator.cpp \
+  obj/src/iab/privacychain/key.generate.cpp \
   obj/src/iab/privacychain/Function.cpp \
   obj/src/iab/privacychain/function.Function.cpp \
   obj/src/iab/privacychain/Record.cpp \
@@ -73,7 +70,15 @@ lib_libiab_privacychain_la_SOURCES = \
   obj/src/iab/privacychain/Outcome.cpp \
   obj/src/iab/privacychain/Success.cpp \
   \
+  obj/src/iab/privacychain/Operation.cpp \
+  obj/src/iab/privacychain/operation.Basis.cpp \
+  obj/src/iab/privacychain/operation.Operation.cpp \
+  obj/src/iab/privacychain/operation.Operation.INVOKE.cpp \
+  obj/src/iab/privacychain/operation.Operation.QUERY.cpp \
+  \
   obj/src/iab/privacychain/required.cpp \
+  obj/src/iab/privacychain/required.Character.cpp \
+  obj/src/iab/privacychain/required.Character_Traits.cpp \
   obj/src/iab/privacychain/required.Deserializable.cpp \
   obj/src/iab/privacychain/required.Dejsonizable.cpp \
   obj/src/iab/privacychain/traits.Is_Deserializable.cpp \

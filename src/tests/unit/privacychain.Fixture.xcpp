@@ -8,14 +8,56 @@ namespace tests::unit::privacychain { class Fixture; }
 #import cppunit.test.Fixture
 class tests::unit::privacychain::Fixture : public cppunit::test::Fixture {
 public:
-  auto test_something() -> void;
+  auto test_Success() -> void;
+  template<typename TYPE> auto test_Outcome() -> void;
   static auto suite() -> cppunit::Test *;
 };
+namespace tests::unit::privacychain {
+  template<> auto Fixture::test_Outcome<bool>() -> void;
+  template<> auto Fixture::test_Outcome<int>() -> void;
+  template<> auto Fixture::test_Outcome<std::string>() -> void;
+}
 #endiv
 #divert <cpp>
-#import iab.privacychain
-auto tests::unit::privacychain::Fixture::test_something() -> void {
-  CPPUNIT_ASSERT(true);
+#import std.string_literals
+using namespace std::string_literals;
+#import std.error_code
+#import std.generic_category
+#import iab.privacychain.Success
+auto tests::unit::privacychain::Fixture::test_Success() -> void {
+  using namespace ::iab::privacychain;
+  auto good = Success{SUCCESS};
+  CPPUNIT_ASSERT(ok(good));
+  auto bad = Success{std::error_code{1, std::generic_category()}};
+  CPPUNIT_ASSERT(!ok(bad));
+}
+#import iab.privacychain.Outcome
+template<> auto tests::unit::privacychain::Fixture::test_Outcome<bool>() -> void {
+  using namespace ::iab::privacychain;
+  auto good = Outcome<bool>{true};
+  CPPUNIT_ASSERT(ok(good));
+  auto regood = value(good);
+  CPPUNIT_ASSERT(regood);
+  auto bad = Success{std::error_code{1, std::generic_category()}};
+  CPPUNIT_ASSERT(!ok(bad));
+}
+template<> auto tests::unit::privacychain::Fixture::test_Outcome<int>() -> void {
+  using namespace ::iab::privacychain;
+  auto good = Outcome<int>{2};
+  CPPUNIT_ASSERT(ok(good));
+  auto regood = value(good);
+  CPPUNIT_ASSERT(2 == regood);
+  auto bad = Success{std::error_code{1, std::generic_category()}};
+  CPPUNIT_ASSERT(!ok(bad));
+}
+template<> auto tests::unit::privacychain::Fixture::test_Outcome<std::string>() -> void {
+  using namespace ::iab::privacychain;
+  auto good = Outcome<std::string>{"Powerball Winner!"s};
+  CPPUNIT_ASSERT(ok(good));
+  auto regood = value(good);
+  CPPUNIT_ASSERT("Powerball Winner!"s == regood);
+  auto bad = Success{std::error_code{1, std::generic_category()}};
+  CPPUNIT_ASSERT(!ok(bad));
 }
 #import unit.rigging.suite.Stream
 #import unit.rigging.suite.call
@@ -23,8 +65,16 @@ auto tests::unit::privacychain::Fixture::test_something() -> void {
 auto tests::unit::privacychain::Fixture::suite() -> cppunit::Test * {
   using namespace ::unit::rigging::suite;
   Stream series("privacychain");
-  series << call("something", &Fixture::test_something)
+  series << call("Success", &Fixture::test_Success)
     ;
+  {
+    Stream out("Outcome");
+    out << call("bool", &Fixture::test_Outcome<bool>)
+        << call("int", &Fixture::test_Outcome<int>)
+        << call("std::string", &Fixture::test_Outcome<std::string>)
+      ;
+    series << add(out.release());
+  }
   return series.release();
 }
 #endiv

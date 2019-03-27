@@ -15,10 +15,22 @@ check_bin_unit_SOURCES = \
   obj/src/tests/unit/main.cpp \
   obj/src/tests/unit/namespace.cpp \
   obj/src/tests/unit/api.Fixture.cpp \
+  obj/src/tests/unit/chaincode.Fixture.cpp \
+  obj/src/tests/unit/error.Fixture.cpp \
+  obj/src/tests/unit/error.Category.cpp \
+  obj/src/tests/unit/function.Fixture.cpp \
   obj/src/tests/unit/history.Fixture.cpp \
   obj/src/tests/unit/iab.Fixture.cpp \
+  obj/src/tests/unit/key.Fixture.cpp \
+  obj/src/tests/unit/key.Generate.cpp \
   obj/src/tests/unit/privacychain.Fixture.cpp \
+  obj/src/tests/unit/record.Fixture.cpp \
   obj/src/tests/unit/schema.Fixture.cpp \
+  obj/src/tests/unit/time.Fixture.cpp \
+  obj/src/tests/unit/transaction.Fixture.cpp \
+  obj/src/tests/unit/transaction.Identifier.cpp \
+  obj/src/tests/unit/transaction.Record.cpp \
+  obj/src/tests/unit/transaction.History.cpp \
   obj/src/tests/unit/want.Fixture.cpp \
   $(end)
 $(scold_cxxdir)/tests/unit/dependencies.mk:

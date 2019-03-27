@@ -1,0 +1,54 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+namespace tests::unit::time { class Fixture; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+class tests::unit::time::Fixture : public cppunit::test::Fixture {
+public:
+  auto test_Clock() -> void;
+  auto test_Duration() -> void;
+  auto test_Point() -> void;
+  static auto suite() -> cppunit::Test *;
+};
+#endiv
+#divert <cpp>
+#import std.chrono_literals
+using namespace std::chrono_literals;
+#import iab.privacychain.time.Clock
+#import iab.privacychain.time.Point
+auto tests::unit::time::Fixture::test_Clock() -> void {
+  using namespace ::iab::privacychain::time;
+  auto now = Clock::now();
+  CPPUNIT_ASSERT(now != Point());
+}
+#import iab.privacychain.time.Duration
+#import std.chrono.nanoseconds
+auto tests::unit::time::Fixture::test_Duration() -> void {
+  using namespace ::iab::privacychain::time;
+  auto s = Duration{10};
+  auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(s);
+  CPPUNIT_ASSERT(0 != ns.count());
+}
+#import iab.privacychain.time.Point
+auto tests::unit::time::Fixture::test_Point() -> void {
+  using namespace ::iab::privacychain::time;
+  auto p0 = Clock::now();
+  auto p1 = p0 + 10ns;
+  CPPUNIT_ASSERT(p1 > p0);
+}
+#import unit.rigging.suite.Stream
+#import unit.rigging.suite.call
+#import unit.rigging.suite.add
+auto tests::unit::time::Fixture::suite() -> cppunit::Test * {
+  using namespace ::unit::rigging::suite;
+  Stream series("time");
+  series << call("Clock", &Fixture::test_Clock)
+         << call("Duration", &Fixture::test_Duration)
+         << call("Point", &Fixture::test_Point)
+    ;
+  return series.release();
+}
+#endiv

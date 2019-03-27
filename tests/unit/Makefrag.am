@@ -2,10 +2,17 @@ tests_unit_TESTS = \
   tests/unit/list.test \
   \
   tests/unit/api.test \
+  tests/unit/error.test \
+  tests/unit/function.test \
   tests/unit/history.test \
   tests/unit/iab.test \
+  tests/unit/key.test \
   tests/unit/privacychain.test \
+  tests/unit/record.test \
   tests/unit/schema.test \
+  tests/unit/schema.test \
+  tests/unit/time.test \
+  tests/unit/transaction.test \
   \
   tests/unit/all.test \
   $(end)

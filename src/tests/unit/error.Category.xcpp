@@ -1,0 +1,83 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+namespace tests::unit::error { class Category; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+#import iab.privacychain.error.Category
+class tests::unit::error::Category : public cppunit::test::Fixture {
+public:
+  using Subject = ::iab::privacychain::error::Category;
+  auto test_name() -> void;
+  auto test_default_error_condition() -> void;
+  auto test_equivalent_condition() -> void;
+  auto test_equivalent_code() -> void;
+  auto test_message() -> void;
+  static auto suite() -> cppunit::Test *;
+};
+#endiv
+#divert <cpp>
+#import iab.privacychain.error.category
+#import std.cerr
+auto tests::unit::error::Category::test_name() -> void {
+  using namespace ::iab::privacychain::error;
+  auto const &c = category();
+  std::cerr << c.name() << '\n';
+  CPPUNIT_ASSERT(nullptr != c.name());
+}
+#import iab.privacychain.error.Code
+auto tests::unit::error::Category::test_default_error_condition() -> void {
+  using namespace ::iab::privacychain::error;
+  auto const &c = category();
+  for (int i{-100}, e{100}; e != i; ++i) {
+    auto actual = c.default_error_condition(i);
+    auto expected = std::error_condition{0 == i ? Condition::SUCCESS : Condition::FAILURE};
+    CPPUNIT_ASSERT(expected == actual);
+  }
+  CPPUNIT_ASSERT(true);
+}
+#import iab.privacychain.error.Condition
+#import iab.privacychain.error.category
+auto tests::unit::error::Category::test_equivalent_condition() -> void {
+  using namespace ::iab::privacychain::error;
+  auto const &c = category();
+  auto ec = std::error_condition{Condition::SUCCESS};
+  for (int i{-100}, e{100}; e != i; ++i) {
+    auto b = c.equivalent(i, ec);
+    CPPUNIT_ASSERT(b == (0 == i));
+  }
+}
+auto tests::unit::error::Category::test_equivalent_code() -> void {
+  using namespace ::iab::privacychain::error;
+  auto const &c = category();
+  auto ec = std::error_code{Code::SUCCESS};
+  for (int i{-100}, e{100}; e != i; ++i) {
+    auto b = c.equivalent(ec, i);
+    CPPUNIT_ASSERT(b == (0 == i));
+  }
+}
+auto tests::unit::error::Category::test_message() -> void {
+  using namespace ::iab::privacychain::error;
+  auto const &c = category();
+  for (int i{-100}, e{100}; e != i; ++i) {
+    auto s = c.message(i);
+    CPPUNIT_ASSERT(!s.empty());
+  }
+}
+#import unit.rigging.suite.Stream
+#import unit.rigging.suite.call
+#import unit.rigging.suite.add
+auto tests::unit::error::Category::suite() -> cppunit::Test * {
+  using namespace ::unit::rigging::suite;
+  Stream series("error");
+  series << call("name", &Category::test_name)
+         << call("default_error_condition", &Category::test_default_error_condition)
+         << call("equivalent_condition", &Category::test_equivalent_condition)
+         << call("equivalent_code", &Category::test_equivalent_code)
+         << call("message", &Category::test_message)
+    ;
+  return series.release();
+}
+#endiv

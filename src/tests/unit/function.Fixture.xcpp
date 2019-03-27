@@ -1,0 +1,51 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+namespace tests::unit::function { class Fixture; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+#import iab.privacychain.Function
+class tests::unit::function::Fixture : public cppunit::test::Fixture {
+public:
+  using Subject = ::iab::privacychain::Function;
+  auto test_constructor() -> void;
+  auto test_operator_eq() -> void;
+  auto test_to_string() -> void;
+  static auto suite() -> cppunit::Test *;
+};
+#endiv
+#divert <cpp>
+#import std.string_literals
+using namespace std::string_literals;
+auto tests::unit::function::Fixture::test_constructor() -> void {
+  auto s0 = Subject{}; // <-------- test this
+  auto s1 = Subject{"1"}; // <------ and this
+  CPPUNIT_ASSERT(s0 != s1);
+}
+auto tests::unit::function::Fixture::test_operator_eq() -> void {
+  auto s0 = Subject{};
+  auto s1 = Subject{"1"};
+  CPPUNIT_ASSERT(s0 != s1); // <--------- test this
+}
+auto tests::unit::function::Fixture::test_to_string() -> void {
+  auto sub1 = Subject{"1"};
+  auto str1 = std::string{"1"};
+  auto const expected = str1;
+  auto const actual = to_string(sub1);
+  CPPUNIT_ASSERT_EQUAL(expected, actual);
+}
+#import unit.rigging.suite.Stream
+#import unit.rigging.suite.call
+#import unit.rigging.suite.add
+auto tests::unit::function::Fixture::suite() -> cppunit::Test * {
+  using namespace ::unit::rigging::suite;
+  Stream series("function");
+  series << call("constructor", &Fixture::test_constructor)
+         << call("operator_eq", &Fixture::test_operator_eq)
+         << call("to_string", &Fixture::test_to_string)
+    ;
+  return series.release();
+}
+#endiv

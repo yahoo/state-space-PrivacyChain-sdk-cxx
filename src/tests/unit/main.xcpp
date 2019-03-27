@@ -2,19 +2,33 @@
 // Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
 #divert <cpp>
 #import tests.unit.api.Fixture
+#import tests.unit.chaincode.Fixture
+#import tests.unit.error.Fixture
+#import tests.unit.function.Fixture
 #import tests.unit.history.Fixture
 #import tests.unit.iab.Fixture
+#import tests.unit.key.Fixture
 #import tests.unit.privacychain.Fixture
+#import tests.unit.record.Fixture
 #import tests.unit.schema.Fixture
+#import tests.unit.time.Fixture
+#import tests.unit.transaction.Fixture
 #import tests.unit.want.Fixture
 #import rigging.bench.Main
 auto main(int argc, char *argv[]) -> int {
   namespace tu = tests::unit;
   rigging::bench::Main remain(tu::api::Fixture::suite(),
+                              tu::chaincode::Fixture::suite(),
+                              tu::error::Fixture::suite(),
+                              tu::function::Fixture::suite(),
                               tu::history::Fixture::suite(),
+                              tu::key::Fixture::suite(),
                               tu::iab::Fixture::suite(),
 			      tu::privacychain::Fixture::suite(),
+                              tu::record::Fixture::suite(),
                               tu::schema::Fixture::suite(),
+                              tu::time::Fixture::suite(),
+                              tu::transaction::Fixture::suite(),
 			      tu::want::Fixture::suite());
   return remain(argc, argv);
 }

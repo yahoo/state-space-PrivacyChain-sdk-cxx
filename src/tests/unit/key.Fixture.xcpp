@@ -1,0 +1,164 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+namespace tests::unit::key { class Fixture; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+#import iab.privacychain.key.Key
+class tests::unit::key::Fixture : public cppunit::test::Fixture {
+public:
+  using Subject = ::iab::privacychain::key::Key;
+  auto test_usage_generate() -> void;
+  auto test_to_string() -> void;
+  auto test_format() -> void;
+  auto test_to_stream_good() -> void;
+  auto test_to_stream_bad() -> void;
+  auto test_from_stream_good() -> void;
+  auto test_from_stream_bad() -> void;
+  static auto suite() -> cppunit::Test *;
+};
+#endiv
+#divert <cpp>
+#import std.string_literals
+using namespace std::string_literals;
+#import iab.privacychain.key.generate
+#import std.uint8_t
+#import std.uint16_t
+#import std.uint32_t
+#import std.uint64_t
+#import nonstd.uint128_t
+#import std.set
+auto tests::unit::key::Fixture::test_usage_generate() -> void {
+  using namespace ::iab::privacychain::key;
+  using namespace std;
+  auto const zero = Key{};
+  auto const arbitrary = Key{0x0'd89f'0cf5'15a5'4533lu};
+  std::cerr << "arbitrary=" << format(arbitrary) << '\n';
+  auto g8 = generate(uint8_t{0});
+  std::cerr << "g8=" << format(g8) << '\n';
+  auto r8 = ::rabinpoly::generate(uint8_t{0});
+  std::cerr << "r8=" << ::rabinpoly::format(r8) << '\n';
+  CPPUNIT_ASSERT(arbitrary != g8);
+  auto g16 = generate(uint8_t{0});
+  CPPUNIT_ASSERT(arbitrary != g16);
+  auto g32 = generate(uint16_t{0});
+  CPPUNIT_ASSERT(arbitrary != g32);
+  auto g64 = generate(uint64_t{0});
+  CPPUNIT_ASSERT(arbitrary != g64);
+  auto g128 = generate(nonstd::uint128_t{0});
+  CPPUNIT_ASSERT(arbitrary != g128);
+  auto const string_specimen = std::string{"Chill pill, with Bill!"};
+  auto gstring = generate(string_specimen);
+  CPPUNIT_ASSERT(arbitrary != gstring);
+  auto const set_specimen = std::set<char>{'C','h','i','l','l',' ','p','i','l','l',',',' ','w','i','t','h',' ','B','i','l','l','!'};
+  auto gset = generate(set_specimen);
+  CPPUNIT_ASSERT(arbitrary != gset);
+  CPPUNIT_ASSERT(zero != gset);
+  auto giterator = generate(set_specimen.begin(), set_specimen.end());
+  CPPUNIT_ASSERT(arbitrary != giterator);
+  CPPUNIT_ASSERT(zero != giterator);
+}
+#import std.ostringstream
+#import std.cerr
+auto tests::unit::key::Fixture::test_to_string() -> void {
+  auto subject = Subject{};
+  auto const expected  = "0"s;
+  auto const actual = to_string(subject);
+  CPPUNIT_ASSERT_EQUAL(expected, actual);
+}
+auto tests::unit::key::Fixture::test_format() -> void {
+  auto subject = Subject{};
+  std::ostringstream buf;
+  buf << format(subject);
+  auto const expected  = "0"s;
+  auto const actual = buf.str();
+  CPPUNIT_ASSERT_EQUAL(expected, actual);
+}
+auto tests::unit::key::Fixture::test_to_stream_good() -> void {
+  using namespace ::iab::privacychain::key;
+  auto const specimen = generate("1c58a3d2-483e-4261-b5e5-95d7d5b431c8/b13a0cd1-4fc5-43d5-86a5-0695170b841f/7a787611-64f8-4b69-a1f9-9704dc095381"s);
+  std::ostringstream buf;
+  if (to_stream(buf, specimen)) {
+    auto const expected = "313637878400052605"s;
+    auto const actual = buf.str();
+    CPPUNIT_ASSERT_EQUAL(expected, actual);
+  } else {
+    CPPUNIT_ASSERT(false);
+  }
+}
+auto tests::unit::key::Fixture::test_to_stream_bad() -> void {
+  using namespace ::iab::privacychain::key;
+  auto const specimen = generate(0lu);
+  std::ostringstream buf;
+  buf.setstate(std::ios::failbit); // 
+  if (to_stream(buf, specimen)) {
+    CPPUNIT_ASSERT(false);
+  } else {
+    CPPUNIT_ASSERT(true);
+  }
+}
+#import std.istringstream
+#import std.underlying_type
+auto tests::unit::key::Fixture::test_from_stream_good() -> void {
+  using namespace ::iab::privacychain::key;
+  auto expected = 525362257840lu;
+  using U = std::underlying_type<Key>::type;
+  std::istringstream good{"525362257840"s};
+  Key actual;
+  if (from_stream(good, actual)) {
+    std::cerr << "expected=" << (U)expected << '\n';
+    std::cerr << "actual=" << (U)actual << '\n';
+    CPPUNIT_ASSERT_EQUAL((U)expected, (U)actual);
+  } else {
+    std::cerr << "expected=" << (U)expected << '\n';
+    std::cerr << "actual=" << (U)actual << '\n';
+    CPPUNIT_ASSERT(good.eof());
+    CPPUNIT_ASSERT(!good.bad());
+    CPPUNIT_ASSERT(!good.fail());
+  }
+}
+auto tests::unit::key::Fixture::test_from_stream_bad() -> void {
+  std::istringstream bad{"qwertyuiop"s};
+  using namespace iab::privacychain::key;
+  Key subject;
+  if (from_stream(bad, subject)) {
+    CPPUNIT_ASSERT(false);
+  } else {
+    CPPUNIT_ASSERT(true);
+  }
+}
+#import tests.unit.key.Generate
+#import unit.rigging.suite.Stream
+#import unit.rigging.suite.call
+#import unit.rigging.suite.add
+auto tests::unit::key::Fixture::suite() -> cppunit::Test * {
+  using namespace ::unit::rigging::suite;
+  Stream series("key");
+  series << call("to_string", &Fixture::test_to_string)
+         << call("format", &Fixture::test_format)
+    ;
+  {
+    Stream use("usage");
+    use << call("generate", &Fixture::test_usage_generate)
+      ;
+    series << add(use.release());
+  } {
+    Stream tos("to_stream");
+    tos << call("good", &Fixture::test_to_stream_good)
+        << call("bad", &Fixture::test_to_stream_bad)
+      ;
+    series << add(tos.release());
+  } {
+    Stream fos("from_stream");
+    fos << call("good", &Fixture::test_from_stream_good)
+        << call("bad", &Fixture::test_from_stream_bad)
+      ;
+    series << add(fos.release());
+  }
+  series << add(Generate::suite())
+    ;
+  return series.release();
+}
+#endiv
