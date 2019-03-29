@@ -1,0 +1,28 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+#import tests.unit.constructor.Fixture
+#endiv
+#divert <hpp>
+#import tests.unit.constructor.Fixture.dispatch.Basis
+namespace tests::unit::constructor {
+  template<> struct Fixture::Dispatch<Fixture::Function::HISTORY, Fixture::Uniqueness{2}> : public dispatch::Basis {
+    auto test_generate() -> void;
+  };
+}
+#endiv
+#divert <cpp>
+namespace tests::unit::constructor {
+  auto Fixture::Dispatch<Fixture::Function::HISTORY, Fixture::Uniqueness{2}>::test_generate() -> void {
+    // Constructing the args *is* the test.
+    { auto args = iab::privacychain::constructor::generate("history"s, generator.generate<std::string>().c_str());
+      std::cerr << "history " << args << '\n'; }
+    { auto args = iab::privacychain::constructor::generate("history"s, generator.generate<std::string>());
+      std::cerr << "history " << args << '\n'; }
+    { auto args = iab::privacychain::constructor::generate("history"s, std::string_view{generator.generate<std::string>()});
+      std::cerr << "history " << args << '\n'; }
+    { auto args = iab::privacychain::constructor::generate("history"s, generator.generate<std::vector<std::byte>>());
+      std::cerr << "history " << args << '\n'; }
+  }
+}
+#endiv

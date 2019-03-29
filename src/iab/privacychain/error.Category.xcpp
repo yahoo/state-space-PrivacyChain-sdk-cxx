@@ -45,6 +45,8 @@ namespace iab::privacychain::error {
       return "success";
     case Code::FAILURE:
       return "failure"; // totally generic, no further details given
+    case Code::SYNTAX_BAD_KEY:
+      return "bad key syntax"; // i.e. from_string(...) failed
     case Code::PAYLOAD_BAD_RECORD:
       return "bad payload, record-level";
     case Code::PAYLOAD_BAD_FIELD:

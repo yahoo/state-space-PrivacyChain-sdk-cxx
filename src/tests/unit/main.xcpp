@@ -3,6 +3,7 @@
 #divert <cpp>
 #import tests.unit.api.Fixture
 #import tests.unit.chaincode.Fixture
+#import tests.unit.constructor.Fixture
 #import tests.unit.error.Fixture
 #import tests.unit.function.Fixture
 #import tests.unit.history.Fixture
@@ -19,6 +20,7 @@ auto main(int argc, char *argv[]) -> int {
   namespace tu = tests::unit;
   rigging::bench::Main remain(tu::api::Fixture::suite(),
                               tu::chaincode::Fixture::suite(),
+                              ::tests::unit::constructor::Fixture::suite(),
                               tu::error::Fixture::suite(),
                               tu::function::Fixture::suite(),
                               tu::history::Fixture::suite(),

@@ -1,0 +1,19 @@
+<// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+#import tests.unit.constructor.Fixture
+#endiv
+#divert <hpp>
+#import tests.unit.constructor.Fixture.dispatch.Generator
+class tests::unit::constructor::Fixture::dispatch::Basis {
+protected:
+  ~Basis() = default;
+  Basis() = default;
+public:
+  Generator generator;
+};
+// Every specialization will need these:
+#import iab.privacychain.constructor.generate
+#import tests.unit.constructor // buy the namespace, if it isn't matryoshka'd in already
+#import std.cerr
+#endiv

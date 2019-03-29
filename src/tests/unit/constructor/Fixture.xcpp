@@ -1,0 +1,95 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+namespace tests::unit::constructor { class Fixture; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+class tests::unit::constructor::Fixture : public cppunit::test::Fixture {
+public:
+  enum class Function { INIT, GET, SET, HISTORY };
+  enum Uniqueness : int;
+  struct dispatch { 
+    struct Basis; 
+    struct Generator;
+  };
+  template<Function, Uniqueness> struct Dispatch;
+  template<Function, Uniqueness> auto test_generate() -> void;
+  static auto suite() -> cppunit::Test *;
+};
+namespace tests::unit::constructor {
+  template<> struct Fixture::Dispatch<Fixture::Function::INIT, Fixture::Uniqueness{1}>;
+  template<> struct Fixture::Dispatch<Fixture::Function::GET, Fixture::Uniqueness{1}>;
+  template<> struct Fixture::Dispatch<Fixture::Function::GET, Fixture::Uniqueness{2}>;
+  template<> struct Fixture::Dispatch<Fixture::Function::GET, Fixture::Uniqueness{3}>;
+  template<> struct Fixture::Dispatch<Fixture::Function::HISTORY, Fixture::Uniqueness{1}>;
+  template<> struct Fixture::Dispatch<Fixture::Function::HISTORY, Fixture::Uniqueness{2}>;
+  template<> struct Fixture::Dispatch<Fixture::Function::HISTORY, Fixture::Uniqueness{3}>;
+  template<> struct Fixture::Dispatch<Fixture::Function::SET, Fixture::Uniqueness{1}>;
+  template<> struct Fixture::Dispatch<Fixture::Function::SET, Fixture::Uniqueness{2}>;
+  template<> struct Fixture::Dispatch<Fixture::Function::SET, Fixture::Uniqueness{3}>;
+}
+#endiv
+#divert <tpp>
+#import tests.unit.constructor.Fixture.dispatch.Basis
+#import tests.unit.constructor.Fixture.Dispatch
+// The tests
+#import tests.unit.constructor.Fixture.Dispatch.INIT.1
+//
+#import tests.unit.constructor.Fixture.Dispatch.GET.1
+#import tests.unit.constructor.Fixture.Dispatch.GET.2
+#import tests.unit.constructor.Fixture.Dispatch.GET.3
+//
+#import tests.unit.constructor.Fixture.Dispatch.SET.1
+#import tests.unit.constructor.Fixture.Dispatch.SET.2
+#import tests.unit.constructor.Fixture.Dispatch.SET.3
+//
+#import tests.unit.constructor.Fixture.Dispatch.HISTORY.1
+#import tests.unit.constructor.Fixture.Dispatch.HISTORY.2
+#import tests.unit.constructor.Fixture.Dispatch.HISTORY.3
+namespace tests::unit::constructor {
+  template<Fixture::Function AC, Fixture::Uniqueness UU> auto Fixture::test_generate() -> void {
+    Dispatch<AC, UU> d;
+    d.test_generate();
+  }
+}
+#endiv
+#divert <cpp>
+#import unit.rigging.suite.Stream
+#import unit.rigging.suite.call
+#import unit.rigging.suite.add
+auto tests::unit::constructor::Fixture::suite() -> cppunit::Test * {
+  using namespace ::unit::rigging::suite;
+  Stream series("constructor");
+  {
+    Stream ini("init");
+    ini << call("init", &Fixture::test_generate<Function::INIT, Uniqueness{1}>)
+      ;
+    series << add(ini.release());
+  } {
+    Stream get("get");
+    get << call("get1", &Fixture::test_generate<Function::GET, Uniqueness{1}>)
+        << call("get2", &Fixture::test_generate<Function::GET, Uniqueness{2}>)
+        << call("get3", &Fixture::test_generate<Function::GET, Uniqueness{3}>)
+      ;
+    series << add(get.release());
+  } {
+    Stream set("set");
+    set << call("set1", &Fixture::test_generate<Function::SET, Uniqueness{1}>)
+        << call("set2", &Fixture::test_generate<Function::SET, Uniqueness{2}>)
+        << call("set3", &Fixture::test_generate<Function::SET, Uniqueness{3}>)
+      ;
+    series << add(set.release());
+  } {
+    Stream his("history");
+    // These are somewhat redundant because the history constructor is shaped just like the "get" constructor
+    his << call("history1", &Fixture::test_generate<Function::HISTORY, Uniqueness{1}>)
+        << call("history2", &Fixture::test_generate<Function::HISTORY, Uniqueness{2}>)
+        << call("history3", &Fixture::test_generate<Function::HISTORY, Uniqueness{3}>)
+      ;
+    series << add(his.release());
+  }
+  return series.release();
+}
+#endiv

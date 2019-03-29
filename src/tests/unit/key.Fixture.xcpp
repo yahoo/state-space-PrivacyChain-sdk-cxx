@@ -11,6 +11,8 @@ class tests::unit::key::Fixture : public cppunit::test::Fixture {
 public:
   using Subject = ::iab::privacychain::key::Key;
   auto test_usage_generate() -> void;
+  auto test_from_string_good() -> void;
+  auto test_from_string_bad() -> void;
   auto test_to_string() -> void;
   auto test_format() -> void;
   auto test_to_stream_good() -> void;
@@ -59,6 +61,21 @@ auto tests::unit::key::Fixture::test_usage_generate() -> void {
   auto giterator = generate(set_specimen.begin(), set_specimen.end());
   CPPUNIT_ASSERT(arbitrary != giterator);
   CPPUNIT_ASSERT(zero != giterator);
+}
+auto tests::unit::key::Fixture::test_from_string_good() -> void {
+  auto const specimen = "123456789"s;
+  auto from = ::iab::privacychain::key::from_string(specimen);
+  CPPUNIT_ASSERT(ok(from));
+  auto const expected  = Subject{123456789};
+  auto const actual = value(from);
+  CPPUNIT_ASSERT_EQUAL(expected, actual);
+}
+auto tests::unit::key::Fixture::test_from_string_bad() -> void {
+  auto const specimen = "BAD123456789"s;
+  auto const from = ::iab::privacychain::key::from_string(specimen);
+  CPPUNIT_ASSERT(!ok(from));
+  auto ec = error_code(from);
+  CPPUNIT_ASSERT(::iab::privacychain::error::Code::SYNTAX_BAD_KEY == ec);
 }
 #import std.ostringstream
 #import std.cerr
@@ -136,6 +153,13 @@ auto tests::unit::key::Fixture::test_from_stream_bad() -> void {
 auto tests::unit::key::Fixture::suite() -> cppunit::Test * {
   using namespace ::unit::rigging::suite;
   Stream series("key");
+  {
+    Stream fro("from_string");
+    fro << call("good", &Fixture::test_from_string_good)
+        << call("bad", &Fixture::test_from_string_bad)
+      ;
+    series << add(fro.release());
+  }
   series << call("to_string", &Fixture::test_to_string)
          << call("format", &Fixture::test_format)
     ;

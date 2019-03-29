@@ -20,6 +20,7 @@ namespace iab::privacychain::error {
   enum class Code
     { SUCCESS = (int) Condition::SUCCESS,
       FAILURE = (int) Condition::FAILURE,
+      SYNTAX_BAD_KEY, // i.e. key::from_string(...) failed
       PAYLOAD_BAD_RECORD,
       PAYLOAD_BAD_FIELD,
       RECORD_UNENCODABLE,

@@ -26,16 +26,21 @@ namespace iab::privacychain::constructor {
 }
 #endiv
 #divert <ipp>
+#import hyperledger.fabric.peer.chaincode.call // ARGS
 #import iab.privacychain.constructor.Arguments
 #import json.as
 #import json.Value
+#import json.value.constants // OBJECT, ARRAY - but for module-json-devel < 0.7.0 you need json.value.type to get ARRAY
 namespace iab::privacychain {
   template<typename... TYPES> auto constructor::generate(TYPES const &...items) -> std::string {
-    json::Value args;
-    auto &array = args.append("Args"); // [[FIXTHIS]] "Args" is documented where?
-    Arguments arguments{array};
+    //
+    // container ::=  { "Args" : [ ...items... ] }
+    //
+    json::Value container{json::value::OBJECT};
+    auto &args = container[hyperledger::fabric::peer::chaincode::ARGS] = json::Value{json::value::ARRAY};
+    Arguments arguments{args};
     arguments.append(items...);
-    return json::as<std::string>(array);
+    return json::as<std::string>(container);
   }
 }
 #endiv

@@ -38,14 +38,38 @@ public:
 namespace iab::privacychain::constructor {
   template<> auto Arguments::stringify<Record>(Record const &) -> std::string;
 }
+#import std.byte
+#import std.string_view
+#import std.vector
+namespace iab::privacychain::constructor {
+  template<> inline auto Arguments::stringify<std::vector<std::byte>>(std::vector<std::byte> const &) -> std::string;
+  template<> inline auto Arguments::stringify<std::string>(std::string const &) -> std::string;
+  template<> inline auto Arguments::stringify<std::string_view>(std::string_view const &) -> std::string;
+  template<> inline auto Arguments::stringify<char const *>(char const *const &) -> std::string;
+}
 #endiv
 #divert <ipp>
 iab::privacychain::constructor::Arguments::Arguments(json::Value &array)
   : array{array}
 { }
+#import std.to_string
 template<typename TYPE> auto iab::privacychain::constructor::Arguments::stringify(TYPE const &candidate) -> std::string {
   using namespace packaging::to_string::function;
   return to_string(candidate); // or else ADL will find it.
+}
+template<> auto iab::privacychain::constructor::Arguments::stringify<std::string>(std::string const &candidate) -> std::string {
+  return candidate; // copy it.  Sure, just copy it.
+}
+template<> auto iab::privacychain::constructor::Arguments::stringify<std::string_view>(std::string_view const &candidate) -> std::string {
+  return std::string{candidate.begin(), candidate.end()};
+}
+template<> auto iab::privacychain::constructor::Arguments::stringify<std::vector<std::byte>>(std::vector<std::byte> const &candidate) -> std::string {
+  auto b = reinterpret_cast<char const *>(candidate.data());
+  auto e = reinterpret_cast<char const *>(candidate.data()+candidate.size());
+  return std::string{b, e};
+}
+template<> auto iab::privacychain::constructor::Arguments::stringify<char const *>(char const *const &candidate) -> std::string {
+  return candidate;
 }
 template<typename FIRST, typename... REST> auto iab::privacychain::constructor::Arguments::append(FIRST const &first, REST const &...rest) -> void {
   array.append(stringify(first));

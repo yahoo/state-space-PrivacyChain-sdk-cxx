@@ -1,0 +1,92 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+#import tests.unit.constructor.Fixture
+#endiv
+#divert <hpp>
+// Every specialization will need this:
+#import tests.unit.constructor // buy the namespace, if it isn't matryoshka'd in already
+#import std.uintmax_t
+struct tests::unit::constructor::Fixture::dispatch::Generator {
+  Generator();
+  template<typename TYPE> auto generate() -> TYPE = delete; // only the listed specializations
+private:
+  std::uintmax_t serial;
+};
+#import std.byte
+#import std.vector
+#import std.string
+#import rabinpoly.Fingerprint
+#import iab.privacychain.key.Key
+namespace tests::unit::constructor {
+  template<> auto Fixture::dispatch::Generator::generate<int short signed>() -> int short signed;
+  template<> auto Fixture::dispatch::Generator::generate<int short unsigned>() -> int short unsigned;
+  template<> auto Fixture::dispatch::Generator::generate<int signed>() -> int signed;
+  template<> auto Fixture::dispatch::Generator::generate<int unsigned>() -> int unsigned;
+  template<> auto Fixture::dispatch::Generator::generate<int long signed>() -> int long signed;
+  template<> auto Fixture::dispatch::Generator::generate<int long unsigned>() -> int long unsigned;
+  template<> auto Fixture::dispatch::Generator::generate<std::string>() -> std::string;
+  template<> auto Fixture::dispatch::Generator::generate<std::vector<std::byte>>() -> std::vector<std::byte>;
+  template<> auto Fixture::dispatch::Generator::generate<rabinpoly::Fingerprint>() -> rabinpoly::Fingerprint;
+  template<> auto Fixture::dispatch::Generator::generate<iab::privacychain::key::Key>() -> iab::privacychain::key::Key;
+}
+#endiv
+#divert <cpp>
+namespace tests::unit::constructor {
+  Fixture::dispatch::Generator::Generator()
+    : serial{0x0'a8d3'3700'9a10'4d79} // a midrange number; not small; so rabinpoly will "work"
+  { }
+  template<> auto Fixture::dispatch::Generator::generate<int short signed>() -> int short signed {
+    return (int short signed) ++serial; // yup, truncates
+  }
+  template<> auto Fixture::dispatch::Generator::generate<int short unsigned>() -> int short unsigned {
+    return (int short unsigned) ++serial; // yup, truncates
+  }
+  template<> auto Fixture::dispatch::Generator::generate<int signed>() -> int signed {
+    return (int unsigned) ++serial; // yup, truncates
+  }
+  template<> auto Fixture::dispatch::Generator::generate<int unsigned>() -> int unsigned {
+    return (int unsigned) ++serial; // yup, truncates
+  }
+  template<> auto Fixture::dispatch::Generator::generate<int long signed>() -> int long signed {
+    return ++serial;
+  }
+  template<> auto Fixture::dispatch::Generator::generate<int long unsigned>() -> int long unsigned {
+    return ++serial;
+  }
+}
+#import std.to_string
+template<> auto tests::unit::constructor::Fixture::dispatch::Generator::generate<std::string>() -> std::string {
+  return std::to_string(++serial);
+}
+template<> auto tests::unit::constructor::Fixture::dispatch::Generator::generate<std::vector<std::byte>>() -> std::vector<std::byte> {
+  ++serial;
+  std::vector<std::byte> ret;
+  ret.resize(sizeof (serial)); // bytes, not nibbles.
+  //
+  // byte order within the integer is big or little endian [who knows? ... Only The Shadow Knows]
+  // bit order within bytes is unresolvable but is pictured as big-endian
+  //
+  //                 picture        memory bytes                      vector<byte>
+  // little endian: 0x12345678 -> { 0x78, 0x56, 0x34, 0x12 } -> { 0x12, 0x34, 0x56, 0x78 }
+  // big endian:    0x12345678 -> { 0x12, 0x34, 0x56, ox78 } -> { 0x12, 0x34, 0x56, 0x78 }
+  //
+  // We want the std::vector<std::byte> order to match the "picture" representation 0x1234.
+  //
+  auto shift = sizeof (serial) - 1;
+  for (auto i{0lu}, e{sizeof (serial)}; e != i; ++i, shift>>=8) {
+    auto mask = 0xffllu << shift;
+    auto byte = (serial & mask) >> shift;
+    ret[i] = std::byte(0xff & byte);
+  }
+  return ret;
+}
+#import rabinpoly.fingerprint
+template<> auto tests::unit::constructor::Fixture::dispatch::Generator::generate<rabinpoly::Fingerprint>() -> rabinpoly::Fingerprint {
+  return rabinpoly::fingerprint(serial);
+}
+#import iab.privacychain.key.generate
+template<> auto tests::unit::constructor::Fixture::dispatch::Generator::generate<iab::privacychain::key::Key>() -> iab::privacychain::key::Key {
+  return iab::privacychain::key::generate(serial);
+}
+#endiv

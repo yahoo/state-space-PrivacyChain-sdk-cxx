@@ -16,6 +16,21 @@ check_bin_unit_SOURCES = \
   obj/src/tests/unit/namespace.cpp \
   obj/src/tests/unit/api.Fixture.cpp \
   obj/src/tests/unit/chaincode.Fixture.cpp \
+  obj/src/tests/unit/constructor/namespace.cpp \
+  obj/src/tests/unit/constructor/Fixture.dispatch.Basis.cpp \
+  obj/src/tests/unit/constructor/Fixture.dispatch.Generator.cpp \
+  obj/src/tests/unit/constructor/Fixture.cpp \
+  obj/src/tests/unit/constructor/Fixture.Dispatch.cpp \
+  obj/src/tests/unit/constructor/Fixture.Dispatch.INIT.1.cpp \
+  obj/src/tests/unit/constructor/Fixture.Dispatch.GET.1.cpp \
+  obj/src/tests/unit/constructor/Fixture.Dispatch.GET.2.cpp \
+  obj/src/tests/unit/constructor/Fixture.Dispatch.GET.3.cpp \
+  obj/src/tests/unit/constructor/Fixture.Dispatch.SET.1.cpp \
+  obj/src/tests/unit/constructor/Fixture.Dispatch.SET.2.cpp \
+  obj/src/tests/unit/constructor/Fixture.Dispatch.SET.3.cpp \
+  obj/src/tests/unit/constructor/Fixture.Dispatch.HISTORY.1.cpp \
+  obj/src/tests/unit/constructor/Fixture.Dispatch.HISTORY.2.cpp \
+  obj/src/tests/unit/constructor/Fixture.Dispatch.HISTORY.3.cpp \
   obj/src/tests/unit/error.Fixture.cpp \
   obj/src/tests/unit/error.Category.cpp \
   obj/src/tests/unit/function.Fixture.cpp \
