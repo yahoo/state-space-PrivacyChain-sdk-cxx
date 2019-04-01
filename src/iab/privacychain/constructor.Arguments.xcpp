@@ -62,7 +62,7 @@ iab::privacychain::constructor::Arguments::Arguments(json::Value &array)
 #import std.to_string
 template<typename TYPE> auto iab::privacychain::constructor::Arguments::stringify(TYPE const &candidate) -> std::string {
   using namespace packaging::to_string::function;
-  return to_string(candidate); // or else ADL will find it.
+  return to_string(candidate); // import the std::to_string from the namespace or else ADL will find it a better one
 }
 template<> auto iab::privacychain::constructor::Arguments::stringify<char>(char const &candidate) -> std::string {
   return std::string(1u, candidate); // WATCHOUT - string(count, char) PARENTHESIS differs from string{initializer} BRACKETS
@@ -76,6 +76,7 @@ template<> auto iab::privacychain::constructor::Arguments::stringify<std::string
 template<> auto iab::privacychain::constructor::Arguments::stringify<std::string_view>(std::string_view const &candidate) -> std::string {
   return std::string{candidate.begin(), candidate.end()};
 }
+#import tunitas.base64.encode
 template<> auto iab::privacychain::constructor::Arguments::stringify<std::vector<std::byte>>(std::vector<std::byte> const &candidate) -> std::string {
   auto b = reinterpret_cast<char const *>(candidate.data());
   auto e = reinterpret_cast<char const *>(candidate.data()+candidate.size());
@@ -84,25 +85,60 @@ template<> auto iab::privacychain::constructor::Arguments::stringify<std::vector
 template<> auto iab::privacychain::constructor::Arguments::stringify<char const *>(char const *const &candidate) -> std::string {
   return candidate;
 }
+#import std.cerr
+#import std.type_info
 template<typename FIRST, typename... REST> auto iab::privacychain::constructor::Arguments::append(FIRST const &first, REST const &...rest) -> void {
-  array.append(stringify(first));
+  auto str = stringify(first);
+  std::cerr << "DEBUG Arguments::append " << typeid(FIRST).name() << ' ' << str << '\n';
+  array.append(str);
   append(rest...);
 }
 #endiv
 #divert <cpp>
 #import iab.privacychain.error.Code
 #import iab.privacychain.Record
+#import iab.privacychain.schema
 #import iab.privacychain.record.Visitor
 #import json.Value
 #import json.as
 #import tunitas.base64.Exception
-#import tunitas.base64.Encoder // [[FIXTHIS]] remove this in lieu of the iterator interface of encode(...)
-#import tunitas.base64.encode // [[FIXTHIS]] one day this will have an iterator interface
+#import tunitas.base64.Encoder // ... [[FIXTHIS]] remove this in lieu of the iterator interface of encode(...)
+#import tunitas.base64.encode // .... [[FIXTHIS]] one day this will have an iterator interface
 #import std.error_code
 #import std.visit
 template<> auto iab::privacychain::constructor::Arguments::stringify<iab::privacychain::Record>(Record const &record) -> std::string try {
+  using tunitas::base64::encode;
+  //
+  // WATCHOUT - WATCHOUT - WATCHOUT - WATCHOUT - WATCHOUT - WATCHOUT - WATCHOUT - WATCHOUT
+  // Hyperledger Fabric cannot tolerate wrapping JSON inside the constructor JSON.
+  // There is no way to do the escaping properly and have a roundtrip occur without corruption.
+  // To wit: 
+  // 
+  //   { "Args"   :  [  "set"  , "1234", "\"apple\"" ]}'
+  //
+  // Results in a payload of:
+  //
+  //    \"apple\"
+  //
+  // But it should be "apple"
+  //
+  // Witness:
+  //
+  //     $ peer chaincode invoke --channelID microphone --name mycc --ctor '{   "Args"   :  [  "set"  , "1234", "\"apple\"" ]}' 
+  //     ...  chaincodeInvokeOrQuery -> INFO 002 Chaincode invoke successful. result: status:200 payload:"\"apple\"" 
+  //     $ peer chaincode invoke --channelID microphone --name mycc --ctor '{   "Args"   :  [  "get"  , "1234"  ]}' 
+  //     ...  chaincodeInvokeOrQuery -> INFO 002 Chaincode invoke successful. result: status:200 payload:"\"apple\"" 
+  //
   auto const visitor = record::Visitor{[](auto const &) -> std::string { throw std::error_code{error::Code::RECORD_UNENCODABLE}; },
-                                       [](record::Json const &r) -> std::string { return json::as<std::string>(r); },
+                                       [](record::Json const &r) -> std::string {
+                                         // See the WATCHOUT essay(s), above.   Wow this is nasty-ugly-unperformant.
+                                         std::cerr << "constructor::Arguments stringify object " << r << '\n';
+                                         auto plain = json::as<std::string>(r);
+                                         std::cerr << "constructor::Arguments stringify plain " << plain << '\n';
+                                         auto base64 = tunitas::base64::encode(plain);
+                                         std::cerr << "constructor::Arguments stringify base64 " << base64 << '\n';
+                                         return header(schema::Version::V2) + base64;
+                                       },
                                        [](record::Bytes const &r) -> std::string {
                                          // [[FIXTHIS]] whereas tunitas::base64::encode(...) does not have either an iterator interface or a std::byte interface,
                                          // we have to open code it
@@ -110,7 +146,7 @@ template<> auto iab::privacychain::constructor::Arguments::stringify<iab::privac
                                          Encoder enc;
                                          for (auto b : r) { enc.put(char(b)); }
                                          enc.put(Encoder::PAD8);
-                                         return enc.finalize();
+                                         return header(schema::Version::V1) + enc.finalize();
                                        }};
   return std::visit(visitor, record);
 } catch (tunitas::base64::Exception const &) {

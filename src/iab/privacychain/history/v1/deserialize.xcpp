@@ -34,6 +34,7 @@ namespace iab::privacychain::history::v1 {
 #import std.make_unique
 #import std.transform
 #import std.visit
+#import std.cerr
 #import json.failure.constants
 #import json.parse
 #import json.to
@@ -47,6 +48,12 @@ auto iab::privacychain::history::v1::deserialize(Outcome<Record> in) -> Outcome<
   // If the payload is not an shaped appropriately then these will throw.
   // See the specimen above.
   //
+#if 1
+  auto const visitor = record::Visitor{[](record::Json &&r) -> record::Json { return std::forward<record::Json>(r); },
+                                       [](auto &&) -> record::Json { throw std::error_code{error::Code::PAYLOAD_BAD_RECORD}; }};
+  auto container = std::visit(visitor, value(std::move(in)));
+  std::cerr << "DEBUG History::v1::deserialize " << container << '\n';
+#else
   auto const visitor = record::Visitor{[](record::Bytes &&r) -> record::Bytes { return std::forward<record::Bytes>(r); },
                                        [](auto &&) -> record::Bytes { throw std::error_code{error::Code::PAYLOAD_BAD_RECORD}; }};
   auto encoded = std::visit(visitor, value(std::move(in)));
@@ -69,15 +76,30 @@ auto iab::privacychain::history::v1::deserialize(Outcome<Record> in) -> Outcome<
                      }
                      return value(std::move(parsed));
                    }();
+#endif
   History history;
   using namespace chaincode::v1::constants;
   for (auto const &record : container[DATA]) {
-    auto tx        = exceptional(dejsonize<transaction::Identifier>(record[TXID]));
-    auto collected = exceptional(dejsonize<std::string>(record[COLLECTED]));  // NOT decoding as any particular schema
-    auto stamp     = exceptional(dejsonize<time::Point>(record[STAMP]));
-    auto deleet    = exceptional(dejsonize<bool>(record[DELEET]));
-    history.emplace_back(std::make_unique<transaction::Record>(transaction::Record{std::move(tx), std::move(collected), std::move(stamp), std::move(deleet)}));
+    std::cerr << "DEBUG History::v1::deserialize record viewing " << record << '\n';
   }
+  for (auto const &record : container[DATA]) {
+    std::cerr << "DEBUG History::v1::deserialize record acting " << record << '\n';
+    std::cerr << __FILE__ << ':' << __LINE__ << '\n';
+    std::cerr << "find " << TXID << " " << record[TXID] << '\n';
+    auto tx        = exceptional(dejsonize<transaction::Identifier>(record[TXID]));
+    std::cerr << __FILE__ << ':' << __LINE__ << '\n';
+    std::cerr << "find " << COLLECTED << " " << record[COLLECTED] << '\n';
+    auto collected = exceptional(dejsonize<std::string>(record[COLLECTED]));  // NOT decoding as any particular schema
+    std::cerr << __FILE__ << ':' << __LINE__ << '\n';
+    auto stamp     = exceptional(dejsonize<time::Point>(record[STAMP]));
+    std::cerr << __FILE__ << ':' << __LINE__ << '\n';
+    auto deleet    = exceptional(dejsonize<bool>(record[DELEET]));
+    std::cerr << __FILE__ << ':' << __LINE__ << '\n';
+    history.emplace_back(std::make_unique<transaction::Record>(transaction::Record{std::move(tx), std::move(collected), std::move(stamp), std::move(deleet)}));
+    std::cerr << __FILE__ << ':' << __LINE__ << '\n';
+    std::cerr << "EMPLACED\n";
+  }
+  std::cerr << "DEBUG History::v1::deserialize finished\n";
   return Outcome<History>{std::move(history)};
 } catch (std::error_code const &ec) {
   return Outcome<History>{ec};

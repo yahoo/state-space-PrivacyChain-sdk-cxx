@@ -23,6 +23,13 @@ namespace iab::privacychain::error {
       SYNTAX_BAD_KEY, // i.e. key::from_string(...) failed
       PAYLOAD_BAD_RECORD,
       PAYLOAD_BAD_FIELD,
+      SCHEMA_UNSUPPORTED,
+      SCHEMA_IS_UNSUPPORTED [[deprecated("instead use SCHEMA_UNSUPPORTED")]] = SCHEMA_UNSUPPORTED,
+      SCHEMA_ILLEGAL,
+      SCHEMA_UNKNOWN,
+      SCHEMA_IS_UNKNOWN [[deprecated("instead use SCHEMA_UNKNOWN")]] = SCHEMA_UNKNOWN,
+      RECORD_EMPTY,
+      RECORD_IS_EMPTY [[deprecated("instead use RECORD_EMPTY")]] = RECORD_EMPTY,
       RECORD_UNENCODABLE,
       RECORD_UNDECODABLE,
       TRANSACTION_READ,

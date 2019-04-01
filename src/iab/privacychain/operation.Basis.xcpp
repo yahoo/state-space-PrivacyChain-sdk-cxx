@@ -28,6 +28,8 @@ namespace iab::privacychain::operation {
 #import iab.privacychain.Function
 #import iab.privacychain.Key
 #import iab.privacychain.Record
+#import std.byte
+#import std.vector
 class iab::privacychain::operation::Basis {
 public:
   using Context = hyperledger::fabric::peer::chaincode::Call;
@@ -40,5 +42,132 @@ public:
 protected:
   // This needs to be mutable because all the remote procedure calls require mutable context
   Context &context;
+  // The value-returning descendants all share this.
+  // It is not wholly noexcept, but does capture the exceptional cases of record recovery failure (schema problems, etc.)
+  auto decode_record_versioned_schema(Outcome<std::vector<std::byte>>) -> Outcome<Record>;
 };
+#endiv
+#divert <cpp>
+#import iab.privacychain.schema // Key, V1, V2, etc.
+#import iab.privacychain.constructor.generate
+#import iab.privacychain.error.Code
+#import json.exception.Generic
+#import json.parse
+#import json.to
+#import std.byte
+#import std.error_code
+#import std.transform
+#import std.copy
+#import std.vector
+#import std.string_literals;
+#import tunitas.base64.Exception
+#import tunitas.base64.decode
+auto iab::privacychain::operation::Basis::decode_record_versioned_schema(Outcome<std::vector<std::byte>> recovered) -> Outcome<Record> try {
+  using Result = Outcome<Record>;
+  if (!ok(recovered)) {
+    throw error_code(recovered); // indeed, this is expected to be exceptional
+  }
+  auto const &blob = value(std::move(recovered));
+  auto const inspected = schema::inspect(blob);
+  if (!ok(inspected)) {
+    throw error_code(inspected); // exceptional: the database is corrupt or the transmission from it was corrupted.
+  }
+  switch (value(inspected)) {
+  case schema::Version::V1:
+    {
+      record::Bytes bytes;
+      bytes.reserve(blob.size() - 1);
+      std::copy(1+blob.begin(), blob.end(), std::back_inserter(bytes));
+      return Result{std::move(bytes)};
+    }
+  case schema::Version::V2:
+    {
+      std::string base64;
+      std::transform(1+blob.begin(), blob.end(), std::back_inserter(base64), [](auto b) { return char(b); });
+      std::cerr << "DEBUG decode_record base64 " << base64 << '\n';
+      std::string plain = tunitas::base64::decode(base64);
+      std::cerr << "DEBUG decode_record plain " << plain << '\n';
+      auto object = json::parse(json::failure::THROWING, json::to(json::STRING{}, plain));
+      std::cerr << "DEBUG decode_record object " << object << '\n';
+      return Result{std::move(object)};
+    }
+  case schema::Version::HISTORY0:
+    {
+      // WATCHOUT - whereas the chaincode itself synthesizes the history object.
+      // WATCHOUT - these things have syntax errors in the JSON
+      //
+      std::string plain_broken;
+      std::transform(blob.begin(), blob.end(), std::back_inserter(plain_broken), [](auto b) { return char(b); });
+      std::cerr << "DEBUG HISTORY0 decode_record plain-broken " << plain_broken << '\n';
+      std::string plain_repaired = [](std::string const &damaged) -> std::string {
+                                     // 
+                                     // Buggy nastiness in the history packagefrom acxiom_cc.go v1.0
+                                     //
+                                     // Specimen:
+                                     //
+                                     //   [{\"txId\":\"0742d69e8cd87991e94c2f8a0b775412a4bd94ed34fe6c568c5de823ed9fd260\", \"collectData\":ImFwcGxlIg==, \"timestamp\":\"2019-04-01 18:02:18.122002839 +0000 UTC\", \"isDelete\":\"false\"},{\"txId\":\"631e31ad0df55478e4d9271b3f1276467d203f09537cfe9d3b1f1085f6a28878\", \"collectData\":\002ImFwcGxlIg==, \"timestamp\":\"2019-04-01 18:07:51.326543068 +0000 UTC\", \"isDelete\":\"false\"},{\"txId\":\"336254cc01aa1937a7a4766040da1348c9a0ec9102f32e9a389abf03e911e5b5\", \"collectData\":\001\002IjEyMzQ1Ig==, \"timestamp\":\"2019-04-01 19:25:22.828564568 +0000 UTC\", \"isDelete\":\"false\"},{\"txId\":\"a1bf1b66b3788262b46acb55b60eb393b7525398c8de31a3844fd9e8b4c54656\", \"collectData\":\002IjEyMzQ1Ig==, \"timestamp\":\"2019-04-01 19:30:24.688900239 +0000 UTC\", \"isDelete\":\"false\"},{\"txId\":\"488c424177816f28ab95e589a3f18ba3fd6fa4365c82da8ebb17e477858feaec\", \"collectData\":\002IjExMTEi, \"timestamp\":\"2019-04-01 19:40:02.87179568 +0000 UTC\", \"isDelete\":\"false\"},{\"txId\":\"9903629296e53034a5ee91be84437ee26a95c5658c6068b3ee513909eb94ade7\", \"collectData\":bIjExMTEi, \"timestamp\":\"2019-04-01 19:46:36.708573624 +0000 UTC\", \"isDelete\":\"false\"},{\"txId\":\"7387e5c80e723e5ee48239305745197cb17574e45545e7422cbc1ebac7e5c0b2\", \"collectData\":bIjExMTEi, \"timestamp\":\"2019-04-01 19:47:01.018775477 +0000 UTC\", ...etc... ]]
+                                     //
+                                     std::string ret;
+                                     using namespace std::string_literals;
+                                     auto const COLON = ':';
+                                     auto const COMMA = ',';
+                                     auto const BS = '\\';
+                                     auto const QQ = '"';
+                                     for (int i{0}, e(damaged.size()); e != i; ++i) {
+                                       std::cerr << "repairing: " << ret << " " << i << ' ' << e << '\n';
+                                       if (i+2 < e && BS == damaged.at(i) && QQ == damaged.at(i+1)) {
+                                         //
+                                         // Repair the backslashed quotes
+                                         //
+                                         // Specimen:
+                                         //
+                                         //    \"collectData\"
+                                         //
+                                         ret.push_back(QQ);
+                                         ++i;
+                                       } else {
+                                         ret.push_back(damaged.at(i));
+                                       }
+                                       if (i+1 < e && COLON == damaged.at(i)) {
+                                         auto const pattern = "\"collectData\":"s;
+                                         auto const position = ret.rfind(pattern);
+                                         if (std::string::npos != position && position + pattern.size() == ret.size()) {
+                                           if (QQ != damaged.at(i+1)) {
+                                             //
+                                             // Repair the unquoted payload
+                                             //
+                                             // Specimen:          /-------+------ (here)
+                                             //                    |       |
+                                             //                    v       v
+                                             //      "collectData":bIjExMTEi,
+                                             //
+                                             ret.push_back(QQ);
+                                             for (++i; i != e && COMMA != damaged.at(i); ++i) {
+                                               ret.push_back(damaged.at(i));
+                                             }
+                                             --i;  // went one too far (likely: at the ',')
+                                             ret.push_back(QQ);
+                                           }
+                                         }
+                                       }
+                                     }
+                                     return std::move(ret);
+                                   }(plain_broken);
+      std::cerr << "DEBUG HISTORY0 decode_record plain-repaired " << plain_repaired << '\n';
+      auto object = json::parse(json::failure::THROWING, json::to(json::STRING{}, plain_repaired));
+      std::cerr << "DEBUG HISTORY0 decode_record object " << object << '\n';
+      return Result{std::move(object)};
+    }
+  default:
+    // This was likely handled above in (!ok), but just in case
+    std::cerr << "DEBUG record schema unknonw " << (int) value(inspected) << '\n';
+    throw std::error_code{error::Code::SCHEMA_UNKNOWN};
+  }
+} catch (tunitas::base64::Exception const &) {
+  return Outcome<Record>{std::error_code{error::Code::RECORD_UNDECODABLE}};
+} catch (json::exception::Generic const &) {
+  return Outcome<Record>{std::error_code{error::Code::RECORD_UNDECODABLE}};
+} catch (std::error_code const &ec) {
+  return Outcome<Record>{ec};
+}
 #endiv

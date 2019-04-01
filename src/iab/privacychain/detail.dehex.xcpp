@@ -4,17 +4,29 @@
 #import std.array
 namespace iab::privacychain::detail {
   //
-  // Convert a hexidecimal character into its 8-bit format
+  // Convert a hexidecimal character into its 4-bit format
   //
   // The dehex is an implementation detail envisioned for use within transaction payload parsing.
   // It throws std::error_code{PAYLOAD_BAD_FIELD} if it cannot perform its function.
   // Such non-performance is expected to be very exceptional (rare).
   //
+  //          /--------------- bit 3 
+  //          | /------------- bit 2 
+  //          | | /----------- bit 1 
+  //          | | | /--------- bit 0 
+  //          v v v v
+  //   '0'    0 0 0 0
+  //    ...
+  //   '9'    1 0 0 1
+  //   'a'    1 0 1 0
+  //    ...
+  //   'f'    1 1 1 1
+  //
   // Usage:
   //
   //   auto bits = dehex('a');
   //
-  inline auto dehex(char c) -> std::array<bool, 8>;
+  inline auto dehex(char c) -> std::array<bool, 4>;
 }
 #endiv
 #divert <ipp>
@@ -23,27 +35,27 @@ namespace iab::privacychain::detail {
 #import std.isxdigit
 #import std.toupper
 #import std.move
-auto iab::privacychain::detail::dehex(char candidate_hexchar_syntax) -> std::array<bool, 8> {
-  using Result = std::array<bool, 8>;
-  auto i = [](char syntax) {
-             if (!std::isxdigit(syntax)) {
-               throw std::error_code{error::Code::PAYLOAD_BAD_FIELD};
-             }
-             if ('0' <= syntax && syntax <= '9') {
-               return syntax - '0';
-             } else {
-               // See the note in the interface from RFC 3986 about the use of upper case.
-               return std::toupper(syntax) - 'A' + 10;
-             }
-           }(candidate_hexchar_syntax);
-  // Network order (database order) is "big endian" and especially so for octets
+auto iab::privacychain::detail::dehex(char candidate_hexchar_syntax) -> std::array<bool, 4> {
+  using Result = std::array<bool, 4>;
+  auto candidate_nibble_value = [](char syntax) {
+                                  if (!std::isxdigit(syntax)) {
+                                    throw std::error_code{error::Code::PAYLOAD_BAD_FIELD};
+                                  }
+                                  if ('0' <= syntax && syntax <= '9') {
+                                    return syntax - '0';
+                                  } else {
+                                    // See the note in the interface from RFC 3986 about the use of upper case.
+                                    return std::toupper(syntax) - 'A' + 10;
+                                  }
+                                }(candidate_hexchar_syntax);
+  // Network order (database order) is "big endian" and especially so for octets and their fragments.
   // RFC 1700, http://tools.ietf.org/html/rfc1700, 1980-04-01; and elsewhere.
-  auto const WIDTH = 8;
-  auto const MAX = WIDTH - 1;
+  auto const WIDTH = 4u;
+  auto const MAX = WIDTH - 1u;
   Result ret;
   for (auto bit{0u}; WIDTH != bit; ++bit) {
-    auto const mask = 1<<bit;
-    auto ping = 0 != (mask & i);
+    auto const mask = 1<<(MAX - bit);
+    auto ping = 0 != (mask & candidate_nibble_value);
     auto index = MAX - 1; 
     ret[index] = ping;
   }

@@ -1,5 +1,111 @@
 // This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
 // Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
 #divert <fpp>
-namespace iab::privacychain::schema { }
+#import std.byte
+namespace iab::privacychain::schema {
+  //
+  // Usage:
+  //
+  // Southbound to the database            constructor::Arguments::stringify<Record>(Record const &) -> std::string
+  // Northward unto us (the application)   operation::Basis::decode:record_versioned_schema(Outcome<vector<byte>>) -> Outcome<Record>
+  //
+  enum class Version : int
+    { V0, // unuseable
+      V1, // base64 of bytes
+      V2, // base64 of JSON
+      HISTORY0, // raw JSON with internal syntax errors; 00.worthy-cupboard
+      HISTORY1 };
+  enum class Magic : unsigned char; // a.k.a. 'byte'
+  //
+  auto const M0 = Magic{'\000'}; // record::Bytes (unsupportable)
+  auto const M1 = Magic{'a'}; // base64 of std::byte, lives in record::Bytes
+  auto const M2 = Magic{'b'}; // base64 of json::Value, lives in record::Json
+  //
+  auto const HBRA = Magic{'{'}; // raw JSON is the history element
+}
+#endiv
+#divert <hpp>
+#import std.string
+namespace iab::privacychain::schema {
+  //
+  // Develop the byte-encoded header for a schema Magic
+  //
+  // Usage:
+  //
+  //   auto body = ...somehow...;
+  //   auto head = key::header(key::V1);
+  //   auto final = head + body;
+  //
+  inline auto header(Version) -> std::string;
+}
+#import std.byte
+#import std.vector
+#import iab.privacychain.Outcome
+namespace iab::privacychain::schema {
+  //
+  // Inspect some bytes for the schema key
+  //
+  // Usage
+  //
+  //   auto const &blob = value(recovered);
+  //   auto inspected = inspect(blob);  
+  //   if (ok(inspected)) {
+  //     auto schema_key = value(inspected);
+  //     ...use the blob...
+  //   } else {
+  //     auto ec = error_code(inspected);
+  //     ... badness ensues...
+  //   }
+  //    
+  inline auto inspect(std::vector<std::byte> const &) -> Outcome<Version>;
+}
+#endiv
+#divert <ipp>
+#import std.invalid_argument
+auto iab::privacychain::schema::header(Version version) -> std::string {
+  static_assert(sizeof (Magic) == sizeof (char));
+  static_assert(sizeof (Magic) == sizeof (std::byte));
+  Magic magic{M0};
+  switch (version) {
+  case Version::V1:
+    magic = M1;
+    break;
+  case Version::V2:
+    magic = M2;
+    break;
+  default:
+    // You can't make headers for the others ones
+    throw std::invalid_argument{"version"};
+  }
+  return std::string(1, char(magic)); // <------ PARENTHESIS NOT BRACKETS
+}
+#import iab.privacychain.error.Code
+#import std.error_code
+#import std.cerr
+auto iab::privacychain::schema::inspect(std::vector<std::byte> const &bytes) -> Outcome<Version> {
+  using Result = Outcome<Version>;
+  if (bytes.empty()) {
+    return Result{std::error_code{error::Code::RECORD_EMPTY}};
+  } else {
+    auto const found = Magic{bytes.front()};
+    std::cerr << "DEBUG found schema key=" << (int) found << '\n';
+    switch (found) {
+    // Hyperledger Fabric's constructor syntax cannot tolerate these characters in the string arguments of the JSON.
+    case Magic{'\000'}: // The '\0'-terminated strings are weak sauce.
+    case Magic{'"'}:    // See the WATCHOUT in constructor::Arguments::stringify<Record>(Record const &) -> std::string;
+    case Magic{'\''}:   // Same.
+    case Magic{'\\'}:   // Same.
+      return Result{std::error_code{error::Code::SCHEMA_ILLEGAL}};
+    case M1:
+      return Result{Version::V1};
+    case M2:
+      return Result{Version::V2};
+    case HBRA:
+      // Because that's all we have right now
+      return Result{Version::HISTORY0};
+    default:
+      return Result{std::error_code{error::Code::SCHEMA_UNKNOWN}};
+    }
+  }
+}
 #endiv

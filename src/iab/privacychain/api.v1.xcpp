@@ -62,6 +62,7 @@ namespace iab::privacychain::api::v1 {
   //   }
   //
   inline auto get(Operation<QUERY> &, Key const &) -> Outcome<Record>;
+  auto set(Operation<QUERY> &, Key const &, Record const &) -> Success = delete;
   inline auto history(Operation<QUERY> &, Key const &) -> Outcome<History>;
 }
 #import iab.privacychain.Operation

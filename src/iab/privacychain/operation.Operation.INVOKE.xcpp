@@ -55,16 +55,9 @@ namespace iab::privacychain::operation {
 #import std.byte
 #import std.vector
 namespace iab::privacychain::operation {
-  auto Operation<INVOKE>::run(Function const &function, Key const &key) -> Outcome<Record> try {
-    using Result = Outcome<Record>;
-    auto called = hyperledger::fabric::peer::chaincode::invoke<std::vector<std::byte>>(context, constructor::generate(function, key));
-    if (!ok(called)) {
-      return Result{error_code(called)};
-    }
-#warning WRITETHIS parse the versioned schema and materialize a fully formed "latest" Value.
-    return Result{value(std::move(called))};
-  } catch (std::error_code const &ec) {
-    return Outcome<Record>{ec};
+  auto Operation<INVOKE>::run(Function const &function, Key const &key) -> Outcome<Record> {
+    // decode...schema(...) captures the exceptional cases.
+    return decode_record_versioned_schema(hyperledger::fabric::peer::chaincode::invoke<std::vector<std::byte>>(context, constructor::generate(function, key)));
   }
   auto Operation<INVOKE>::run(Function const &function, Key const &key, Record const &record) -> Success try {
     auto called = hyperledger::fabric::peer::chaincode::invoke(context, constructor::generate(function, key, record));

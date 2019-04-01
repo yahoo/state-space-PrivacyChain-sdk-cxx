@@ -25,15 +25,21 @@ namespace iab::privacychain::history::v1 {
 #import iab.privacychain.detail.dehex
 #import iab.privacychain.error.Code
 #import std.error_code
+#import std.cerr
 #import json.exception.Generic
 template<> auto iab::privacychain::history::v1::dejsonize<iab::privacychain::transaction::Identifier>(Outcome<json::Value> in) -> Outcome<transaction::Identifier> {
   using Result = Outcome<transaction::Identifier>;
+    std::cerr << __FILE__ << ':' << __LINE__ << '\n';
   if (!ok(in)) {
+    std::cerr << __FILE__ << ':' << __LINE__ << '\n';
     return Result{error_code(in)};
   }
+    std::cerr << __FILE__ << ':' << __LINE__ << '\n';
   try {
+    std::cerr << __FILE__ << ':' << __LINE__ << '\n';
     return transaction::identifier::from_string(value(in).asString());
   } catch (json::exception::Generic const &) {
+    std::cerr << __FILE__ << ':' << __LINE__ << '\n';
     return Result{std::error_code{error::Code::PAYLOAD_BAD_FIELD}};
   }
 }

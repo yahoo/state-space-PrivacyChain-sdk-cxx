@@ -23,29 +23,51 @@ namespace iab::privacychain::history::v1 {
 #import iab.privacychain.error.Code
 #import std.error_code
 #import json.as
+#import json.value.constants
 #import json.exception.Generic
-template<> auto iab::privacychain::history::v1::dejsonize<bool>(Outcome<json::Value> in) -> Outcome<bool> {
-  using Result = Outcome<bool>;
+#import std.string_literals
+#import std.cerr
+template<> auto iab::privacychain::history::v1::dejsonize<bool>(Outcome<json::Value> in) -> Outcome<bool> try {
   if (!ok(in)) {
-    return Result{error_code(in)};
+    return Outcome<bool>{error_code(in)};
   }
-  try {
-    //
-    // [[FIXTHIS,ANSWERTHIS]] if the locale is set to non-English, will on-the-wire record transfers break?
-    // The syntax *seems* to be among
-    //
-    //     boolean_literal ::= "true" | "false" | 1 | 0
-    //
-    // as formatted with the Go string conversion function FormatBool https://golang.org/pkg/strconv/
-    // From acxiom_cc.go
-    //
-    //   buffer.WriteString(strconv.FormatBool(response.IsDelete))
-    //
-    return Result{json::as<bool>(value(in))};
-  } catch (std::error_code const &ec) {
-    return Result{ec};
-  } catch (json::exception::Generic const &) {
-    return Result{std::error_code{error::Code::PAYLOAD_BAD_FIELD}};
+  //
+  // [[FIXTHIS,ANSWERTHIS]] if the locale is set to non-English, will on-the-wire record transfers break?
+  // The syntax *seems* to be among
+  //
+  //     boolean_literal ::= "true" | "false" | 1 | 0
+  //
+  // as formatted with the Go string conversion function FormatBool https://golang.org/pkg/strconv/
+  // From acxiom_cc.go
+  //
+  //   buffer.WriteString(strconv.FormatBool(response.IsDelete))
+  //
+  auto const &object = value(in);
+  std::cerr << __FILE__ << ':' << __LINE__ << ' ' << object << '\n';
+  if (object.isString()) {
+    using namespace std::literals;
+    auto syntax = object.asString(); // NOT as<string>(object)
+    std::cerr << __FILE__ << ':' << __LINE__ << " syntax=" << syntax << '\n';
+    if ("true"s == syntax) {
+      return Outcome<bool>{true};
+    } else if ("false"s == syntax) {
+      return Outcome<bool>{false};
+    }
+    std::cerr << __FILE__ << ':' << __LINE__ << " continuing (tofail)\n";
+  } else if (object.isBool()) {
+    return Outcome<bool>{object.asBool()};
+  } else if (object.isNumeric()) {
+    auto syntax = object.asLargestUInt();
+    auto enbooleanated = 0 != syntax;
+    return Outcome<bool>{enbooleanated};
   }
+  // Good luck ... 
+  // This will likely throw because JSON does not have a "bool" sense
+  // ... and our guess around the syntax, above has failed to produce satisfaction.
+  return Outcome<bool>{json::as<bool>(object)};
+} catch (std::error_code const &ec) {
+  return Outcome<bool>{ec};
+} catch (json::exception::Generic const &) {
+  return Outcome<bool>{std::error_code{error::Code::PAYLOAD_BAD_FIELD}};
 }
 #endiv
