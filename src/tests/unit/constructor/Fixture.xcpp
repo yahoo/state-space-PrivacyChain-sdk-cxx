@@ -56,6 +56,7 @@ namespace tests::unit::constructor {
 }
 #endiv
 #divert <cpp>
+#import tests.unit.constructor.Arguments
 #import unit.rigging.suite.Stream
 #import unit.rigging.suite.call
 #import unit.rigging.suite.add
@@ -90,6 +91,7 @@ auto tests::unit::constructor::Fixture::suite() -> cppunit::Test * {
       ;
     series << add(his.release());
   }
+  series << add(Arguments::suite());
   return series.release();
 }
 #endiv

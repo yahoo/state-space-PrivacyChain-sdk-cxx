@@ -1,0 +1,96 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+#import tests.unit.constructor.Arguments
+#endiv
+#divert <hpp>
+template<typename TYPE> struct tests::unit::constructor::Arguments::Palette {
+  using Value = TYPE;
+  Palette();
+  Value zero, one, two;
+  Value a, b, c;
+};
+template<> struct tests::unit::constructor::Arguments::Palette<::iab::privacychain::record::Bytes> {
+  using Value = ::iab::privacychain::record::Bytes;
+  Palette();
+  Value single;
+private:
+  static auto copy(std::string const &) -> Value;
+};
+#import std.byte
+#import std.string
+namespace tests::unit::constructor {
+  template<> Arguments::Palette<char>::Palette();
+  template<> Arguments::Palette<std::byte>::Palette();
+  template<> Arguments::Palette<int>::Palette();
+  template<> Arguments::Palette<char *>::Palette();
+  template<> Arguments::Palette<std::string>::Palette();
+  template<> Arguments::Palette<std::string_view>::Palette();
+};
+#endiv
+#divert <cpp>
+namespace tests::unit::constructor  {
+  template<> Arguments::Palette<char>::Palette() {
+    zero = Value{0};
+    one = Value{1};
+    two = Value{2};;
+    a = Value{'a'};;
+    b = Value{'b'};;
+    c = Value{'c'};;
+  }
+  template<> Arguments::Palette<std::byte>::Palette() {
+    zero = Value{0};
+    one = Value{1};
+    two = Value{2};;
+    a = Value{'a'};;
+    b = Value{'b'};;
+    c = Value{'c'};;
+  }
+  template<> Arguments::Palette<int>::Palette() {
+    zero = Value{0};
+    one = Value{1};
+    two = Value{2};;
+    a = Value{'a'};;
+    b = Value{'b'};;
+    c = Value{'c'};;
+  }
+  template<> Arguments::Palette<char const *>::Palette() {
+    zero = "";
+    one = "1";
+    two = "2";
+    a = "apple";
+    b = "banana";
+    c = "cherry";
+  }
+  template<> Arguments::Palette<std::string>::Palette() {
+    zero = ""s;
+    one = "1"s;
+    two = "2"s;
+    a = "apple"s;
+    b = "banana"s;
+    c = "cherry"s;
+  }
+  template<> Arguments::Palette<std::string_view>::Palette() {
+    zero = ""sv;
+    one = "1"sv;
+    two = "2"sv;
+    a = "apple"sv;
+    b = "banana"sv;
+    c = "cherry"sv;
+  }
+};
+tests::unit::constructor::Arguments::Palette<::iab::privacychain::record::Bytes>::Palette() {
+  auto const specimen = "abcdefghijklmnopqrstuvwxyz"s;
+  single = Value{copy(specimen)};
+}
+#import std.back_inserter
+#import std.transform
+#import std.move
+auto tests::unit::constructor::Arguments::Palette<::iab::privacychain::record::Bytes>::copy(std::string const &source) -> std::vector<std::byte> {
+  auto cvt = [](char c) { return std::byte(c); };
+  std::vector<std::byte> ret;
+  auto sink = std::back_inserter(ret);
+  std::transform(source.begin(), source.end(), sink, cvt);
+  return std::move(ret);
+}
+#endiv

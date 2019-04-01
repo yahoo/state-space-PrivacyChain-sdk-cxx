@@ -17,6 +17,8 @@ check_bin_unit_SOURCES = \
   obj/src/tests/unit/api.Fixture.cpp \
   obj/src/tests/unit/chaincode.Fixture.cpp \
   obj/src/tests/unit/constructor/namespace.cpp \
+  obj/src/tests/unit/constructor/Arguments.cpp \
+  obj/src/tests/unit/constructor/Arguments.Palette.cpp \
   obj/src/tests/unit/constructor/Fixture.dispatch.Basis.cpp \
   obj/src/tests/unit/constructor/Fixture.dispatch.Generator.cpp \
   obj/src/tests/unit/constructor/Fixture.cpp \

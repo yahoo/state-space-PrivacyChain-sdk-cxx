@@ -21,11 +21,13 @@ namespace iab::privacychain::constructor {
     using std::to_string; // packaged for later importation
   }
 }
+#import tests.unit.constructor.Arguments
 #import iab.privacychain.constructor.generate
 #import json.Value
 #import std.string
 class iab::privacychain::constructor::Arguments {
   template<typename... TYPES> friend auto constructor::generate(TYPES const &...) -> std::string;
+  friend class tests::unit::constructor::Arguments;
   inline explicit Arguments(/*[[inout]]*/ json::Value &);
   json::Value &array;
 public:
@@ -42,6 +44,11 @@ namespace iab::privacychain::constructor {
 #import std.string_view
 #import std.vector
 namespace iab::privacychain::constructor {
+  template<> inline auto Arguments::stringify<std::byte>(std::byte const &) -> std::string;
+  template<> inline auto Arguments::stringify<char>(char const &) -> std::string;
+  // treated as numeric: {unsigned, signed} char
+  // treated as numeric: int {,short,long} {signed,  unsigned}
+  // treated as numeric: float, double
   template<> inline auto Arguments::stringify<std::vector<std::byte>>(std::vector<std::byte> const &) -> std::string;
   template<> inline auto Arguments::stringify<std::string>(std::string const &) -> std::string;
   template<> inline auto Arguments::stringify<std::string_view>(std::string_view const &) -> std::string;
@@ -56,6 +63,12 @@ iab::privacychain::constructor::Arguments::Arguments(json::Value &array)
 template<typename TYPE> auto iab::privacychain::constructor::Arguments::stringify(TYPE const &candidate) -> std::string {
   using namespace packaging::to_string::function;
   return to_string(candidate); // or else ADL will find it.
+}
+template<> auto iab::privacychain::constructor::Arguments::stringify<char>(char const &candidate) -> std::string {
+  return std::string(1u, candidate); // WATCHOUT - string(count, char) PARENTHESIS differs from string{initializer} BRACKETS
+}
+template<> auto iab::privacychain::constructor::Arguments::stringify<std::byte>(std::byte const &candidate) -> std::string {
+  return std::string(1u, char(candidate));
 }
 template<> auto iab::privacychain::constructor::Arguments::stringify<std::string>(std::string const &candidate) -> std::string {
   return candidate; // copy it.  Sure, just copy it.
@@ -91,7 +104,8 @@ template<> auto iab::privacychain::constructor::Arguments::stringify<iab::privac
   auto const visitor = record::Visitor{[](auto const &) -> std::string { throw std::error_code{error::Code::RECORD_UNENCODABLE}; },
                                        [](record::Json const &r) -> std::string { return json::as<std::string>(r); },
                                        [](record::Bytes const &r) -> std::string {
-                                         // [[FIXTHIS]] whereas tunitas::base64::encode(...) does not have either an iterator interface or a std::byte interface, we have to open code it
+                                         // [[FIXTHIS]] whereas tunitas::base64::encode(...) does not have either an iterator interface or a std::byte interface,
+                                         // we have to open code it
                                          using namespace tunitas::base64;
                                          Encoder enc;
                                          for (auto b : r) { enc.put(char(b)); }

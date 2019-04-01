@@ -15,15 +15,15 @@ public:
 };
 #endiv
 #divert <cpp>
-#import iab::privacychain.transaction.Identifier
+#import iab.privacychain.transaction.Identifier
 auto tests::unit::transaction::Fixture::test_usage_Identifier() -> void {
   CPPUNIT_ASSERT(true);
 }
-#import iab::privacychain.transaction.Record
+#import iab.privacychain.transaction.Record
 auto tests::unit::transaction::Fixture::test_usage_Record() -> void {
   CPPUNIT_ASSERT(true);
 }
-#import iab::privacychain.transaction.History
+#import iab.privacychain.transaction.History
 auto tests::unit::transaction::Fixture::test_usage_History() -> void {
   CPPUNIT_ASSERT(true);
 }
