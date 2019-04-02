@@ -53,22 +53,37 @@ template<> auto iab::privacychain::history::v1::dejsonize<iab::privacychain::tim
     char sign, utc[4];
     //                                            1   2   3   4   5   6   7   8 9   10    1      2    3    4    5    6    7           8      9      10
     auto scanned = sscanf(value(in).asCString(), "%ju-%ju-%ju %ju:%ju:%ju.%ju %c%ju %3c", &yyyy, &mm, &dd, &HH, &MM, &SS, &nnnnnnnnn, &sign, &oooo, &utc[0]);
-    if (9 != scanned) {
-      sys::time::tm tmb;
-      nonstd::uninitialized::zero(tmb);
-      tmb.tm_year = yyyy - 1900;
-      tmb.tm_mon = mm - 1;
-      tmb.tm_mday = dd;
-      tmb.tm_hour = HH;
-      tmb.tm_min = MM;
-      tmb.tm_sec = SS;
-      if (0 == oooo) {
-        if ("UTC"s == utc) {
-          // WATCHOUT - we need this to compute the time in UTC
-          //            we CANNOT have this computing the time point "as if" localtime
-          auto seconds = sys::time::as<time::Point>(tmb);
-          auto nanoseconds = std::chrono::nanoseconds(nnnnnnnnn);
-          return Result{seconds + nanoseconds};
+    if (10 == scanned) {
+      utc[3] = '\0'; // WATCHOUT -- sscanf will not do this for you on %3c
+      if (1970 <= yyyy && yyyy <= 2525) {
+        if (1 <= mm && mm <= 12) {
+          if (1 <= dd && dd <= 31) {
+            if (0 <= HH && HH <= 24) { // leap seconds?
+              if (0 <= MM && MM <= 60) { // leap seconds?
+                if (0 <= SS && SS <= 60) { // leap seconds? ... indeed there is 23:59:60 on a leap second
+                  if (0 <= nnnnnnnnn && nnnnnnnnn <= 1'000'000'000) {
+                    if (0 == oooo) {
+                      if ("UTC"s == utc) {
+                        sys::time::tm tmb;
+                        nonstd::uninitialized::zero(tmb);
+                        tmb.tm_year = yyyy - 1900;
+                        tmb.tm_mon = mm - 1;
+                        tmb.tm_mday = dd;
+                        tmb.tm_hour = HH;
+                        tmb.tm_min = MM;
+                        tmb.tm_sec = SS;
+                        // WATCHOUT - we need this to compute the time in UTC
+                        //            we CANNOT have this computing the time point "as if" localtime
+                        auto seconds = sys::time::as<time::Point>(tmb);
+                        auto nanoseconds = std::chrono::nanoseconds(nnnnnnnnn);
+                        return Result{seconds + nanoseconds};
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }

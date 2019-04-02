@@ -14,7 +14,7 @@ namespace iab::privacychain::transaction {
   //
   class Identifier;
 }
-#import iab.privacychain.traits.Is_Dejsonizable
+#forward iab.privacychain.traits.Is_Dejsonizable
 namespace iab::privacychain::traits { template<> struct Is_Dejsonizable<transaction::Identifier>; }
 #endiv
 #divert <hpp>

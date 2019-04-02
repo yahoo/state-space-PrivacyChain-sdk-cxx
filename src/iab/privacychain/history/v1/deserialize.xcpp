@@ -29,12 +29,12 @@ namespace iab::privacychain::history::v1 {
 #import iab.privacychain.transaction.Record
 #import iab.privacychain.record.Visitor
 #import iab.privacychain.history.v1.dejsonize.ALL
+#import std.cerr
 #import std.error_code
 #import std.move
 #import std.make_unique
 #import std.transform
 #import std.visit
-#import std.cerr
 #import json.failure.constants
 #import json.parse
 #import json.to
@@ -48,58 +48,18 @@ auto iab::privacychain::history::v1::deserialize(Outcome<Record> in) -> Outcome<
   // If the payload is not an shaped appropriately then these will throw.
   // See the specimen above.
   //
-#if 1
   auto const visitor = record::Visitor{[](record::Json &&r) -> record::Json { return std::forward<record::Json>(r); },
                                        [](auto &&) -> record::Json { throw std::error_code{error::Code::PAYLOAD_BAD_RECORD}; }};
   auto container = std::visit(visitor, value(std::move(in)));
-  std::cerr << "DEBUG History::v1::deserialize " << container << '\n';
-#else
-  auto const visitor = record::Visitor{[](record::Bytes &&r) -> record::Bytes { return std::forward<record::Bytes>(r); },
-                                       [](auto &&) -> record::Bytes { throw std::error_code{error::Code::PAYLOAD_BAD_RECORD}; }};
-  auto encoded = std::visit(visitor, value(std::move(in)));
-  auto container = [&encoded]() -> json::Value {
-                     std::string plain;
-                     tunitas::base64::Decoder dec{[&encoded]() -> std::string {
-                                                    // [[FIXTHIS]] this is a gratuitous copy because char != std::byte
-                                                    // Whereas tunitas' base64 decoder does not have an iterator interface or a std::byte interface
-                                                    // we have to hack it this way ... by running transform and copying the bytes into a string.
-                                                    std::string ugly;
-                                                    std::transform(encoded.begin(), encoded.end(), std::back_inserter(ugly), [](std::byte b) -> char { return char(b); });
-                                                    return std::move(ugly);
-                                                  }()};
-                     while ( !dec.eof() ) {
-                       plain.push_back(dec.get<char>());
-                     }
-                     auto parsed = json::parse(json::failure::RETURNING, json::to(json::STRING{}, plain)); // [[FIXTHIS]] another gratuitous copy to get the string typing set up
-                     if (!ok(parsed)) {
-                       throw std::error_code{error::Code::PAYLOAD_BAD_FIELD};
-                     }
-                     return value(std::move(parsed));
-                   }();
-#endif
   History history;
   using namespace chaincode::v1::constants;
   for (auto const &record : container[DATA]) {
-    std::cerr << "DEBUG History::v1::deserialize record viewing " << record << '\n';
-  }
-  for (auto const &record : container[DATA]) {
-    std::cerr << "DEBUG History::v1::deserialize record acting " << record << '\n';
-    std::cerr << __FILE__ << ':' << __LINE__ << '\n';
-    std::cerr << "find " << TXID << " " << record[TXID] << '\n';
     auto tx        = exceptional(dejsonize<transaction::Identifier>(record[TXID]));
-    std::cerr << __FILE__ << ':' << __LINE__ << '\n';
-    std::cerr << "find " << COLLECTED << " " << record[COLLECTED] << '\n';
     auto collected = exceptional(dejsonize<std::string>(record[COLLECTED]));  // NOT decoding as any particular schema
-    std::cerr << __FILE__ << ':' << __LINE__ << '\n';
     auto stamp     = exceptional(dejsonize<time::Point>(record[STAMP]));
-    std::cerr << __FILE__ << ':' << __LINE__ << '\n';
     auto deleet    = exceptional(dejsonize<bool>(record[DELEET]));
-    std::cerr << __FILE__ << ':' << __LINE__ << '\n';
     history.emplace_back(std::make_unique<transaction::Record>(transaction::Record{std::move(tx), std::move(collected), std::move(stamp), std::move(deleet)}));
-    std::cerr << __FILE__ << ':' << __LINE__ << '\n';
-    std::cerr << "EMPLACED\n";
   }
-  std::cerr << "DEBUG History::v1::deserialize finished\n";
   return Outcome<History>{std::move(history)};
 } catch (std::error_code const &ec) {
   return Outcome<History>{ec};

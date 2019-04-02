@@ -81,14 +81,12 @@ auto iab::privacychain::schema::header(Version version) -> std::string {
 }
 #import iab.privacychain.error.Code
 #import std.error_code
-#import std.cerr
 auto iab::privacychain::schema::inspect(std::vector<std::byte> const &bytes) -> Outcome<Version> {
   using Result = Outcome<Version>;
   if (bytes.empty()) {
     return Result{std::error_code{error::Code::RECORD_EMPTY}};
   } else {
     auto const found = Magic{bytes.front()};
-    std::cerr << "DEBUG found schema key=" << (int) found << '\n';
     switch (found) {
     // Hyperledger Fabric's constructor syntax cannot tolerate these characters in the string arguments of the JSON.
     case Magic{'\000'}: // The '\0'-terminated strings are weak sauce.

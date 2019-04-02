@@ -85,12 +85,8 @@ template<> auto iab::privacychain::constructor::Arguments::stringify<std::vector
 template<> auto iab::privacychain::constructor::Arguments::stringify<char const *>(char const *const &candidate) -> std::string {
   return candidate;
 }
-#import std.cerr
-#import std.type_info
 template<typename FIRST, typename... REST> auto iab::privacychain::constructor::Arguments::append(FIRST const &first, REST const &...rest) -> void {
-  auto str = stringify(first);
-  std::cerr << "DEBUG Arguments::append " << typeid(FIRST).name() << ' ' << str << '\n';
-  array.append(str);
+  array.append(stringify(first));
   append(rest...);
 }
 #endiv
@@ -132,11 +128,8 @@ template<> auto iab::privacychain::constructor::Arguments::stringify<iab::privac
   auto const visitor = record::Visitor{[](auto const &) -> std::string { throw std::error_code{error::Code::RECORD_UNENCODABLE}; },
                                        [](record::Json const &r) -> std::string {
                                          // See the WATCHOUT essay(s), above.   Wow this is nasty-ugly-unperformant.
-                                         std::cerr << "constructor::Arguments stringify object " << r << '\n';
                                          auto plain = json::as<std::string>(r);
-                                         std::cerr << "constructor::Arguments stringify plain " << plain << '\n';
                                          auto base64 = tunitas::base64::encode(plain);
-                                         std::cerr << "constructor::Arguments stringify base64 " << base64 << '\n';
                                          return header(schema::Version::V2) + base64;
                                        },
                                        [](record::Bytes const &r) -> std::string {

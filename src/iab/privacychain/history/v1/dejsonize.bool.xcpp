@@ -26,7 +26,6 @@ namespace iab::privacychain::history::v1 {
 #import json.value.constants
 #import json.exception.Generic
 #import std.string_literals
-#import std.cerr
 template<> auto iab::privacychain::history::v1::dejsonize<bool>(Outcome<json::Value> in) -> Outcome<bool> try {
   if (!ok(in)) {
     return Outcome<bool>{error_code(in)};
@@ -43,17 +42,14 @@ template<> auto iab::privacychain::history::v1::dejsonize<bool>(Outcome<json::Va
   //   buffer.WriteString(strconv.FormatBool(response.IsDelete))
   //
   auto const &object = value(in);
-  std::cerr << __FILE__ << ':' << __LINE__ << ' ' << object << '\n';
   if (object.isString()) {
     using namespace std::literals;
     auto syntax = object.asString(); // NOT as<string>(object)
-    std::cerr << __FILE__ << ':' << __LINE__ << " syntax=" << syntax << '\n';
     if ("true"s == syntax) {
       return Outcome<bool>{true};
     } else if ("false"s == syntax) {
       return Outcome<bool>{false};
     }
-    std::cerr << __FILE__ << ':' << __LINE__ << " continuing (tofail)\n";
   } else if (object.isBool()) {
     return Outcome<bool>{object.asBool()};
   } else if (object.isNumeric()) {

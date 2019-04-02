@@ -84,11 +84,8 @@ auto iab::privacychain::operation::Basis::decode_record_versioned_schema(Outcome
     {
       std::string base64;
       std::transform(1+blob.begin(), blob.end(), std::back_inserter(base64), [](auto b) { return char(b); });
-      std::cerr << "DEBUG decode_record base64 " << base64 << '\n';
       std::string plain = tunitas::base64::decode(base64);
-      std::cerr << "DEBUG decode_record plain " << plain << '\n';
       auto object = json::parse(json::failure::THROWING, json::to(json::STRING{}, plain));
-      std::cerr << "DEBUG decode_record object " << object << '\n';
       return Result{std::move(object)};
     }
   case schema::Version::HISTORY0:
@@ -98,7 +95,6 @@ auto iab::privacychain::operation::Basis::decode_record_versioned_schema(Outcome
       //
       std::string plain_broken;
       std::transform(blob.begin(), blob.end(), std::back_inserter(plain_broken), [](auto b) { return char(b); });
-      std::cerr << "DEBUG HISTORY0 decode_record plain-broken " << plain_broken << '\n';
       std::string plain_repaired = [](std::string const &damaged) -> std::string {
                                      // 
                                      // Buggy nastiness in the history packagefrom acxiom_cc.go v1.0
@@ -114,7 +110,6 @@ auto iab::privacychain::operation::Basis::decode_record_versioned_schema(Outcome
                                      auto const BS = '\\';
                                      auto const QQ = '"';
                                      for (int i{0}, e(damaged.size()); e != i; ++i) {
-                                       std::cerr << "repairing: " << ret << " " << i << ' ' << e << '\n';
                                        if (i+2 < e && BS == damaged.at(i) && QQ == damaged.at(i+1)) {
                                          //
                                          // Repair the backslashed quotes
@@ -153,14 +148,11 @@ auto iab::privacychain::operation::Basis::decode_record_versioned_schema(Outcome
                                      }
                                      return std::move(ret);
                                    }(plain_broken);
-      std::cerr << "DEBUG HISTORY0 decode_record plain-repaired " << plain_repaired << '\n';
       auto object = json::parse(json::failure::THROWING, json::to(json::STRING{}, plain_repaired));
-      std::cerr << "DEBUG HISTORY0 decode_record object " << object << '\n';
       return Result{std::move(object)};
     }
   default:
     // This was likely handled above in (!ok), but just in case
-    std::cerr << "DEBUG record schema unknonw " << (int) value(inspected) << '\n';
     throw std::error_code{error::Code::SCHEMA_UNKNOWN};
   }
 } catch (tunitas::base64::Exception const &) {

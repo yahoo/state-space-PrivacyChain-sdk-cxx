@@ -31,7 +31,6 @@ namespace iab::privacychain::constructor {
 #import json.as
 #import json.Value
 #import json.value.constants // OBJECT, ARRAY - but for module-json-devel < 0.7.0 you need json.value.type to get ARRAY
-#import std.cerr
 namespace iab::privacychain {
   template<typename... TYPES> auto constructor::generate(TYPES const &...items) -> std::string {
     //
@@ -41,9 +40,7 @@ namespace iab::privacychain {
     auto &args = container[hyperledger::fabric::peer::chaincode::ARGS] = json::Value{json::value::ARRAY};
     Arguments arguments{args};
     arguments.append(items...);
-    auto str = json::as<std::string>(container);
-    std::cerr << "DEBUG constructor::generate " << str << '\n';
-    return str;
+    return json::as<std::string>(container);
   }
 }
 #endiv
