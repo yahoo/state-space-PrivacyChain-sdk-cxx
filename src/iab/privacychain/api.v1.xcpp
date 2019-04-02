@@ -4,7 +4,7 @@
 #import iab.privacychain.operation.Operation
 namespace iab::privacychain::api {
   inline namespace v1 {
-           using operation::Operation;
+    using operation::Operation;
     using operation::QUERY;
     using operation::INVOKE;
   }

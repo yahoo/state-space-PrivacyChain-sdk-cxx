@@ -1,0 +1,64 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <hpp>
+#import std.array
+#import std.byte
+namespace iab::privacychain::detail {
+  //
+  // Convert a byte (an octet, a character) into its 8-bit format
+  //
+  // The debyte is an implementation detail envisioned for use within transaction payload parsing.
+  // Throws if&when std::array throws (which it will not)
+  //
+  // array<bool>  is naturally little endian
+  // char (octet) is *pictured* as big endian
+  //          but is accessed in little endian order.
+  //
+  //             /----------------------- bit 7 
+  //             | /--------------------- bit 6 
+  //             | | /------------------- bit 6 
+  //             | | | /----------------- bit 4 
+  //             | | | | /--------------- bit 3 
+  //             | | | | | /------------- bit 2 
+  //             | | | | | | /----------- bit 1 
+  //             | | | | | | | /--------- bit 0 
+  //             v v v v v v v v
+  //   '\x00'    0 0 0 0 0 0 0 0
+  //    ...
+  //   '\x09'    0 0 0 0 1 0 0 1
+  //   '\x10'    0 0 0 1 0 0 0 0
+  //    ...
+  //   '\xfe'    1 1 1 1 1 1 1 0
+  //   '\xff'    1 1 1 1 1 1 1 1
+  //
+  // Usage:
+  //
+  //   auto bits = debyte('a');
+  //
+  inline auto debyte(char) -> std::array<bool, 8>;
+  inline auto debyte(unsigned char) -> std::array<bool, 8>;
+  inline auto debyte(signed char) -> std::array<bool, 8>;
+  inline auto debyte(std::byte) -> std::array<bool, 8>;
+}
+#endiv
+#divert <ipp>
+namespace iab::privacychain {
+  auto detail::debyte(unsigned char u) -> std::array<bool, 8> { return debyte(char(u)); }
+  auto detail::debyte(signed char s) -> std::array<bool, 8> { return debyte(char(s)); }
+  auto detail::debyte(std::byte b) -> std::array<bool, 8> { return debyte(char(b)); }
+}
+#import std.move
+auto iab::privacychain::detail::debyte(char candidate_octet) -> std::array<bool, 8> {
+  using Result = std::array<bool, 8>;
+  // Network order (database order) is "big endian" and especially so for octets and their fragments.
+  // RFC 1700, http://tools.ietf.org/html/rfc1700, 1980-04-01; and elsewhere.
+  auto const WIDTH = 8u;
+  Result ret;
+  for (auto bit{0u}; WIDTH != bit; ++bit) {
+    auto const mask = 1u << bit;
+    auto ping = 0 != (mask & candidate_octet);
+    ret[bit] = ping;
+  }
+  return std::move(ret);
+}
+#endiv

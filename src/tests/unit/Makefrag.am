@@ -33,6 +33,7 @@ check_bin_unit_SOURCES = \
   obj/src/tests/unit/constructor/Fixture.Dispatch.HISTORY.1.cpp \
   obj/src/tests/unit/constructor/Fixture.Dispatch.HISTORY.2.cpp \
   obj/src/tests/unit/constructor/Fixture.Dispatch.HISTORY.3.cpp \
+  obj/src/tests/unit/detail.Fixture.cpp \
   obj/src/tests/unit/error.Fixture.cpp \
   obj/src/tests/unit/error.Category.cpp \
   obj/src/tests/unit/function.Fixture.cpp \

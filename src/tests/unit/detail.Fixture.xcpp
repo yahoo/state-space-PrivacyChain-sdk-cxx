@@ -1,0 +1,105 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+namespace tests::unit::detail { class Fixture; }
+#endiv
+#divert <hpp>
+#import cppunit.Test
+#import cppunit.test.Fixture
+class tests::unit::detail::Fixture : public cppunit::test::Fixture {
+public:
+  auto test_debyte_01() -> void;
+  auto test_debyte_02() -> void;
+  auto test_dehex_01() -> void;
+  auto test_dehex_02() -> void;
+  static auto suite() -> cppunit::Test *;
+private:
+  template<typename CONTAINER> static auto assert_equal(CONTAINER &, CONTAINER &) -> void;
+};
+#endiv
+#divert <tpp>
+template<typename CONTAINER> auto tests::unit::detail::Fixture::assert_equal(CONTAINER &a, CONTAINER &b) -> void {
+  CPPUNIT_ASSERT(std::equal(a.begin(), a.end(), b.begin(), b.end()));
+}
+#endiv
+#divert <cpp>
+#import iab.privacychain.detail.debyte
+auto tests::unit::detail::Fixture::test_debyte_01() -> void {
+  using ::iab::privacychain::detail::debyte;
+  {
+    auto const actual = debyte('\x00');
+    auto const expected = std::array<bool,8>{0,0,0,0,0,0,0,0};
+    assert_equal(expected, actual);
+  } {
+    auto const actual = debyte('\xff');
+    auto const expected = std::array<bool,8>{1,1,1,1,1,1,1,1};
+    assert_equal(expected, actual);
+  }
+}
+auto tests::unit::detail::Fixture::test_debyte_02() -> void {
+  using ::iab::privacychain::detail::debyte;
+  {
+    auto const actual = debyte('\x0f');
+    auto const expected = std::array<bool,8>{1,1,1,1,0,0,0,0};
+    assert_equal(expected, actual);
+  } {
+    auto const actual = debyte('\xf0');
+    auto const expected = std::array<bool,8>{0,0,0,0,1,1,1,1};
+    assert_equal(expected, actual);
+  }
+}
+#import iab.privacychain.detail.dehex
+auto tests::unit::detail::Fixture::test_dehex_01() -> void {
+  using ::iab::privacychain::detail::dehex;
+  {
+    auto const actual = dehex('0');
+    auto const expected = std::array<bool,4>{0,0,0,0};
+    assert_equal(expected, actual);
+  } {
+    auto const actual = dehex('1');
+    auto const expected = std::array<bool,4>{1,0,0,0};
+    assert_equal(expected, actual);
+  } {
+    auto const actual = dehex('2');
+    auto const expected = std::array<bool,4>{0,1,0,0};
+    assert_equal(expected, actual);
+  }
+}
+auto tests::unit::detail::Fixture::test_dehex_02() -> void {
+  using ::iab::privacychain::detail::dehex;
+  {
+    auto const actual = dehex('8');
+    auto const expected = std::array<bool,4>{0,0,0,1};
+    assert_equal(expected, actual);
+  } {
+    auto const actual = dehex('a');
+    auto const expected = std::array<bool,4>{0,1,0,1};
+    assert_equal(expected, actual);
+  } {
+    auto const actual = dehex('B');
+    auto const expected = std::array<bool,4>{1,1,0,1};
+    assert_equal(expected, actual);
+  }
+}
+#import unit.rigging.suite.Stream
+#import unit.rigging.suite.call
+#import unit.rigging.suite.add
+auto tests::unit::detail::Fixture::suite() -> cppunit::Test * {
+  using namespace ::unit::rigging::suite;
+  Stream series("detail");
+  {
+    Stream deb("debyte");
+    deb << call("01", &Fixture::test_debyte_01)
+        << call("02", &Fixture::test_debyte_02)
+    ;
+    series << add(deb.release());
+  } {
+    Stream dex("dehex");
+    dex << call("01", &Fixture::test_dehex_01)
+        << call("02", &Fixture::test_dehex_02)
+    ;
+    series << add(dex.release());
+  }
+  return series.release();
+}
+#endiv

@@ -3,6 +3,7 @@ tests_unit_TESTS = \
   \
   tests/unit/api.test \
   tests/unit/constructor.test \
+  tests/unit/detail.test \
   tests/unit/error.test \
   tests/unit/function.test \
   tests/unit/history.test \
@@ -14,6 +15,7 @@ tests_unit_TESTS = \
   tests/unit/schema.test \
   tests/unit/time.test \
   tests/unit/transaction.test \
+  tests/unit/want.test \
   \
   tests/unit/all.test \
   $(end)

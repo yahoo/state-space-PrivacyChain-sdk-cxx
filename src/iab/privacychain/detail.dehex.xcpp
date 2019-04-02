@@ -10,6 +10,10 @@ namespace iab::privacychain::detail {
   // It throws std::error_code{PAYLOAD_BAD_FIELD} if it cannot perform its function.
   // Such non-performance is expected to be very exceptional (rare).
   //
+  // array<bool>  is naturally little endian
+  // char (octet) is *pictured* as big endian
+  //          but is accessed in little endian order.
+  //
   //          /--------------- bit 3 
   //          | /------------- bit 2 
   //          | | /----------- bit 1 
@@ -51,13 +55,11 @@ auto iab::privacychain::detail::dehex(char candidate_hexchar_syntax) -> std::arr
   // Network order (database order) is "big endian" and especially so for octets and their fragments.
   // RFC 1700, http://tools.ietf.org/html/rfc1700, 1980-04-01; and elsewhere.
   auto const WIDTH = 4u;
-  auto const MAX = WIDTH - 1u;
   Result ret;
   for (auto bit{0u}; WIDTH != bit; ++bit) {
-    auto const mask = 1<<(MAX - bit);
+    auto const mask = 1u << bit;
     auto ping = 0 != (mask & candidate_nibble_value);
-    auto index = MAX - 1; 
-    ret[index] = ping;
+    ret[bit] = ping;
   }
   return std::move(ret);
 }
