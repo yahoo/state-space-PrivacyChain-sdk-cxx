@@ -8,6 +8,13 @@ namespace iab::privacychain::chaincode::v1 {
     //
     // WATCHOUT - these names are defined in acxiom_cc.go in the printf statements therein.
     //
+    // These are the JSON tag names used in chaincode.v1 to express the history record
+    //
+    //   { "data" : [ { "txId" : "...", "collectData" : "...", "timestamp" : "2020-01-01...etc...", "isDelete" : "false" },-
+    //                { "txId" : "...", "collectData" : "...", "timestamp" : "2020-01-01...etc...", "isDelete" : "false" },-
+    //                ...etc...
+    //                { "txId" : "...", "collectData" : "...", "timestamp" : "2020-01-01...etc...", "isDelete" : "false" } };
+    //
     inline auto const DATA = "data"s;
     inline auto const TXID = "txId"s;
     inline auto const COLLECTED = "collectData"s;

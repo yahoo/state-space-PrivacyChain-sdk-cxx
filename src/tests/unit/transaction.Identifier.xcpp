@@ -6,32 +6,80 @@ namespace tests::unit::transaction { class Identifier; }
 #divert <hpp>
 #import cppunit.Test
 #import cppunit.test.Fixture
+#import iab.privacychain.transaction.Identifier
 class tests::unit::transaction::Identifier : public cppunit::test::Fixture {
 public:
-  auto test_constructor() -> void;
-  auto test_from_string() -> void;
+  using Subject = ::iab::privacychain::transaction::Identifier;
+  auto test_constructor_default() -> void;
+  auto test_constructor_zero() -> void;
+  auto test_from_string_basic() -> void;
+  auto test_from_string_01() -> void;
+  auto test_from_string_02() -> void;
   auto test_operator_eq() -> void;
   auto test_operator_ne() -> void;
   static auto suite() -> cppunit::Test *;
 };
 #endiv
 #divert <cpp>
-#import iab.privacychain.transaction.Identifier
-auto tests::unit::transaction::Identifier::test_constructor() -> void {
-#warning WRITETHIS auto tests::unit::transaction::Identifier::test_constructor() -> void
-  CPPUNIT_ASSERT(true);
+auto tests::unit::transaction::Identifier::test_constructor_default() -> void {
+  Subject s00, s01;
+  CPPUNIT_ASSERT(s00 == s01);
 }
-auto tests::unit::transaction::Identifier::test_from_string() -> void {
-#warning WRITETHIS auto tests::unit::transaction::Identifier::test_from_string() -> void
-  CPPUNIT_ASSERT(true);
+auto tests::unit::transaction::Identifier::test_constructor_zero() -> void {
+  Subject subject;
+  // And was it zero-initialized as we expected?
+  unsigned count{0};
+  for (auto b : subject) {
+    CPPUNIT_ASSERT(false == b);
+    ++count;
+  }
+  CPPUNIT_ASSERT(256 == count);
+}
+#import iab.privacychain.transaction.identifier.from_string
+auto tests::unit::transaction::Identifier::test_from_string_basic() -> void {
+  using ::iab::privacychain::transaction::identifier::from_string;
+  Subject a = value(from_string("0efd932f19f94ba58c1b7fa5264d8cb877f9e8509c9d4dffbdc1c22eb0a1a430"));
+  Subject b = value(from_string("6123177eca5a4f57af0259a396965828e615bc7c8d114a17b019d25af60a9f2f"));
+  CPPUNIT_ASSERT(a == a);
+  CPPUNIT_ASSERT(a != b);
+}
+auto tests::unit::transaction::Identifier::test_from_string_01() -> void {
+  using ::iab::privacychain::transaction::identifier::from_string;
+  Subject const subject = value(from_string("5900e626d3d24e9391096ac62e4686c415be09cc1d3c4c67bcf96892e056f8f0"));
+  CPPUNIT_ASSERT_EQUAL(true, subject[0]);
+  CPPUNIT_ASSERT_EQUAL(false, subject[1]);
+  CPPUNIT_ASSERT_EQUAL(true, subject[2]);
+  CPPUNIT_ASSERT_EQUAL(false, subject[3]); // five
+  CPPUNIT_ASSERT_EQUAL(true, subject[4]);
+  CPPUNIT_ASSERT_EQUAL(false, subject[5]);
+  CPPUNIT_ASSERT_EQUAL(false, subject[6]); // nine
+  CPPUNIT_ASSERT_EQUAL(true, subject[7]);
+}
+auto tests::unit::transaction::Identifier::test_from_string_02() -> void {
+  using ::iab::privacychain::transaction::identifier::from_string;
+  Subject subject = value(from_string("37332a42f9954273b955828174c6eb752f93d68b4cdc47ab8502e82ba4779e51"));
+  CPPUNIT_ASSERT_EQUAL(true, subject[248]);
+  CPPUNIT_ASSERT_EQUAL(false, subject[249]);
+  CPPUNIT_ASSERT_EQUAL(true, subject[250]);
+  CPPUNIT_ASSERT_EQUAL(false, subject[251]); // five
+  CPPUNIT_ASSERT_EQUAL(true, subject[252]);
+  CPPUNIT_ASSERT_EQUAL(false, subject[253]);
+  CPPUNIT_ASSERT_EQUAL(false, subject[254]);
+  CPPUNIT_ASSERT_EQUAL(false, subject[255]); // one
 }
 auto tests::unit::transaction::Identifier::test_operator_eq() -> void {
-#warning WRITETHIS auto tests::unit::transaction::Identifier::test_operator_eq() -> void
-  CPPUNIT_ASSERT(true);
+  using ::iab::privacychain::transaction::identifier::from_string;
+  Subject a = value(from_string("c66520febeae4b08b0bacb69ca5f93e25bd85c5257774bc98c9af5f583d9df24"));
+  Subject b = value(from_string("2ac9b0fed7924b958f3c79aa54e60842bdfee4285b994c3a82f389515194d652"));
+  CPPUNIT_ASSERT(a == a);
+  CPPUNIT_ASSERT(! (a == b) );
 }
 auto tests::unit::transaction::Identifier::test_operator_ne() -> void {
-#warning WRITETHIS auto tests::unit::transaction::Identifier::test_operator_ne() -> void
-  CPPUNIT_ASSERT(true);
+  using ::iab::privacychain::transaction::identifier::from_string;
+  Subject a = value(from_string("56aa0c9d1e294606b5d46bcf943d7b8f9fcbc61295ee4c4bbb310eeea522f2c4"));
+  Subject b = value(from_string("b25e4c22b54846fca01a4e74ab886c03318d48e1fc3844a18d12240692387436"));
+  CPPUNIT_ASSERT(! (a != a) );
+  CPPUNIT_ASSERT(a != b);
 }
 #import unit.rigging.suite.Stream
 #import unit.rigging.suite.call
@@ -39,9 +87,21 @@ auto tests::unit::transaction::Identifier::test_operator_ne() -> void {
 auto tests::unit::transaction::Identifier::suite() -> cppunit::Test * {
   using namespace ::unit::rigging::suite;
   Stream series("Identifier");
-  series << call("constructor", &Identifier::test_constructor)
-         << call("from_string", &Identifier::test_from_string)
-         << call("operator==", &Identifier::test_operator_eq)
+  {
+    Stream con("constructor");
+    con << call("default", &Identifier::test_constructor_default)
+        << call("zero", &Identifier::test_constructor_zero)
+      ;
+    series << add(con.release());
+  } {
+    Stream fro("from_string");
+    fro << call("basic", &Identifier::test_from_string_basic)
+        << call("01", &Identifier::test_from_string_01)
+        << call("02", &Identifier::test_from_string_02)
+      ;
+    series << add(fro.release());
+  }
+  series << call("operator==", &Identifier::test_operator_eq)
          << call("operator!=", &Identifier::test_operator_ne)
     ;
   return series.release();

@@ -34,11 +34,15 @@ namespace iab::privacychain::traits {
 #divert <cpp>
 // this is test code
 #import iab.privacychain.History
+#import iab.privacychain.transaction.Record
 namespace iab::privacychain {
+  // The types used in the Record are dejsonizable
   static_assert(traits::Is_Dejsonizable<bool>::value);
   static_assert(traits::Is_Dejsonizable<time::Point>::value);
   static_assert(traits::Is_Dejsonizable<json::Value>::value);
   static_assert(traits::Is_Dejsonizable<transaction::Identifier>::value);
+  // These are not dejsonizable (sic).
+  static_assert(!traits::Is_Dejsonizable<transaction::Record>::value);
   static_assert(!traits::Is_Dejsonizable<History>::value);
 }
 #endiv

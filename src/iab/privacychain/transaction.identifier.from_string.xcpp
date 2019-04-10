@@ -34,7 +34,6 @@ namespace iab::privacychain::transaction::identifier {
 #import iab.privacychain.transaction.identifier.From_String
 #import iab.privacychain.detail.dehex
 #import iab.privacychain.error.Code
-#import nonstd.range.reverse
 #import std.error_code
 auto iab::privacychain::transaction::identifier::from_string(re::string<c::const_stringz> syntax) -> Outcome<Identifier> {
   using Result = Outcome<Identifier>;
@@ -46,7 +45,7 @@ auto iab::privacychain::transaction::identifier::from_string(re::string<c::const
       for (auto c : syntax) {
         // reminder: dehex will throw if it cannot dehex the character into bits
         using privacychain::detail::dehex;
-        for (auto b : nonstd::range::reverse(dehex(c))) {
+        for (auto b : dehex(c)) {
           fs[i++] = b;
         }
       }

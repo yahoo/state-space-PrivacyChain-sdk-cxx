@@ -92,6 +92,9 @@ template<> auto iab::privacychain::history::v1::dejsonize<iab::privacychain::tim
     return Result{ec};
   } catch (json::exception::Generic const &) {
     return Result{std::error_code{error::Code::PAYLOAD_BAD_FIELD}};
+  } catch (::Json::Exception const &) {
+    // WATCHOUT - module-json-devel 0.7 series has a different lineage for json::exception::Generic and Json::Exception
+    return Result{std::error_code{error::Code::PAYLOAD_BAD_FIELD}};
   }
 }
 #endiv

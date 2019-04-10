@@ -29,9 +29,12 @@ namespace iab::privacychain::history::v1 {
 #import json.as
 template<> auto iab::privacychain::history::v1::dejsonize<std::string>(Outcome<json::Value> in) -> Outcome<std::string> try {
   return !ok(in) ? Outcome<std::string>{error_code(in)} : Outcome<std::string>{json::as<std::string>(value(in))};
-} catch (json::exception::Generic const &) {
-  return Outcome<std::string>{std::error_code{error::Code::PAYLOAD_BAD_FIELD}};
 } catch (std::error_code const &ec) {
   return Outcome<std::string>{ec};
+} catch (json::exception::Generic const &) {
+  return Outcome<std::string>{std::error_code{error::Code::PAYLOAD_BAD_FIELD}};
+} catch (::Json::Exception const &) {
+  // WATCHOUT - module-json-devel 0.7 series has a different lineage for json::exception::Generic and Json::Exception
+  return Outcome<std::string>{std::error_code{error::Code::PAYLOAD_BAD_FIELD}};
 }
 #endiv

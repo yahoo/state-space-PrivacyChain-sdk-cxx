@@ -1,4 +1,4 @@
-!// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
 // Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
 #divert <fpp>
 namespace tests::unit::transaction { class Record; }
@@ -6,22 +6,118 @@ namespace tests::unit::transaction { class Record; }
 #divert <hpp>
 #import cppunit.Test
 #import cppunit.test.Fixture
+#import iab.privacychain.transaction.Record
 class tests::unit::transaction::Record : public cppunit::test::Fixture {
 public:
+  using Subject = ::iab::privacychain::transaction::Record;
+  //
+  // Use deserialize to produce a Record
+  // Use dejsonize to produce a field within the record
+  //
   auto test_initializer() -> void;
-  auto test_dejsonize() -> void;
+  auto test_deserialize_good() -> void;
+  auto test_deserialize_fail_id() -> void;
+  auto test_deserialize_fail_data() -> void;
+  auto test_deserialize_fail_time() -> void;
+  auto test_deserialize_fail_bool() -> void;
   static auto suite() -> cppunit::Test *;
 };
 #endiv
 #divert <cpp>
-#import iab.privacychain.transaction.Record
+#import std.cerr
+#import iab.privacychain.time.Clock
+#import iab.privacychain.transaction.identifier.from_string
+#import iab.privacychain.history.v1.deserialize
 auto tests::unit::transaction::Record::test_initializer() -> void {
-#warning WRITETHIS auto tests::unit::transaction::Record::test_initializer() -> void
-  CPPUNIT_ASSERT(true);
+  using ::iab::privacychain::transaction::identifier::from_string;
+  Subject subject{value(from_string("fd975961c6534db598e31374f3531b2eb2eb79ebf98947aca9e4768b9ade80bd")),
+                  "d6e16dfa2a3f4399811089d4a80473c47bee4a00f4b04410a7de514bdb9d8b28958338393b3448f2b5012c1c8a6a0cf3dda24af4fbe40868223ac7b8bd05932",
+                  ::iab::privacychain::time::Clock::now(),
+                  false};
+  // The constructor constructed.
+  CPPUNIT_ASSERT(!subject.isDelete);
 }
-auto tests::unit::transaction::Record::test_dejsonize() -> void {
-#warning WRITETHIS auto tests::unit::transaction::Record::test_dejsonize() -> void
-  CPPUNIT_ASSERT(true);
+#import json.Value
+#import json.Writer
+#import json.value.constants
+#import iab.privacychain.chaincode.v1
+auto tests::unit::transaction::Record::test_deserialize_good() -> void {
+  using namespace ::iab::privacychain::chaincode::v1;
+  json::Value specimen{json::value::OBJECT};
+  specimen[TXID] = "4cc8c499484b492c8a124f43f63b4cc74904c758669842ada68333344ef845c9";
+  specimen[COLLECTED] = "...any garbage at all...";
+  specimen[STAMP] = "2021-12-06 01:35:00.166102034 +0000 UTC";
+  specimen[DELEET] = "false";
+  //
+  json::Value top{json::value::OBJECT};
+  auto &array = top[DATA] = json::Value{json::value::ARRAY};
+  array.append(std::move(specimen));
+  std::cerr << "good: " << top << '\n';
+  auto income = iab::privacychain::Outcome<::iab::privacychain::Record>{std::move(top)};
+  auto des = iab::privacychain::history::v1::deserialize(std::move(income)); // <--------------------- testing this
+  CPPUNIT_ASSERT(ok(des));
+  auto const &history = value(des);
+  CPPUNIT_ASSERT(1 == history.size());
+}
+auto tests::unit::transaction::Record::test_deserialize_fail_id() -> void {
+  json::Value specimen{json::value::OBJECT};
+  using namespace ::iab::privacychain::chaincode::v1;
+  specimen[TXID] = "...bogus..."; // <--------------------------------------- fail because
+  specimen[COLLECTED] = "...any garbage at all...";
+  specimen[STAMP] = "2021-12-06 01:35:00.166102034 +0000 UTC";
+  specimen[DELEET] = "false";
+  //
+  json::Value top{json::value::OBJECT};
+  auto &array = top[DATA] = json::Value{json::value::ARRAY};
+  array.append(std::move(specimen));
+  auto income = iab::privacychain::Outcome<::iab::privacychain::Record>{std::move(top)};
+  auto des = iab::privacychain::history::v1::deserialize(std::move(income)); // <--------------------- testing this
+  CPPUNIT_ASSERT(!ok(des));
+}
+auto tests::unit::transaction::Record::test_deserialize_fail_data() -> void {
+  json::Value specimen{json::value::OBJECT};
+  using namespace ::iab::privacychain::chaincode::v1;
+  specimen[TXID] = "4cc8c499484b492c8a124f43f63b4cc74904c758669842ada68333344ef845c9";
+  specimen[COLLECTED] = json::Value{};  // <--------------------------------------- WILL NOT FAIL NO MATTER WHAT APPEARS HERE
+  specimen[STAMP] = "2021-12-06 01:35:00.166102034 +0000 UTC";
+  specimen[DELEET] = "false";
+  //
+  json::Value top{json::value::OBJECT};
+  auto &array = top[DATA] = json::Value{json::value::ARRAY};
+  array.append(std::move(specimen));
+  auto income = iab::privacychain::Outcome<::iab::privacychain::Record>{std::move(top)};
+  auto des = iab::privacychain::history::v1::deserialize(std::move(income)); // <--------------------- testing this
+  CPPUNIT_ASSERT(ok(des));
+}
+auto tests::unit::transaction::Record::test_deserialize_fail_time() -> void {
+  json::Value specimen{json::value::OBJECT};
+  using namespace ::iab::privacychain::chaincode::v1;
+  specimen[TXID] = "4cc8c499484b492c8a124f43f63b4cc74904c758669842ada68333344ef845c9";
+  specimen[COLLECTED] = "...any garbage at all...";
+  specimen[STAMP] = "1066-12-06 01:35:00.166102034 +0000 UTC"; // The Norman Conquest? <----------------- this will fail
+  specimen[DELEET] = "false";
+  //
+  json::Value top{json::value::OBJECT};
+  auto &array = top[DATA] = json::Value{json::value::ARRAY};
+  array.append(std::move(specimen));
+  auto income = iab::privacychain::Outcome<::iab::privacychain::Record>{std::move(top)};
+  auto des = iab::privacychain::history::v1::deserialize(std::move(income)); // <--------------------- testing this
+  CPPUNIT_ASSERT(!ok(des));
+}
+auto tests::unit::transaction::Record::test_deserialize_fail_bool() -> void {
+  json::Value specimen{json::value::OBJECT};
+  using namespace ::iab::privacychain::chaincode::v1;
+  specimen[TXID] = "4cc8c499484b492c8a124f43f63b4cc74904c758669842ada68333344ef845c9";
+  specimen[COLLECTED] = "...any garbage at all...";
+  specimen[STAMP] = "2022-12-06 01:35:00.166102034 +0000 UTC"; // <----------------- this will fail
+  specimen[DELEET] = "maybe, maybe not, I'm not telling";
+  //
+  json::Value top{json::value::OBJECT};
+  auto &array = top[DATA] = json::Value{json::value::ARRAY};
+  array.append(std::move(specimen));
+  auto income = iab::privacychain::Outcome<::iab::privacychain::Record>{std::move(top)};
+  auto des = iab::privacychain::history::v1::deserialize(std::move(income)); // <--------------------- testing this
+  CPPUNIT_ASSERT(!ok(des));
 }
 #import unit.rigging.suite.Stream
 #import unit.rigging.suite.call
@@ -30,8 +126,22 @@ auto tests::unit::transaction::Record::suite() -> cppunit::Test * {
   using namespace ::unit::rigging::suite;
   Stream series("Record");
   series << call("initializer", &Record::test_initializer)
-         << call("dejsonize", &Record::test_dejsonize)
     ;
+  {
+    Stream dej("deserialize");
+    dej << call("good", &Record::test_deserialize_good)
+      ;
+    {
+      Stream fai("fail");
+      fai << call("id", &Record::test_deserialize_fail_id)
+          << call("data", &Record::test_deserialize_fail_data)
+          << call("time", &Record::test_deserialize_fail_time)
+          << call("bool", &Record::test_deserialize_fail_bool)
+        ;
+      dej << add(fai.release());
+    }
+    series << add(dej.release());
+  }
   return series.release();
 }
 #endiv

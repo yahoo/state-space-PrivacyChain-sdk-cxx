@@ -155,11 +155,14 @@ auto iab::privacychain::operation::Basis::decode_record_versioned_schema(Outcome
     // This was likely handled above in (!ok), but just in case
     throw std::error_code{error::Code::SCHEMA_UNKNOWN};
   }
+} catch (std::error_code const &ec) {
+  return Outcome<Record>{ec};
 } catch (tunitas::base64::Exception const &) {
   return Outcome<Record>{std::error_code{error::Code::RECORD_UNDECODABLE}};
 } catch (json::exception::Generic const &) {
   return Outcome<Record>{std::error_code{error::Code::RECORD_UNDECODABLE}};
-} catch (std::error_code const &ec) {
-  return Outcome<Record>{ec};
+} catch (::Json::Exception const &) {
+  // WATCHOUT - module-json-devel 0.7 series has a different lineage for json::exception::Generic and Json::Exception
+  return Outcome<Record>{std::error_code{error::Code::RECORD_UNDECODABLE}};
 }
 #endiv

@@ -22,6 +22,7 @@ namespace iab::privacychain::transaction {
   inline auto operator==(Identifier const &, Identifier const &) -> bool;
   inline auto operator!=(Identifier const &, Identifier const &) -> bool;
 }
+#forward tests.unit.transaction.Identifier
 #forward iab.privacychain.transaction.identifier.From_String
 #import std.array
 class iab::privacychain::transaction::Identifier : private std::array<bool, 256> {
@@ -32,8 +33,9 @@ class iab::privacychain::transaction::Identifier : private std::array<bool, 256>
   friend auto operator==(Identifier const &, Identifier const &) -> bool;
   friend auto operator!=(Identifier const &, Identifier const &) -> bool;
   friend class identifier::From_String; // because from_string(...) can't be a friend and also return Outcome<Identifier>
+  friend class tests::unit::transaction::Identifier;
 public:
-  Identifier() = default;
+  inline Identifier();
   using ancestor::array;
 };
 #import std.true_type
@@ -54,6 +56,15 @@ namespace iab::privacychain {
     auto const be = b.end();
     auto const there = std::mismatch(a.begin(), ae, b.begin(), be);
     return there.first != ae || there.second != be;
+  }
+}
+#import nonstd.uninitialized.zero
+namespace iab::privacychain::transaction {
+  Identifier::Identifier() {
+    // WATCHOUT - the default constructor of https://en.cppreference.com/w/cpp/container/array
+    // <quote>initializes the array following the rules of aggregate initialization
+    // (note that default initialization may result in indeterminate values for non-class T) </quote>
+    nonstd::uninitialized::zero(data(), size());
   }
 }
 #endiv
