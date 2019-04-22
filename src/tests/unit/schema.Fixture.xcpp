@@ -8,12 +8,14 @@ namespace tests::unit::schema { class Fixture; }
 #import cppunit.test.Fixture
 class tests::unit::schema::Fixture : public cppunit::test::Fixture {
 public:
-  auto test_something() -> void;
   auto test_header_v1() -> void;
   auto test_header_v2() -> void;
+  auto test_header_v3() -> void;
   auto test_inspect_v0() -> void;
   auto test_inspect_v1() -> void;
   auto test_inspect_v2() -> void;
+  auto test_inspect_v3() -> void;
+  auto test_inspect_bra() -> void;
   auto test_inspect_qq() -> void;
   auto test_inspect_q() -> void;
   auto test_inspect_others() -> void;
@@ -25,97 +27,115 @@ public:
 #import std.string_literals
 using namespace std::string_literals;
 #import iab.privacychain.schema
-auto tests::unit::schema::Fixture::test_something() -> void {
-  CPPUNIT_ASSERT(true);
-}
-#if 0
-#import iab.privacychain.schema
 auto tests::unit::schema::Fixture::test_header_v1() -> void {
   namespace sc = ::iab::privacychain::schema;
-  auto he = sc::header(sc::V1);
+  auto he = sc::header(sc::Version::V1);
   CPPUNIT_ASSERT(1 == he.size());
+  CPPUNIT_ASSERT_EQUAL((char)sc::magic::M1, he.front());
 }
 auto tests::unit::schema::Fixture::test_header_v2() -> void {
   namespace sc = ::iab::privacychain::schema;
-  auto he = sc::header(sc::V2);
+  auto he = sc::header(sc::Version::V2);
   CPPUNIT_ASSERT(1 == he.size());
+  CPPUNIT_ASSERT_EQUAL((char)sc::magic::M2, he.front());
+}
+auto tests::unit::schema::Fixture::test_header_v3() -> void {
+  namespace sc = ::iab::privacychain::schema;
+  auto he = sc::header(sc::Version::V3);
+  CPPUNIT_ASSERT(1 == he.size());
+  CPPUNIT_ASSERT_EQUAL((char)sc::magic::M3, he.front());
 }
 #import std.byte
 #import std.vector
 auto tests::unit::schema::Fixture::test_inspect_v0() -> void {
   namespace sc = ::iab::privacychain::schema;
-  std::vector<std::byte> bytes{std:byte{0}, std:byte{'a'}, std:byte{'b'}, std:byte{'c'}};
+  std::vector<std::byte> bytes{std::byte{0}, std::byte{'A'}, std::byte{'B'}, std::byte{'C'}};
   CPPUNIT_ASSERT(4 == bytes.size());
-  auto inspected = sc::inspect(bytes);
+  auto inspected = sc::inspect(bytes); // <-------- test this
   CPPUNIT_ASSERT(!ok(inspected));
 }
 auto tests::unit::schema::Fixture::test_inspect_v1() -> void {
   namespace sc = ::iab::privacychain::schema;
-  std::vector<std::byte> bytes{std:byte{1}, std:byte{'a'}, std:byte{'b'}, std:byte{'c'}};
+  std::vector<std::byte> bytes{std::byte{'a'}, std::byte{'A'}, std::byte{'B'}, std::byte{'C'}};
   CPPUNIT_ASSERT(4 == bytes.size());
-  auto inspected = sc::inspect(bytes);
+  auto inspected = sc::inspect(bytes); // <-------- test this
   CPPUNIT_ASSERT(ok(inspected));
+  CPPUNIT_ASSERT(sc::Version::V1 == value(inspected));
 }
 auto tests::unit::schema::Fixture::test_inspect_v2() -> void {
   namespace sc = ::iab::privacychain::schema;
-  std::vector<std::byte> bytes{std:byte{2}, std:byte{'a'}, std:byte{'b'}, std:byte{'c'}};
+  std::vector<std::byte> bytes{std::byte{'b'}, std::byte{'A'}, std::byte{'B'}, std::byte{'C'}};
   CPPUNIT_ASSERT(4 == bytes.size());
-  auto inspected = sc::inspect(bytes);
+  auto inspected = sc::inspect(bytes); // <-------- test this
   CPPUNIT_ASSERT(ok(inspected));
+  CPPUNIT_ASSERT(sc::Version::V2 == value(inspected));
+}
+auto tests::unit::schema::Fixture::test_inspect_v3() -> void {
+  namespace sc = ::iab::privacychain::schema;
+  std::vector<std::byte> bytes{std::byte{'c'}, std::byte{'A'}, std::byte{'B'}, std::byte{'C'}};
+  CPPUNIT_ASSERT(4 == bytes.size());
+  auto inspected = sc::inspect(bytes); // <-------- test this
+  CPPUNIT_ASSERT(ok(inspected));
+  CPPUNIT_ASSERT(sc::Version::V3 == value(inspected));
+}
+auto tests::unit::schema::Fixture::test_inspect_bra() -> void {
+  namespace sc = ::iab::privacychain::schema;
+  std::vector<std::byte> bytes{std::byte{'{'}, std::byte{'A'}, std::byte{':'}, std::byte{'1'}};
+  CPPUNIT_ASSERT(4 == bytes.size());
+  auto inspected = sc::inspect(bytes); // <-------- test this
+  CPPUNIT_ASSERT(ok(inspected));
+  CPPUNIT_ASSERT(sc::Version::HISTORY0 == value(inspected));
 }
 auto tests::unit::schema::Fixture::test_inspect_qq() -> void {
   namespace sc = ::iab::privacychain::schema;
-  std::vector<std::byte> bytes{std:byte{'"'}, std:byte{'a'}, std:byte{'b'}, std:byte{'c'}};
+  std::vector<std::byte> bytes{std::byte{'"'}, std::byte{'A'}, std::byte{'B'}, std::byte{'C'}};
   CPPUNIT_ASSERT(4 == bytes.size());
-  auto inspected = sc::inspect(bytes);
+  auto inspected = sc::inspect(bytes); // <-------- test this
   CPPUNIT_ASSERT(!ok(inspected));
 }
 auto tests::unit::schema::Fixture::test_inspect_q() -> void {
   namespace sc = ::iab::privacychain::schema;
-  std::vector<std::byte> bytes{std:byte{'\''}, std:byte{'a'}, std:byte{'b'}, std:byte{'c'}};
+  std::vector<std::byte> bytes{std::byte{'\''}, std::byte{'A'}, std::byte{'B'}, std::byte{'C'}};
   CPPUNIT_ASSERT(4 == bytes.size());
-  auto inspected = sc::inspect(bytes);
+  auto inspected = sc::inspect(bytes); // <-------- test this
   CPPUNIT_ASSERT(!ok(inspected));
 }
 auto tests::unit::schema::Fixture::test_inspect_others() -> void {
   namespace sc = ::iab::privacychain::schema;
-  for (int i{0}, e{256}; e != i; ++i) {
-    auto other std::byte{b};
-    std::vector<std::byte> bytes{other, std:byte{'a'}, std:byte{'b'}, std:byte{'c'}};
+  for (auto i{0u}, e{256u}; e != i; ++i) {
+    auto other = std::byte(i);
+    std::vector<std::byte> bytes{other, std::byte{'A'}, std::byte{'B'}, std::byte{'C'}};
     CPPUNIT_ASSERT(4 == bytes.size());
-    auto inspected = sch::inspect(bytes);
-    CPPUNIT_ASSERT(ok(inspected) || !ok(inspected));
+    auto inspected = sc::inspect(bytes); // <-------- test this
+    CPPUNIT_ASSERT(ok(inspected) || !ok(inspected)); // no exceptions, no segfaults
   }
 }
-#endif
 #import unit.rigging.suite.Stream
 #import unit.rigging.suite.call
 #import unit.rigging.suite.add
 auto tests::unit::schema::Fixture::suite() -> cppunit::Test * {
   using namespace ::unit::rigging::suite;
   Stream series("schema");
-#if 0
   {
     Stream hea("header");
     hea << call("v1", &Fixture::test_header_v1)
         << call("v2", &Fixture::test_header_v2)
+        << call("v3", &Fixture::test_header_v3)
       ;
-    series << move(hea.release());
+    series << add(hea.release());
   } {
     Stream ins("inspect");
     ins << call("v0", &Fixture::test_inspect_v0)
         << call("v1", &Fixture::test_inspect_v1)
         << call("v2", &Fixture::test_inspect_v2)
         << call("v3", &Fixture::test_inspect_v3)
+        << call("bra", &Fixture::test_inspect_bra)
         << call("qq", &Fixture::test_inspect_qq)
         << call("q", &Fixture::test_inspect_q)
         << call("others", &Fixture::test_inspect_others)
       ;
-    series << move(inspect.release());
+    series << add(ins.release());
   }
-#endif
-  series << call("something", &Fixture::test_something)
-    ;
   return series.release();
 }
 #endiv

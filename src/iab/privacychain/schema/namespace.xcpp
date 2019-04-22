@@ -10,18 +10,22 @@ namespace iab::privacychain::schema {
   // Northward unto us (the application)   operation::Basis::decode:record_versioned_schema(Outcome<vector<byte>>) -> Outcome<Record>
   //
   enum class Version : int
-    { V0, // unuseable
-      V1, // base64 of bytes
-      V2, // base64 of JSON
-      HISTORY0, // raw JSON with internal syntax errors; 00.worthy-cupboard
-      HISTORY1 };
+    { V0, // ............unusable
+      V1, // ............base64 of bytes
+      V2, // ........... base64 of JSON
+      V3, // ........... base64 of TCF v1.1
+      HISTORY0, // ..... raw JSON with internal syntax errors, as found in 00.worthy-cupboard
+      HISTORY1 }; // ... better JSON ... somehow ............. as planned for 01.maximum-hammer
   enum class Magic : unsigned char; // a.k.a. 'byte'
   //
-  auto const M0 = Magic{'\000'}; // record::Bytes (unsupportable)
-  auto const M1 = Magic{'a'}; // base64 of std::byte, lives in record::Bytes
-  auto const M2 = Magic{'b'}; // base64 of json::Value, lives in record::Json
-  //
-  auto const HBRA = Magic{'{'}; // raw JSON is the history element
+  namespace magic {
+    inline auto const M0 = Magic{'\000'}; // ... record::Bytes (unsupportable)
+    inline auto const M1 = Magic{'a'}; // ...... base64 of std::byte, lives in record::Bytes
+    inline auto const M2 = Magic{'b'}; // ...... base64 of json::Value, lives in record::Json
+    inline auto const M3 = Magic{'c'}; // ...... base64 of TCF v1.1, lives in record::tcf::V1
+    // bra...ket
+    inline auto const BRA = Magic{'{'}; // .... raw JSON on the wire is the magic transaction history 
+  }
 }
 #endiv
 #divert <hpp>
@@ -41,6 +45,7 @@ namespace iab::privacychain::schema {
 #import std.byte
 #import std.vector
 #import iab.privacychain.Outcome
+#import nonstd.span
 namespace iab::privacychain::schema {
   //
   // Inspect some bytes for the schema key
@@ -58,6 +63,9 @@ namespace iab::privacychain::schema {
   //   }
   //    
   inline auto inspect(std::vector<std::byte> const &) -> Outcome<Version>;
+  inline auto inspect(nonstd::basic_dope<std::byte const>) -> Outcome<Version>;
+  inline auto inspect_span(nonstd::span<std::byte const>) -> Outcome<Version>; // whereas dope & span are frequently ambiguous
+  inline auto inspect_dope(nonstd::basic_dope<std::byte const>) -> Outcome<Version>;
 }
 #endiv
 #divert <ipp>
@@ -65,13 +73,16 @@ namespace iab::privacychain::schema {
 auto iab::privacychain::schema::header(Version version) -> std::string {
   static_assert(sizeof (Magic) == sizeof (char));
   static_assert(sizeof (Magic) == sizeof (std::byte));
-  Magic magic{M0};
+  Magic magic{magic::M0};
   switch (version) {
   case Version::V1:
-    magic = M1;
+    magic = magic::M1;
     break;
   case Version::V2:
-    magic = M2;
+    magic = magic::M2;
+    break;
+  case Version::V3:
+    magic = magic::M3;
     break;
   default:
     // You can't make headers for the others ones
@@ -82,6 +93,15 @@ auto iab::privacychain::schema::header(Version version) -> std::string {
 #import iab.privacychain.error.Code
 #import std.error_code
 auto iab::privacychain::schema::inspect(std::vector<std::byte> const &bytes) -> Outcome<Version> {
+  return inspect_dope(nonstd::basic_dope<std::byte const>{bytes.data(), bytes.size()});
+}
+auto iab::privacychain::schema::inspect(nonstd::basic_dope<std::byte const> bytes) -> Outcome<Version> {
+  return inspect_dope(bytes);
+}
+auto iab::privacychain::schema::inspect_span(nonstd::span<std::byte const> bytes) -> Outcome<Version> {
+  return inspect(nonstd::basic_dope<std::byte const>{bytes.data(), bytes.size()});
+}
+auto iab::privacychain::schema::inspect_dope(nonstd::basic_dope<std::byte const> bytes) -> Outcome<Version> {
   using Result = Outcome<Version>;
   if (bytes.empty()) {
     return Result{std::error_code{error::Code::RECORD_EMPTY}};
@@ -94,11 +114,13 @@ auto iab::privacychain::schema::inspect(std::vector<std::byte> const &bytes) -> 
     case Magic{'\''}:   // Same.
     case Magic{'\\'}:   // Same.
       return Result{std::error_code{error::Code::SCHEMA_ILLEGAL}};
-    case M1:
+    case magic::M1:
       return Result{Version::V1};
-    case M2:
+    case magic::M2:
       return Result{Version::V2};
-    case HBRA:
+    case magic::M3:
+      return Result{Version::V3};
+    case magic::BRA:
       // Because that's all we have right now
       return Result{Version::HISTORY0};
     default:
