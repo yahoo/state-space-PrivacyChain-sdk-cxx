@@ -42,6 +42,7 @@ check_bin_unit_SOURCES = \
   obj/src/tests/unit/key.Fixture.cpp \
   obj/src/tests/unit/key.Generate.cpp \
   obj/src/tests/unit/privacychain.Fixture.cpp \
+  obj/src/tests/unit/privacychain.Fixture.Exceptional.cpp \
   obj/src/tests/unit/record.Fixture.cpp \
   obj/src/tests/unit/schema.Fixture.cpp \
   obj/src/tests/unit/time.Fixture.cpp \

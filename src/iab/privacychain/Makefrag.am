@@ -60,6 +60,8 @@ lib_libiab_privacychain_la_SOURCES = \
   obj/src/iab/privacychain/detail.Formatter.cpp \
   obj/src/iab/privacychain/detail.Formatter.Key.cpp \
   \
+  obj/src/iab/privacychain/exception.Aspect.cpp \
+  \
   obj/src/iab/privacychain/Key.cpp \
   obj/src/iab/privacychain/key.Key.cpp \
   obj/src/iab/privacychain/key.generate.cpp \

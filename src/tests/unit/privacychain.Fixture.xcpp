@@ -10,7 +10,10 @@ class tests::unit::privacychain::Fixture : public cppunit::test::Fixture {
 public:
   auto test_Success() -> void;
   template<typename TYPE> auto test_Outcome() -> void;
+  auto test_exception_Aspect() -> void;
   static auto suite() -> cppunit::Test *;
+protected:
+  struct Exceptional;
 };
 namespace tests::unit::privacychain {
   template<> auto Fixture::test_Outcome<bool>() -> void;
@@ -59,6 +62,15 @@ template<> auto tests::unit::privacychain::Fixture::test_Outcome<std::string>() 
   auto bad = Success{std::error_code{1, std::generic_category()}};
   CPPUNIT_ASSERT(!ok(bad));
 }
+#import tests.unit.privacychain.Fixture.Exceptional
+auto tests::unit::privacychain::Fixture::test_exception_Aspect() -> void {
+  try {
+    throw Exceptional{"wow"};
+  } catch (::iab::privacychain::exception::Aspect const &e) {
+    auto const what = std::string{e.what()};
+    CPPUNIT_ASSERT_EQUAL("wow"s, what);
+  }
+}
 #import unit.rigging.suite.Stream
 #import unit.rigging.suite.call
 #import unit.rigging.suite.add
@@ -75,6 +87,8 @@ auto tests::unit::privacychain::Fixture::suite() -> cppunit::Test * {
       ;
     series << add(out.release());
   }
+  series << call("exception::Aspect", &Fixture::test_exception_Aspect)
+    ;
   return series.release();
 }
 #endiv
