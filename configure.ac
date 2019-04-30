@@ -1,4 +1,5 @@
 dnl -*- autoconf -*-
+dnl Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
 dnl
 dnl ./buildconf &&
 dnl ./configure --prefix=/opt/iab/privacychain --with-std-tunitas=/opt/tunitas --with-std-scold=/opt/std/scold &&
@@ -37,7 +38,8 @@ TF_WITH_STD([scold]) dnl the core modules system
 
 TF_WITH_STD([tunitas]) dnl application data types
 TF_WITH_SUBSYSTEM([temerarious-flagship], [], [The Tunitas Build System])
-TF_WITH_SUBSYSTEM([tunitas-basics], [], [The Tunitas Basics])
+TF_WITH_SUBSYSTEM([tunitas-basics], [], [The Tunitas Basics Components])
+TF_WITH_SUBSYSTEM([tunitas-butano], [], [The Tunitas Butano TCF v1.1])
 
 dnl you need one or the other of these
 TF_WITH_STD([hyperledger-fabric]) dnl you won't need this until Hyperledger Fabric ships a C++ API.

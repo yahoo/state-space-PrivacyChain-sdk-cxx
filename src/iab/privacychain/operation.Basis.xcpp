@@ -59,7 +59,7 @@ protected:
 #import std.transform
 #import std.copy
 #import std.vector
-#import std.string_literals;
+#import std.string_literals
 #import tunitas.base64.Exception
 #import tunitas.base64.decode
 auto iab::privacychain::operation::Basis::decode_record_versioned_schema(Outcome<std::vector<std::byte>> recovered) -> Outcome<Record> try {

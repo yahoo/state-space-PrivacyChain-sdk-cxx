@@ -1,0 +1,21 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+namespace iab::privacychain::schema::v3 {
+  //
+  // The Version 3 Schema is TCF v1.1 (circa 2019-01)
+  // See module iab.privacychain.schema (namespace.xcpp)
+  //
+  // This schema represents TCF v1.1, encoded in base64 "as if" in the cookie.
+  // <cite ref="https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/Consent%20string%20and%20vendor%20list%20formats%20v1.1%20Final.md">Consent String and Vendor List Format: Transparency & Consent Framework</cite>
+  //
+  // The interpretation of the TCF consent is necessarily "web wide."
+  // The provenance of where the consent was recovered is within the TCF v1.1 payload.
+  //
+  // Use iab::privacychain::record::tcf::Version1
+  // ... yes it is understood that PrivacyChain Schema "Version 3" stores IAB TCF "Version 1"
+  //
+  // There are no schema-specific operations defined for this schema (yet).
+  //
+}
+#endiv

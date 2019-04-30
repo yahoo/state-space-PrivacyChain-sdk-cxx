@@ -10,6 +10,7 @@ lib_libiab_privacychain_schema_la_SOURCES = \
   obj/src/iab/privacychain/schema/v0/namespace.cpp \
   obj/src/iab/privacychain/schema/v1/namespace.cpp \
   obj/src/iab/privacychain/schema/v2/namespace.cpp \
+  obj/src/iab/privacychain/schema/v3/namespace.cpp \
   $(end)
 $(scold_cxxdir)/iab/privacychain/schema/dependencies.mk:
 	$(TF_V_DC) $(call TF_DISAGGREGATE, $(lib_libiab_privacychain_schema_la_SOURCES))

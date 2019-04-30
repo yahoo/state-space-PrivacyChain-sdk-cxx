@@ -30,6 +30,7 @@ DEVELOPMENT_AREAS = \
   $(module_string_prefix) \
   $(module_sys_prefix) \
   $(tunitas_basics_prefix) \
+  $(tunitas_butano_prefix) \
   $(hyperledger_fabric_sdk_prefix) \
   $(end)
 TESTING_AREAS = \

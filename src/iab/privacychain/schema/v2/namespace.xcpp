@@ -3,11 +3,15 @@
 #divert <fpp>
 namespace iab::privacychain::schema::v2 {
   //
-  // The Version 2 Schema is TCF v1.1 (circa 2019-01)
-  // Encoded in base64 "as if" a cookie.
+  // The Version 2 Schema is json::Value.
+  // The internal structure of the JSON object is unchecked & uninterpreted.  Good luck with it.
+  // The representation of the object is a serialized (printed) encoding in base64 "as if" for a cookie.
+  // The use of the base64 encoding for the persisten form of the object works around the limitation of
+  // the southbound API which cannot support "binary" data or certain meta-characters (such as quotes).
   //
-  // The interpretation of the TCF consents is "web wide."
-  // The provenance of where the consent was recovered is within the TCF v1.1 payload.
+  // Use iab::privacychain::record::Json
+  //
+  // there are no schema-specific operations defined for this schema (yet).
   //
 }
 #endiv

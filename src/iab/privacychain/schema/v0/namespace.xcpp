@@ -4,6 +4,15 @@
 namespace iab::privacychain::schema::v0 {
   //
   // The Version 0 Schema is std::vector<std::byte>
+  // See module iab.privacychain.schema (namespace.xcpp)
+  // Tag: iab::privacychain::schema::Version::V0
+  //
+  // This schema is unsupportable due to limits in the Hyperledger Fabric southbound interface.
+  // You must use schema, Version 1
+  //
+  // Use iab::privacychain::record::Bytes
+  //
+  // There are no schema-specific operations defined for this schema (yet)
   //
 }
 #endiv

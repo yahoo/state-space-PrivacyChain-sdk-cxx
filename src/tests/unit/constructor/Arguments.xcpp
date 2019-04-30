@@ -26,11 +26,11 @@ namespace tests::unit::constructor {
 namespace tests::unit::constructor {
   template<> auto Arguments::test_stringify_record<::iab::privacychain::record::Bytes>() -> void;
   template<> auto Arguments::test_stringify_record<::iab::privacychain::record::Json>() -> void;
-  template<> auto Arguments::test_stringify_record<::iab::privacychain::record::tcf::V1>() -> void;
+  template<> auto Arguments::test_stringify_record<::iab::privacychain::record::tcf::Version1>() -> void;
   //
   template<> auto Arguments::test_append_record<::iab::privacychain::record::Bytes>() -> void;
   template<> auto Arguments::test_append_record<::iab::privacychain::record::Json>() -> void;
-  template<> auto Arguments::test_append_record<::iab::privacychain::record::tcf::V1>() -> void;
+  template<> auto Arguments::test_append_record<::iab::privacychain::record::tcf::Version1>() -> void;
 }
 #endiv
 #divert <tpp>
@@ -99,8 +99,8 @@ namespace tests::unit::constructor {
 #warning WRITETEHIS auto Arguments::test_stringify_record<::iab::privacychain::record::Json>() -> void
     CPPUNIT_ASSERT(true);
   }
-  template<> auto Arguments::test_stringify_record<::iab::privacychain::record::tcf::V1>() -> void {
-#warning WRITETEHIS auto Arguments::test_stringify_record<::iab::privacychain::record::tcf::V1>() -> void
+  template<> auto Arguments::test_stringify_record<::iab::privacychain::record::tcf::Version1>() -> void {
+#warning WRITETEHIS auto Arguments::test_stringify_record<::iab::privacychain::record::tcf::Version1>() -> void
     CPPUNIT_ASSERT(true);
   }
   template<> auto Arguments::test_append_record<::iab::privacychain::record::Bytes>() -> void {
@@ -117,8 +117,8 @@ namespace tests::unit::constructor {
 #warning WRITETEHIS auto Arguments::test_append_record<::iab::privacychain::record::Json>() -> void
     CPPUNIT_ASSERT(true);
   }
-  template<> auto Arguments::test_append_record<::iab::privacychain::record::tcf::V1>() -> void {
-#warning WRITETEHIS auto Arguments::test_append_record<::iab::privacychain::record::tcf::V1>() -> void
+  template<> auto Arguments::test_append_record<::iab::privacychain::record::tcf::Version1>() -> void {
+#warning WRITETEHIS auto Arguments::test_append_record<::iab::privacychain::record::tcf::Version1>() -> void
     CPPUNIT_ASSERT(true);
   }
 }
@@ -146,7 +146,7 @@ auto tests::unit::constructor::Arguments::suite() -> cppunit::Test * {
       namespace record = ::iab::privacychain::record;
       rec << call("bytes", &Arguments::test_stringify_record<record::Bytes>)
           << call("json", &Arguments::test_stringify_record<record::Json>)
-          << call("tcf", &Arguments::test_stringify_record<record::tcf::V1>)
+          << call("tcf", &Arguments::test_stringify_record<record::tcf::Version1>)
         ;
       str << add(rec.release());
     }
@@ -165,7 +165,7 @@ auto tests::unit::constructor::Arguments::suite() -> cppunit::Test * {
       namespace record = ::iab::privacychain::record;
       rec << call("bytes", &Arguments::test_append_record<record::Bytes>)
           << call("json", &Arguments::test_append_record<record::Json>)
-          << call("tcf", &Arguments::test_append_record<record::tcf::V1>)
+          << call("tcf", &Arguments::test_append_record<record::tcf::Version1>)
         ;
       app << add(rec.release());
     }

@@ -1,0 +1,38 @@
+// This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright (c) 2019 Verizon Media, Inc.  See the LICENSE statement nearby.
+#divert <fpp>
+namespace iab::privacychain::record::tcf {
+  //
+  // TCF v1.1 on the {Privacy,Block}Chain
+  //
+  class Version1;
+}
+#endiv
+#divert <hpp>
+#import tunitas.butano.tcf.consent.String
+#import tunitas.butano.tcf.consent.Object
+class iab::privacychain::record::tcf::Version1 {
+public:
+  using Object = tunitas::butano::tcf::consent::Object;
+  using String = tunitas::butano::tcf::consent::String;
+  Version1() = default;
+  inline explicit Version1(Object const &);
+  inline explicit Version1(String const &);
+  Version1(Version1 const &) = delete;
+  auto operator=(Version1 const &) -> Version1 & = delete;
+  Version1(Version1 &&) noexcept = default;
+  auto operator=(Version1 &&) noexcept -> Version1 & = default;
+protected:
+  String encoded;
+};
+#endiv
+#divert <ipp>
+namespace iab::privacychain::record::tcf {
+  Version1::Version1(Object const &object)
+    : encoded{encode(object)}
+  { }
+  Version1::Version1(String const &encoded)
+    : encoded{encoded}
+  { }
+}
+#endiv

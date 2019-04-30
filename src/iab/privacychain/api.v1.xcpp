@@ -3,10 +3,24 @@
 #divert <fpp>
 #import iab.privacychain.operation.Operation
 namespace iab::privacychain::api {
-  inline namespace v1 {
-    using operation::Operation;
+  inline
+  namespace v1 {
+    // Ugly ugly ugly ... make ADL work for api::v1 by forcing a new type, not a type alias or using declaration of a template.
+    // Scheme:
+    //
+    //    iab::privacychain::api::Operation<iab::privacychain::api::INVOKE> op{ctx}; <--------- all the namespace problems hang here
+    //    ...
+    //    set(op, key) <----------------------------------------------------------------------- ADL finds these
+    //    set(op, key, record) <------- ibidem.
+    //    history(op, key) <----------- ibidem.
+    //
+    using operation::Operator;
     using operation::QUERY;
     using operation::INVOKE;
+    // enum Operator { QUERY = (int)operation::QUERY, INVOKE = (int)operation::INVOKE };
+    template<Operator OO> struct Operation : public operation::Operation<operation::Operator((int)OO)> {
+      using operation::Operation<operation::Operator((int)OO)>::Operation;
+    };
   }
 }
 #endiv

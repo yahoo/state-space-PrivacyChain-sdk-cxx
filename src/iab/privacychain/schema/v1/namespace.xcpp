@@ -3,8 +3,18 @@
 #divert <fpp>
 namespace iab::privacychain::schema::v1 {
   //
-  // The Version 1 Schema is json::Value
-  // Unchecked & uninterpreted.  Good luck with it.
+  // The Version 1 Schema is std::vector<std::byte> as recovered from the databse.
+  // See module iab.privacychain.schema (namespace.xcpp)
+  // Tag: iab::privacychain::schema::Version::V1
+  //
+  // This schema is supportable within to limits in the Hyperledger Fabric southbound interface
+  // by virtue of using a base64 encoding for the payload.  This dodges the limitation of the
+  // soutbound API which cannot support "binary" data or certain meta-characters (such as quotes).
+  // You should use use this schema, Version 1.  You should NOT use Version 0.
+  //
+  // Use iab::privacychain::record::Bytes
+  //
+  // There are no schema-specific operations defined for this schema (yet)
   //
 }
 #endiv

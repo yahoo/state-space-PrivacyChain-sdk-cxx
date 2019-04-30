@@ -68,7 +68,12 @@ lib_libiab_privacychain_la_SOURCES = \
   obj/src/iab/privacychain/Function.cpp \
   obj/src/iab/privacychain/function.Function.cpp \
   obj/src/iab/privacychain/Record.cpp \
-  obj/src/iab/privacychain/record.Visitor.cpp \
+  obj/src/iab/privacychain/record/namespace.cpp \
+  obj/src/iab/privacychain/record/Visitor.cpp \
+  obj/src/iab/privacychain/record/Bytes.cpp \
+  obj/src/iab/privacychain/record/Json.cpp \
+  obj/src/iab/privacychain/record/tcf.Version1.cpp \
+  obj/src/iab/privacychain/record/Record.cpp \
   \
   obj/src/iab/privacychain/Outcome.cpp \
   obj/src/iab/privacychain/Success.cpp \
