@@ -6,8 +6,6 @@ The main body of documentation for the State Space reference implementation of t
 
 This repo supports the State Space reference implementation of the IAB PrivacyChain Technology Specification.
 
-![banner](logo.png)
-
 A summary overview is as follows:
 * IAB [PrivacyChain](https://github.com/InteractiveAdvertisingBureau/PrivacyChain), contains
     * Specification Documents
