@@ -23,7 +23,8 @@ namespace iab::privacychain::transaction {
   inline auto operator==(Identifier const &, Identifier const &) -> bool;
   inline auto operator!=(Identifier const &, Identifier const &) -> bool;
 }
-#forward tests.unit.transaction.Identifier
+// DO NOT ---> #forward tests.unit.transaction.Identifier <-- because then that module needs to be exported
+namespace tests::unit::transaction { struct Identifier; }
 #forward iab.privacychain.transaction.identifier.From_String
 #import std.array
 class iab::privacychain::transaction::Identifier : private std::array<bool, 256> {

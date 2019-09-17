@@ -33,7 +33,11 @@ DEVELOPMENT_AREAS = \
   $(module_sys_prefix) \
   $(tunitas_basics_prefix) \
   $(tunitas_butano_prefix) \
-  $(hyperledger_fabric_sdk_prefix) \
+  $(state_space_fabric_sdk_prefix) \
+  $(hyperledger_fabric_db_prefix) \
+  $(hyperledger_fabric_ca_prefix) \
+  $(hyperledger_fabric_prefix) \
+  $(hyperledger_prefix) \
   $(end)
 TESTING_AREAS = \
   $(module_cppunit_prefix) \
@@ -43,16 +47,18 @@ INSTALLATION_AREAS = \
   $(nonstd_cppunit_prefix) \
   $(nonstd_gcc_prefix) \
   $(nonstd_jsoncpp_prefix) \
-  $(std_scold_prefix) \
-  $(std_tunitas_prefix) \
   $(std_hyperledger_fabric_prefix) \
-  $(std_iab_privacychain_prefix) \
+  $(std_scold_prefix) \
+  $(std_state_space_prefix) \
+  $(std_tunitas_prefix) \
   $(end)
 
 default: all
 
-module_SOURCE_SET = \
+module_BB_SOURCE_SET = \
   $(lib_libiab_privacychain_la_SOURCES) \
+  $(lib_libiab_privacychain_history_la_SOURCES) \
+  $(lib_libiab_privacychain_schema_la_SOURCES) \
   $(lib_libwant_la_SOURCES) \
   $(end)
 
@@ -100,9 +106,9 @@ LOADPATH   = $(LOADPATHPATH_SCOLD_MODULES)
 # -ggdb      ... and recall that -ggdb and -O2 don't play well together
 
 Makefile_COMPILER_CPPFLAGS_SET =
-Makefile_COMPILER_CFLAGS_SET   = -Wall @CFLAGS_gcc@   @CFLAGS_gdb@
-Makefile_COMPILER_CXXFLAGS_SET = -Wall @CXXFLAGS_gcc@ @CXXFLAGS_gdb@
-Makefile_COMPILER_LDFLAGS_SET  = -Wall @LDFLAGS_gcc@  @LDFLAGS_gdb@ @libstd_filesystem@
+Makefile_COMPILER_CFLAGS_SET   = -shared -Wall @CFLAGS_gcc@   @CFLAGS_gdb@
+Makefile_COMPILER_CXXFLAGS_SET = -shared -Wall @CXXFLAGS_gcc@ @CXXFLAGS_gdb@
+Makefile_COMPILER_LDFLAGS_SET  = -shared -Wall @LDFLAGS_gcc@  @LDFLAGS_gdb@ @libstd_filesystem@
 
 Makefile_nonstd_PACKAGE_CPPFLAGS_SET = @usr_local_CPPFLAGS@
 Makefile_nonstd_PACKAGE_CFLAGS_SET   = @usr_local_CFLAGS@
