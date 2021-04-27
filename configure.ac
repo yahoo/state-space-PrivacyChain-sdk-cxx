@@ -1,4 +1,5 @@
 dnl This is a GNU -*- autoconf -*- specification that is processed by Autoconf.
+dnl Copyright 2020, Verizon Media Inc.
 dnl Copyright 2019, Oath Inc.
 dnl Licensed under the terms of the Apache-2.0 license.
 dnl See the LICENSE file in https://github.com/yahoo/PrivacyChain-sdk-c++/blob/master/LICENSE for terms.
@@ -10,7 +11,7 @@ dnl make check &&
 dnl make install &&
 dnl echo OK DONE
 dnl
-AC_INIT([privacychain-sdk-c++], [0.0.0], [state-space@verizonmedia.com])
+AC_INIT([privacychain-sdk-c++], [0.1.0], [state-space@verizonmedia.com])
 TF_INIT(AC_PACKAGE_NAME, AC_PACKAGE_VERSION, AC_PACKAGE_BUGREPORT)
 
 dnl These options are also in the Makefile.am in AUTOMAKE_OPTIONS
@@ -31,32 +32,57 @@ AC_CONFIG_FILES([Makefile])
 #
 
 TF_COMPONENT_METADIRECTORY_TIERS
+TF_WITH_USR_LOCAL
 TF_ENABLE_GNU
 TF_ENABLE_GDB
 TF_ENABLE_GCC
 TF_ENABLE_MOCK_BUILD
+TF_ENABLE_LIBTOOL_NO_INSTALL
 
-TF_WITH_STD([scold]) dnl the core modules system
+#
+# To perform production builds, only the WITH_STD mentions must be replicated in
+#   Makefile.am: INSTALLATION_AREAS
+#
+# To perform development builds, the mentions herein must be replicated faithfully
+#   Makefile.am: DEVLOPMENT_AREAS, TESTING_AREAS
+#   Makefile.am: INSTALLATION_AREAS (same as before)
+#
+
+dnl ---> Some day when State Space Solutoins is more mature
+dnl --->      and when IAB PrivacyChain is "standardized"
+dnl --->      and when Hyperledger Fabric 1.4 (until 2020), 2.0 (since 2020), 3.0 (sic)
+dnl ---> TF_WITH_STD([iab-privacychain])
+dnl ---> TF_WITH_SUBSYSTEM([iab-privacychain-sdk], [], [The IAB PrivacyChain C++ Client-side SDK])
+
+TF_WITH_STD([state-space])
+# WATCHOUT - this simplistic interface will be subsumed when Hyperledger Fabric C++ (below) is ready
+TF_WITH_SUBSYSTEM([state-space-fabric-sdk], [], [The State Space ersatz Hyperledger Fabric C++ Client-side SDK])
+dnl Release 01 (Maximum Hammer) DOES NOT use this
+dnl Release 02 (Intensive Toothbrush) MIGHT NOT use this
+TF_WITH_STD([hyperledger-fabric])
+TF_WITH_SUBSYSTEM([hyperledger-fabric-sdk], [], [The Hyperledger Fabric C++ Client-side SDK])
+dnl not yet ---> TF_WITH_SUBSYSTEM([hyperledger-fabric-db], [], [The Hyperledger Fabric Data Base C++ Client-side SDK])
+dnl not yet ---> TF_WITH_SUBSYSTEM([hyperledger-fabric-ca], [], [The Hyperledger Fabric Certificate Authority C++ Client-side SDK])
+dnl not yet ---> TF_WITH_SUBSYSTEM([hyperledger-fabric], [], [The Hyperledger Fabric C++ Client-side SDK])
+dnl not yet ---> TF_WITH_SUBSYSTEM([hyperledger], [], [The Hyperledger C++ Client-side SDK])
 
 TF_WITH_STD([tunitas]) dnl application data types
 TF_WITH_SUBSYSTEM([temerarious-flagship], [], [The Tunitas Build System])
 TF_WITH_SUBSYSTEM([tunitas-basics], [], [The Tunitas Basics Components])
 TF_WITH_SUBSYSTEM([tunitas-butano], [], [The Tunitas Butano TCF v1.1])
 
-dnl you need one or the other of these
-TF_WITH_STD([hyperledger-fabric]) dnl you won't need this until Hyperledger Fabric ships a C++ API.
-TF_WITH_SUBSYSTEM([hyperledger-fabric-sdk], [], [The Hyperledger Fabric C++ Client-side SDK])
-
-
+TF_WITH_STD([scold]) dnl the core modules system
 # And mention these in $(DEVELOPMENT_AREAS) in Makefile.am
 TF_WITH_MODULE([json])
+TF_WITH_MODULE([langu]) dnl else module-shell
 TF_WITH_MODULE([nonstd])
 TF_WITH_MODULE([posix])
 TF_WITH_MODULE([rabinpoly])
+TF_WITH_MODULE([shell]) dnl but prefer module-langu for langu::ish::shell
 TF_WITH_MODULE([std])
 TF_WITH_MODULE([string]) dnl a.k.a. c-string
 TF_WITH_MODULE([sys])
-
+# And mention these in $(TESTING_AREAS) in Makefile.am
 TF_WITH_MODULE([cppunit])
 TF_WITH_MODULE([rigging]) dnl a.k.a. unit-rigging -> rigging-unit
 
@@ -64,7 +90,6 @@ TF_MSG_VERBOSE([compiler-specific (alphabetical)])
 TF_WITH_NONSTD([cppunit])
 TF_WITH_NONSTD([gcc]) dnl but modern gcc-7.1.0 & beyond is fine
 TF_WITH_NONSTD([jsoncpp]) dnl but modern jsoncpp-1.8.4 is fine
-TF_WITH_USR_LOCAL
 
 AM_PROG_AR
 LT_PREREQ([2.4.2])

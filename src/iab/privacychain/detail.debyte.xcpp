@@ -60,6 +60,6 @@ auto iab::privacychain::detail::debyte(char candidate_octet) -> std::array<bool,
     auto ping = 0 != (mask & candidate_octet);
     ret[bit] = ping;
   }
-  return std::move(ret);
+  return ret;
 }
 #endiv

@@ -92,6 +92,6 @@ auto tests::unit::constructor::Arguments::Palette<::iab::privacychain::record::B
   std::vector<std::byte> ret;
   auto sink = std::back_inserter(ret);
   std::transform(source.begin(), source.end(), sink, cvt);
-  return std::move(ret);
+  return ret;
 }
 #endiv

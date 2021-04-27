@@ -147,7 +147,7 @@ auto iab::privacychain::operation::Basis::decode_record_versioned_schema(Outcome
                                          }
                                        }
                                      }
-                                     return std::move(ret);
+                                     return ret;
                                    }(plain_broken);
       auto object = json::parse(json::failure::THROWING, json::to(json::STRING{}, plain_repaired));
       return Result{std::move(object)};
@@ -162,8 +162,9 @@ auto iab::privacychain::operation::Basis::decode_record_versioned_schema(Outcome
   return Outcome<Record>{std::error_code{error::Code::RECORD_UNDECODABLE}};
 } catch (json::exception::Generic const &) {
   return Outcome<Record>{std::error_code{error::Code::RECORD_UNDECODABLE}};
+#if 0 // WATCHOUT - module-json-devel 0.7 series has a different lineage for json::exception::Generic and Json::Exception
 } catch (::Json::Exception const &) {
-  // WATCHOUT - module-json-devel 0.7 series has a different lineage for json::exception::Generic and Json::Exception
   return Outcome<Record>{std::error_code{error::Code::RECORD_UNDECODABLE}};
+#endif
 }
 #endiv

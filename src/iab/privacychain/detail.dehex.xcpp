@@ -62,6 +62,6 @@ auto iab::privacychain::detail::dehex(char candidate_hexchar_syntax) -> std::arr
     auto ping = 0 != (mask & candidate_nibble_value);
     ret[bit] = ping;
   }
-  return std::move(ret);
+  return ret;
 }
 #endiv
