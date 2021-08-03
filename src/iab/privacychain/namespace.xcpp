@@ -2,5 +2,21 @@
 // Copyright 2019, Oath Inc.
 // Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/PrivacyChain-sdk-c++/blob/master/LICENSE for terms.
 #divert <fpp>
-namespace iab::privacychain { }
+namespace iab::privacychain {
+  namespace [[nodirectory]] api { }
+  namespace [[nodirectory]] constructor { }
+  namespace [[nodirectory]] detail { }
+  namespace [[nodirectory]] error { }
+  namespace [[nodirectory]] exception { }
+  namespace [[nodirectory]] function { }
+  namespace [[nodirectory]] key { }
+  namespace [[nodirectory]] operation { }
+  namespace [[nodirectory]] required { }
+  namespace [[nodirectory]] record { }
+  namespace [[nodirectory]] time { }
+  namespace [[nodirectory]] traits { }
+  namespace [[nodirectory]] transaction {
+    namespace [[nodirectory]] identifier { }
+  }
+}
 #endiv

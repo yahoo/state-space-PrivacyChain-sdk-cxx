@@ -1,0 +1,26 @@
+# This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Verizon Media.
+# Copyright 2019, Oath Inc.
+# Licensed under the terms of the Apache-2.0 license.
+# See the LICENSE file in https://github.com/yahoo/PrivacyChain-sdk-c++/blob/master/LICENSE for terms.
+#
+obj_src_tests_unit_constructor_SUBSOURCES = \
+  obj/src/tests/unit/constructor/namespace.cpp \
+  obj/src/tests/unit/constructor/Arguments.cpp \
+  obj/src/tests/unit/constructor/Arguments.Palette.cpp \
+  obj/src/tests/unit/constructor/Fixture.cpp \
+  obj/src/tests/unit/constructor/Fixture.Dispatch.template.cpp \
+  obj/src/tests/unit/constructor/Fixture.Dispatch.INIT.1.cpp \
+  obj/src/tests/unit/constructor/Fixture.Dispatch.GET.1.cpp \
+  obj/src/tests/unit/constructor/Fixture.Dispatch.GET.2.cpp \
+  obj/src/tests/unit/constructor/Fixture.Dispatch.GET.3.cpp \
+  obj/src/tests/unit/constructor/Fixture.Dispatch.SET.1.cpp \
+  obj/src/tests/unit/constructor/Fixture.Dispatch.SET.2.cpp \
+  obj/src/tests/unit/constructor/Fixture.Dispatch.SET.3.cpp \
+  obj/src/tests/unit/constructor/Fixture.Dispatch.HISTORY.1.cpp \
+  obj/src/tests/unit/constructor/Fixture.Dispatch.HISTORY.2.cpp \
+  obj/src/tests/unit/constructor/Fixture.Dispatch.HISTORY.3.cpp \
+  obj/src/tests/unit/constructor/Fixture.Dispatch.cpp \
+  obj/src/tests/unit/constructor/Fixture.dispatch.Basis.cpp \
+  obj/src/tests/unit/constructor/Fixture.dispatch.Generator.cpp \
+  $(end)

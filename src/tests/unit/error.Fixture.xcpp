@@ -5,10 +5,7 @@
 namespace tests::unit::error { class Fixture; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
-class tests::unit::error::Fixture : public cppunit::test::Fixture {
-public:
+struct tests::unit::error::Fixture : public cppunit::test::Fixture {
   auto test_Condition() -> void;
   auto test_Code() -> void;
   auto test_Category() -> void;
@@ -52,18 +49,15 @@ auto tests::unit::error::Fixture::test_category() -> void {
   CPPUNIT_ASSERT(true);
 }
 #import tests.unit.error.Category
-#import unit.rigging.suite.Stream
-#import unit.rigging.suite.call
-#import unit.rigging.suite.add
 auto tests::unit::error::Fixture::suite() -> cppunit::Test * {
-  using namespace ::unit::rigging::suite;
-  Stream series("error");
+  using namespace rigging::suite;
+  auto series = Stream{"error"};
   series << call("Condition", &Fixture::test_Condition)
          << call("Code", &Fixture::test_Code)
          << call("Category", &Fixture::test_Category)
          << call("category", &Fixture::test_category)
-         << add(Category::suite())
-    ;
-  return series.release();
+         << add<Category>()
+         << END;
+  return finalize(series);
 }
 #endiv

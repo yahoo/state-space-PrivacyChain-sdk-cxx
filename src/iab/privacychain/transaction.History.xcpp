@@ -38,10 +38,10 @@ namespace iab::privacychain::traits { template<> struct Is_Deserializable<transa
 #import std.unique_ptr
 #import std.list
 class iab::privacychain::transaction::History : public std::list<std::unique_ptr<Record>> {
-  using ancestor = std::list<std::unique_ptr<Record>>;
+  using Ancestor = std::list<std::unique_ptr<Record>>;
 public:
   History() = default;
-  using ancestor::list;
+  using Ancestor::list;
 };
 #import std.true_type
 template<> struct iab::privacychain::traits::Is_Deserializable<iab::privacychain::transaction::History> : public std::true_type { };

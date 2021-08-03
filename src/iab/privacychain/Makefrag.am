@@ -21,7 +21,7 @@
 #       <= 0     if any interfaces were changed
 #       <= AGE   if no interface change, but any other (source code) change
 #
-lib_libiab_privacychain_la_CURRENT = 2
+lib_libiab_privacychain_la_CURRENT = 3
 lib_libiab_privacychain_la_REVISION = 0
 lib_libiab_privacychain_la_AGE = 0
 lib_libiab_privacychain_la_CRA = $(lib_libiab_privacychain_la_CURRENT):$(lib_libiab_privacychain_la_REVISION):$(lib_libiab_privacychain_la_AGE)
@@ -59,8 +59,9 @@ lib_libiab_privacychain_la_SOURCES = \
   \
   obj/src/iab/privacychain/detail.dehex.cpp \
   obj/src/iab/privacychain/detail.debyte.cpp \
-  obj/src/iab/privacychain/detail.Formatter.cpp \
+  obj/src/iab/privacychain/detail.Formatter.template.cpp \
   obj/src/iab/privacychain/detail.Formatter.Key.cpp \
+  obj/src/iab/privacychain/detail.Formatter.cpp \
   \
   obj/src/iab/privacychain/exception.Aspect.cpp \
   \
@@ -82,9 +83,10 @@ lib_libiab_privacychain_la_SOURCES = \
   \
   obj/src/iab/privacychain/Operation.cpp \
   obj/src/iab/privacychain/operation.Basis.cpp \
-  obj/src/iab/privacychain/operation.Operation.cpp \
+  obj/src/iab/privacychain/operation.Operation.template.cpp \
   obj/src/iab/privacychain/operation.Operation.INVOKE.cpp \
   obj/src/iab/privacychain/operation.Operation.QUERY.cpp \
+  obj/src/iab/privacychain/operation.Operation.cpp \
   \
   obj/src/iab/privacychain/required.cpp \
   obj/src/iab/privacychain/required.Character.cpp \

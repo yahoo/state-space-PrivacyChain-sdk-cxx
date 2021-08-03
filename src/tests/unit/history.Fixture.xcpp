@@ -5,10 +5,7 @@
 namespace tests::unit::history { class Fixture; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
-class tests::unit::history::Fixture : public cppunit::test::Fixture {
-public:
+struct tests::unit::history::Fixture : public cppunit::test::Fixture {
   auto test_something() -> void;
   static auto suite() -> cppunit::Test *;
 };
@@ -21,14 +18,11 @@ using namespace std::string_literals;
 auto tests::unit::history::Fixture::test_something() -> void {
   CPPUNIT_ASSERT(true);
 }
-#import unit.rigging.suite.Stream
-#import unit.rigging.suite.call
-#import unit.rigging.suite.add
 auto tests::unit::history::Fixture::suite() -> cppunit::Test * {
-  using namespace ::unit::rigging::suite;
-  Stream series("history");
+  using namespace rigging::suite;
+  auto series = Stream{"history"};
   series << call("something", &Fixture::test_something)
     ;
-  return series.release();
+  return finalize(series);
 }
 #endiv

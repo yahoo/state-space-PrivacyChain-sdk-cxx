@@ -2,16 +2,6 @@
 // Copyright 2019, Oath Inc.
 // Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/PrivacyChain-sdk-c++/blob/master/LICENSE for terms.
 #divert <fpp>
-namespace iab::privacychain::detail {
-  //
-  // A specialized formatter; specializations only.
-  // All the magic happens in the overloaded operator<<
-  //
-  // Usage:
-  //
-  //   Thing thing{...somehow...};
-  //   std::cerr << format(thing);
-  //
-  template<typename TYPE> struct Formatter;
-}
+#import iab.privacychain.detail.Formatter.template
+#import iab.privacychain.detail.Formatter.Key
 #endiv

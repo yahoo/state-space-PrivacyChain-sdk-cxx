@@ -8,8 +8,8 @@
 #import iab.privacychain.exception.Aspect
 #import std.runtime_error
 #import std.string
-class tests::unit::privacychain::Fixture::Exceptional : public ::iab::privacychain::exception::Aspect, public std::runtime_error {
-  struct ancestors {
+class tests::unit::privacychain::Fixture::Exceptional : public virtual ::iab::privacychain::exception::Aspect, public std::runtime_error {
+  struct Ancestors {
     using Aspect = ::iab::privacychain::exception::Aspect;
     using Exception = std::runtime_error;
   };
@@ -21,14 +21,14 @@ public:
 #divert <ipp>
 namespace tests::unit::privacychain {
   inline Fixture::Exceptional::Exceptional(std::string const &reason)
-    : ancestors::Exception{reason}
+    : Ancestors::Exception{reason}
   { }
 }
 #endiv
 #divert <cpp>
 namespace tests::unit::privacychain {
   auto Fixture::Exceptional::what() const noexcept -> char const * {
-    return ancestors::Exception::what();
+    return Ancestors::Exception::what();
   }
 }
 #endiv

@@ -5,11 +5,8 @@
 namespace tests::unit::transaction { class Identifier; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
 #import iab.privacychain.transaction.Identifier
-class tests::unit::transaction::Identifier : public cppunit::test::Fixture {
-public:
+struct tests::unit::transaction::Identifier : public cppunit::test::Fixture {
   using Subject = ::iab::privacychain::transaction::Identifier;
   auto test_constructor_default() -> void;
   auto test_constructor_zero() -> void;
@@ -82,29 +79,27 @@ auto tests::unit::transaction::Identifier::test_operator_ne() -> void {
   CPPUNIT_ASSERT(! (a != a) );
   CPPUNIT_ASSERT(a != b);
 }
-#import unit.rigging.suite.Stream
-#import unit.rigging.suite.call
-#import unit.rigging.suite.add
 auto tests::unit::transaction::Identifier::suite() -> cppunit::Test * {
-  using namespace ::unit::rigging::suite;
-  Stream series("Identifier");
-  {
-    Stream con("constructor");
-    con << call("default", &Identifier::test_constructor_default)
-        << call("zero", &Identifier::test_constructor_zero)
-      ;
-    series << add(con.release());
-  } {
-    Stream fro("from_string");
-    fro << call("basic", &Identifier::test_from_string_basic)
-        << call("01", &Identifier::test_from_string_01)
-        << call("02", &Identifier::test_from_string_02)
-      ;
-    series << add(fro.release());
-  }
-  series << call("operator==", &Identifier::test_operator_eq)
+  using namespace rigging::suite;
+  auto series = Stream{"Identifier"};
+  series << []{
+              auto con = Stream{"constructor"};
+              con << call("default", &Identifier::test_constructor_default)
+                  << call("zero", &Identifier::test_constructor_zero)
+                  << END;
+              return move(con);
+            }()
+         << []{
+              auto fro = Stream{"from_string"};
+              fro << call("basic", &Identifier::test_from_string_basic)
+                  << call("01", &Identifier::test_from_string_01)
+                  << call("02", &Identifier::test_from_string_02)
+                  << END;
+              return move(fro);
+            }()
+         << call("operator==", &Identifier::test_operator_eq)
          << call("operator!=", &Identifier::test_operator_ne)
-    ;
-  return series.release();
+         << END;
+  return finalize(series);
 }
 #endiv

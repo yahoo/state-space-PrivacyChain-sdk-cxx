@@ -5,10 +5,7 @@
 namespace tests::unit::time { class Fixture; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
-class tests::unit::time::Fixture : public cppunit::test::Fixture {
-public:
+struct tests::unit::time::Fixture : public cppunit::test::Fixture {
   auto test_Clock() -> void;
   auto test_Duration() -> void;
   auto test_Point() -> void;
@@ -40,16 +37,13 @@ auto tests::unit::time::Fixture::test_Point() -> void {
   auto p1 = p0 + 10ns;
   CPPUNIT_ASSERT(p1 > p0);
 }
-#import unit.rigging.suite.Stream
-#import unit.rigging.suite.call
-#import unit.rigging.suite.add
 auto tests::unit::time::Fixture::suite() -> cppunit::Test * {
-  using namespace ::unit::rigging::suite;
-  Stream series("time");
+  using namespace rigging::suite;
+  auto series = Stream{"time"};
   series << call("Clock", &Fixture::test_Clock)
          << call("Duration", &Fixture::test_Duration)
          << call("Point", &Fixture::test_Point)
     ;
-  return series.release();
+  return finalize(series);
 }
 #endiv

@@ -2,15 +2,19 @@
 // Copyright 2019, Oath Inc.
 // Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/PrivacyChain-sdk-c++/blob/master/LICENSE for terms.
 #divert <fpp>
-namespace tests::unit::constructor { class Arguments; }
+#import iab.privacychain.record
+namespace tests::unit::constructor {
+  namespace [[eponymous]] arguments {
+    class Arguments;
+    namespace record = ::iab::privacychain::record;
+  }
+  using arguments::Arguments;
+}
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
 #import iab.privacychain.constructor.Arguments
-class tests::unit::constructor::Arguments : public cppunit::test::Fixture {
-public:
-  using Subject = ::iab::privacychain::constructor::Arguments;
+struct tests::unit::constructor::arguments::Arguments : public cppunit::test::Fixture {
+  using Subject = library::Arguments;
   auto test_constructor() -> void;
   auto test_string_count() -> void;
   template<typename TYPE> auto test_stringify() -> void;
@@ -21,17 +25,17 @@ public:
   template<typename TYPE> struct Palette;
 };
 #import iab.privacychain.Record // e.g. record::Bytes
-namespace tests::unit::constructor {
-  template<> struct Arguments::Palette<::iab::privacychain::record::Bytes>;
+namespace tests::unit::constructor::arguments {
+  template<> struct Arguments::Palette<record::Bytes>;
 }
-namespace tests::unit::constructor {
-  template<> auto Arguments::test_stringify_record<::iab::privacychain::record::Bytes>() -> void;
-  template<> auto Arguments::test_stringify_record<::iab::privacychain::record::Json>() -> void;
-  template<> auto Arguments::test_stringify_record<::iab::privacychain::record::tcf::Version1>() -> void;
+namespace tests::unit::constructor::arguments {
+  template<> auto Arguments::test_stringify_record<record::Bytes>() -> void;
+  template<> auto Arguments::test_stringify_record<record::Json>() -> void;
+  template<> auto Arguments::test_stringify_record<record::tcf::Version1>() -> void;
   //
-  template<> auto Arguments::test_append_record<::iab::privacychain::record::Bytes>() -> void;
-  template<> auto Arguments::test_append_record<::iab::privacychain::record::Json>() -> void;
-  template<> auto Arguments::test_append_record<::iab::privacychain::record::tcf::Version1>() -> void;
+  template<> auto Arguments::test_append_record<record::Bytes>() -> void;
+  template<> auto Arguments::test_append_record<record::Json>() -> void;
+  template<> auto Arguments::test_append_record<record::tcf::Version1>() -> void;
 }
 #endiv
 #divert <tpp>
@@ -39,7 +43,7 @@ namespace tests::unit::constructor {
 #import std.cerr
 #import std.ostringstream
 #import std.type_info
-template<typename TYPE> auto tests::unit::constructor::Arguments::test_stringify() -> void {
+template<typename TYPE> auto tests::unit::constructor::arguments::Arguments::test_stringify() -> void {
   Palette<TYPE> palette;
   std::ostringstream buf;
   buf << typeid(TYPE).name()
@@ -50,12 +54,11 @@ template<typename TYPE> auto tests::unit::constructor::Arguments::test_stringify
       << ' ' << Subject::stringify(palette.b)
       << ' ' << Subject::stringify(palette.c)
       << '\n';
-    ;
   std::cerr << buf.str();
 }
 #import json.Value
 #import json.value.constants
-template<typename TYPE> auto tests::unit::constructor::Arguments::test_append() -> void {
+template<typename TYPE> auto tests::unit::constructor::arguments::Arguments::test_append() -> void {
   Palette<TYPE> palette;
   json::Value array{json::value::ARRAY};
   Subject subject{array};
@@ -71,12 +74,12 @@ template<typename TYPE> auto tests::unit::constructor::Arguments::test_append() 
 }
 #endiv
 #divert <cpp>
-auto tests::unit::constructor::Arguments::test_constructor() -> void {
+auto tests::unit::constructor::arguments::Arguments::test_constructor() -> void {
   json::Value array{json::value::ARRAY};
   Subject subject{array}; // <------------- test this (whoop! there it is!)
   CPPUNIT_ASSERT(true);
 }
-auto tests::unit::constructor::Arguments::test_string_count() -> void {
+auto tests::unit::constructor::arguments::Arguments::test_string_count() -> void {
   { auto specimen = std::string(1, 'b'); // <---------- PARENTHESIS gives string(count, char)
     CPPUNIT_ASSERT(1 == specimen.size());
     CPPUNIT_ASSERT('b' == specimen.front()); }
@@ -85,9 +88,9 @@ auto tests::unit::constructor::Arguments::test_string_count() -> void {
     CPPUNIT_ASSERT('\001' == specimen.front());
     CPPUNIT_ASSERT('b' == specimen.back()); }
 }
-namespace tests::unit::constructor {
-  template<> auto Arguments::test_stringify_record<::iab::privacychain::record::Bytes>() -> void {
-    using Value = ::iab::privacychain::record::Bytes;
+namespace tests::unit::constructor::arguments {
+  template<> auto Arguments::test_stringify_record<record::Bytes>() -> void {
+    using Value = record::Bytes;
     Palette<Value> palette;
     json::Value array{json::value::ARRAY};
     Subject subject{array};
@@ -96,16 +99,16 @@ namespace tests::unit::constructor {
     buf << typeid(Value).name() << ' ' << Subject::stringify(specimen) << '\n'; // <----------------- test this
     std::cerr << buf.str();
   }
-  template<> auto Arguments::test_stringify_record<::iab::privacychain::record::Json>() -> void {
-#warning WRITETEHIS auto Arguments::test_stringify_record<::iab::privacychain::record::Json>() -> void
+  template<> auto Arguments::test_stringify_record<record::Json>() -> void {
+#warning WRITETEHIS auto Arguments::test_stringify_record<record::Json>() -> void
     CPPUNIT_ASSERT(true);
   }
-  template<> auto Arguments::test_stringify_record<::iab::privacychain::record::tcf::Version1>() -> void {
-#warning WRITETEHIS auto Arguments::test_stringify_record<::iab::privacychain::record::tcf::Version1>() -> void
+  template<> auto Arguments::test_stringify_record<record::tcf::Version1>() -> void {
+#warning WRITETEHIS auto Arguments::test_stringify_record<record::tcf::Version1>() -> void
     CPPUNIT_ASSERT(true);
   }
-  template<> auto Arguments::test_append_record<::iab::privacychain::record::Bytes>() -> void {
-    using Value = ::iab::privacychain::record::Bytes;
+  template<> auto Arguments::test_append_record<record::Bytes>() -> void {
+    using Value = record::Bytes;
     Palette<Value> palette;
     json::Value array{json::value::ARRAY};
     Subject subject{array};
@@ -114,64 +117,60 @@ namespace tests::unit::constructor {
       buf << typeid(Value).name() << ' ' << array << '\n';
       std::cerr << buf.str(); }
   }
-  template<> auto Arguments::test_append_record<::iab::privacychain::record::Json>() -> void {
-#warning WRITETEHIS auto Arguments::test_append_record<::iab::privacychain::record::Json>() -> void
+  template<> auto Arguments::test_append_record<record::Json>() -> void {
+#warning WRITETEHIS auto Arguments::test_append_record<record::Json>() -> void
     CPPUNIT_ASSERT(true);
   }
-  template<> auto Arguments::test_append_record<::iab::privacychain::record::tcf::Version1>() -> void {
-#warning WRITETEHIS auto Arguments::test_append_record<::iab::privacychain::record::tcf::Version1>() -> void
+  template<> auto Arguments::test_append_record<record::tcf::Version1>() -> void {
+#warning WRITETEHIS auto Arguments::test_append_record<record::tcf::Version1>() -> void
     CPPUNIT_ASSERT(true);
   }
 }
-#import unit.rigging.suite.Stream
-#import unit.rigging.suite.call
-#import unit.rigging.suite.add
-auto tests::unit::constructor::Arguments::suite() -> cppunit::Test * {
-  using namespace ::unit::rigging::suite;
-  Stream series("Arguments");
+auto tests::unit::constructor::arguments::Arguments::suite() -> cppunit::Test * {
+  using namespace rigging::suite;
+  auto series = Stream{"Arguments"};
   series << call("constructor", &Arguments::test_constructor)
          << call("string-count", &Arguments::test_string_count)
-    ;
-  {
-    Stream str("stringify");
-    // The pantheon here OUGHT to be a superset of the specializations in Arguments.xcpp
-    str << call("char", &Arguments::test_stringify<char>)
-        << call("byte", &Arguments::test_stringify<std::byte>)
-        << call("int", &Arguments::test_stringify<int>)
-        << call("char const *", &Arguments::test_stringify<char const *>)
-        << call("string", &Arguments::test_stringify<std::string>)
-        << call("string_view", &Arguments::test_stringify<std::string_view>)
-      ;
-    {
-      Stream rec("Record");
-      namespace record = ::iab::privacychain::record;
-      rec << call("bytes", &Arguments::test_stringify_record<record::Bytes>)
-          << call("json", &Arguments::test_stringify_record<record::Json>)
-          << call("tcf", &Arguments::test_stringify_record<record::tcf::Version1>)
-        ;
-      str << add(rec.release());
-    }
-    series << add(str.release());
-  } {
-    Stream app("append");
-    app << call("char", &Arguments::test_append<char>)
-        << call("byte", &Arguments::test_append<std::byte>)
-        << call("int", &Arguments::test_append<int>)
-        << call("char const *", &Arguments::test_append<char const *>)
-        << call("string", &Arguments::test_append<std::string>)
-        << call("string", &Arguments::test_append<std::string>)
-      ;
-    {
-      Stream rec("Record");
-      namespace record = ::iab::privacychain::record;
-      rec << call("bytes", &Arguments::test_append_record<record::Bytes>)
-          << call("json", &Arguments::test_append_record<record::Json>)
-          << call("tcf", &Arguments::test_append_record<record::tcf::Version1>)
-        ;
-      app << add(rec.release());
-    }
-    series << add(app.release());
-  }
-  return series.release();
+         << []{
+              auto str = Stream{"stringify"};
+              // The pantheon here OUGHT to be a superset of the specializations in Arguments.xcpp
+              str << call("char", &Arguments::test_stringify<char>)
+                  << call("byte", &Arguments::test_stringify<std::byte>)
+                  << call("int", &Arguments::test_stringify<int>)
+                  << call("char const *", &Arguments::test_stringify<char const *>)
+                  << call("string", &Arguments::test_stringify<std::string>)
+                  << call("string_view", &Arguments::test_stringify<std::string_view>)
+                  << []{
+                       auto rec = Stream{"Record"};
+                       rec << call("bytes", &Arguments::test_stringify_record<record::Bytes>)
+                           << call("json", &Arguments::test_stringify_record<record::Json>)
+                           << call("tcf", &Arguments::test_stringify_record<record::tcf::Version1>)
+                           << END;
+                       return move(rec);
+                     }()
+                  << END;
+                return move(str);
+            }()
+         << []{
+              auto app = Stream{"append"};
+              app << call("char", &Arguments::test_append<char>)
+                  << call("byte", &Arguments::test_append<std::byte>)
+                  << call("int", &Arguments::test_append<int>)
+                  << call("char const *", &Arguments::test_append<char const *>)
+                  << call("string", &Arguments::test_append<std::string>)
+                  << call("string", &Arguments::test_append<std::string>)
+                  << []{
+                       auto rec = Stream{"Record"};
+                       rec << call("bytes", &Arguments::test_append_record<record::Bytes>)
+                           << call("json", &Arguments::test_append_record<record::Json>)
+                           << call("tcf", &Arguments::test_append_record<record::tcf::Version1>)
+                           << END;
+                       return move(rec);
+                     }()
+                  << END;
+                return move(app);
+            }()
+         << END;
+  return finalize(series);
 }
 #endiv

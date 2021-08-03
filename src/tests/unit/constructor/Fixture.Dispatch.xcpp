@@ -1,6 +1,22 @@
 // This is -*- c++ -*- nearly C++2a with Modules TS but in the S.C.O.L.D. stylings that are so popular these days.
+// Copyright Verizon Media
 // Copyright 2019, Oath Inc.
-// Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/PrivacyChain-sdk-c++/blob/master/LICENSE for terms.
+// Licensed under the terms of the Apache-2.0 license.
+// See LICENSE file in https://github.com/yahoo/PrivacyChain-sdk-c++/blob/master/LICENSE for terms.
 #divert <fpp>
-#import tests.unit.constructor.Fixture
+#import tests.unit.constructor.Fixture.Dispatch.template
+//
+#import tests.unit.constructor.Fixture.Dispatch.INIT.1
+//
+#import tests.unit.constructor.Fixture.Dispatch.GET.1
+#import tests.unit.constructor.Fixture.Dispatch.GET.2
+#import tests.unit.constructor.Fixture.Dispatch.GET.3
+//
+#import tests.unit.constructor.Fixture.Dispatch.SET.1
+#import tests.unit.constructor.Fixture.Dispatch.SET.2
+#import tests.unit.constructor.Fixture.Dispatch.SET.3
+//
+#import tests.unit.constructor.Fixture.Dispatch.HISTORY.1
+#import tests.unit.constructor.Fixture.Dispatch.HISTORY.2
+#import tests.unit.constructor.Fixture.Dispatch.HISTORY.3
 #endiv

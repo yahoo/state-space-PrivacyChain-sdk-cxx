@@ -5,11 +5,8 @@
 namespace tests::unit::transaction { class Record; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
 #import iab.privacychain.transaction.Record
-class tests::unit::transaction::Record : public cppunit::test::Fixture {
-public:
+struct tests::unit::transaction::Record : public cppunit::test::Fixture {
   using Subject = ::iab::privacychain::transaction::Record;
   //
   // Use deserialize to produce a Record
@@ -120,29 +117,26 @@ auto tests::unit::transaction::Record::test_deserialize_fail_bool() -> void {
   auto des = iab::privacychain::history::v1::deserialize(std::move(income)); // <--------------------- testing this
   CPPUNIT_ASSERT(!ok(des));
 }
-#import unit.rigging.suite.Stream
-#import unit.rigging.suite.call
-#import unit.rigging.suite.add
 auto tests::unit::transaction::Record::suite() -> cppunit::Test * {
-  using namespace ::unit::rigging::suite;
-  Stream series("Record");
+  using namespace rigging::suite;
+  auto series = Stream{"Record"};
   series << call("initializer", &Record::test_initializer)
-    ;
-  {
-    Stream dej("deserialize");
-    dej << call("good", &Record::test_deserialize_good)
-      ;
-    {
-      Stream fai("fail");
-      fai << call("id", &Record::test_deserialize_fail_id)
-          << call("data", &Record::test_deserialize_fail_data)
-          << call("time", &Record::test_deserialize_fail_time)
-          << call("bool", &Record::test_deserialize_fail_bool)
-        ;
-      dej << add(fai.release());
-    }
-    series << add(dej.release());
-  }
-  return series.release();
+         << []{
+              auto dej = Stream{"deserialize"};
+              dej << call("good", &Record::test_deserialize_good)
+                  << []{
+                       auto fai = Stream{"fail"};
+                       fai << call("id", &Record::test_deserialize_fail_id)
+                           << call("data", &Record::test_deserialize_fail_data)
+                           << call("time", &Record::test_deserialize_fail_time)
+                           << call("bool", &Record::test_deserialize_fail_bool)
+                           << END;
+                       return move(fai);
+                     }()
+                  << END;
+              return move(dej);
+            }()
+         << END;
+  return finalize(series);
 }
 #endiv

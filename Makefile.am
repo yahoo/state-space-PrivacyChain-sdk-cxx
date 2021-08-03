@@ -1,4 +1,5 @@
 # This is a GNU -*- Makefile -*- fragment that is included by Automake
+# Copyright Verizon Media Inc.
 # Copyright 2020, Verizon Media Inc.
 # Copyright 2019, Oath Inc.
 # Licensed under the terms of the Apache-2.0 license.
@@ -52,13 +53,6 @@ INSTALLATION_AREAS = \
   $(std_iab_privacychain_prefix) \
   $(end)
 
-default: all
-
-.PHONY: clean-local mostlyclean-local distclean-local
-clean-local mostlyclean-local distclean-local::
-clean-dependencies::
-clean-local:: clean-dependencies
-
 include src/iab/privacychain/Makefrag.am
 include src/iab/privacychain/history/Makefrag.am
 include src/iab/privacychain/schema/Makefrag.am
@@ -99,10 +93,10 @@ TESTS = \
 # -std=c++20 ... and more is required
 # -ggdb      ... and recall that -ggdb and -O2 don't play well together
 
-Makefile_COMPILER_CPPFLAGS_SET =
-Makefile_COMPILER_CFLAGS_SET   = -Wall @CFLAGS_gcc@   @CFLAGS_gdb@
-Makefile_COMPILER_CXXFLAGS_SET = -Wall @CXXFLAGS_gcc@ @CXXFLAGS_gdb@
-Makefile_COMPILER_LDFLAGS_SET  = -Wall @LDFLAGS_gcc@  @LDFLAGS_gdb@ @libstd_filesystem@
+Makefile_COMPILER_CPPFLAGS_SET = @CPPFLAGS_gcc@ @CPPFLAGS_gdb@
+Makefile_COMPILER_CFLAGS_SET   =   @CFLAGS_gcc@   @CFLAGS_gdb@
+Makefile_COMPILER_CXXFLAGS_SET = @CXXFLAGS_gcc@ @CXXFLAGS_gdb@
+Makefile_COMPILER_LDFLAGS_SET  =  @LDFLAGS_gcc@  @LDFLAGS_gdb@ @libstd_filesystem@
 
 Makefile_nonstd_PACKAGE_CPPFLAGS_SET = @usr_local_CPPFLAGS@
 Makefile_nonstd_PACKAGE_CFLAGS_SET   = @usr_local_CFLAGS@
@@ -130,3 +124,10 @@ AM_CFLAGS   = $(PACKAGE_CFLAGS_SET)
 AM_CXXFLAGS = $(PACKAGE_CXXFLAGS_SET)
 AM_LDFLAGS  = $(V_LDFLAGS_avoid.VERBOSE_Veq$(V))
 AM_LIBTOOLFLAGS = $(V_LIBTOOLFLAGS_VERBOSE_Veq$(V))
+
+default: all
+
+.PHONY: clean-local mostlyclean-local distclean-local
+clean-local mostlyclean-local distclean-local::
+clean-dependencies::
+clean-local:: clean-dependencies

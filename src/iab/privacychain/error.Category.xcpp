@@ -21,7 +21,7 @@ namespace iab::privacychain::error {
 #import std.error_condition
 #import std.string
 class iab::privacychain::error::Category : public std::error_category {
-  using ancestor = std::error_category;
+  using Ancestor = std::error_category;
   Category() = default;
   friend auto category() -> Category const &;
 public:

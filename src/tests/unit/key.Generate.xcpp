@@ -5,10 +5,7 @@
 namespace tests::unit::key { class Generate; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
-class tests::unit::key::Generate : public cppunit::test::Fixture {
-public:
+struct tests::unit::key::Generate : public cppunit::test::Fixture {
   template<typename TYPE> auto test_generate() -> void;
   static auto suite() -> cppunit::Test *;
 };
@@ -67,12 +64,9 @@ template<> auto tests::unit::key::Generate::test_generate<std::set<char>::iterat
   auto giterator = generate(specimen.begin(), specimen.end());
   CPPUNIT_ASSERT(zero != giterator);
 }
-#import unit.rigging.suite.Stream
-#import unit.rigging.suite.call
-#import unit.rigging.suite.add
 auto tests::unit::key::Generate::suite() -> cppunit::Test * {
-  using namespace ::unit::rigging::suite;
-  Stream series("generate");
+  using namespace rigging::suite;
+  auto series = Stream{"generate"};
   series << call("uint8_t", &Generate::test_generate<std::uint8_t>)
          << call("uint16_t", &Generate::test_generate<std::uint16_t>)
          << call("uint32_t", &Generate::test_generate<std::uint32_t>)
@@ -82,6 +76,6 @@ auto tests::unit::key::Generate::suite() -> cppunit::Test * {
          << call("set", &Generate::test_generate<std::set<char>>)
          << call("iterator", &Generate::test_generate<std::set<char>::iterator>)
     ;
-  return series.release();
+  return finalize(series);
 }
 #endiv

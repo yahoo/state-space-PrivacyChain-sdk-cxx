@@ -5,11 +5,8 @@
 namespace tests::unit::function { class Fixture; }
 #endiv
 #divert <hpp>
-#import cppunit.Test
-#import cppunit.test.Fixture
 #import iab.privacychain.Function
-class tests::unit::function::Fixture : public cppunit::test::Fixture {
-public:
+struct tests::unit::function::Fixture : public cppunit::test::Fixture {
   using Subject = ::iab::privacychain::Function;
   auto test_constructor() -> void;
   auto test_operator_eq() -> void;
@@ -37,16 +34,13 @@ auto tests::unit::function::Fixture::test_to_string() -> void {
   auto const actual = to_string(sub1);
   CPPUNIT_ASSERT_EQUAL(expected, actual);
 }
-#import unit.rigging.suite.Stream
-#import unit.rigging.suite.call
-#import unit.rigging.suite.add
 auto tests::unit::function::Fixture::suite() -> cppunit::Test * {
-  using namespace ::unit::rigging::suite;
-  Stream series("function");
+  using namespace rigging::suite;
+  auto series = Stream{"function"};
   series << call("constructor", &Fixture::test_constructor)
          << call("operator_eq", &Fixture::test_operator_eq)
          << call("to_string", &Fixture::test_to_string)
     ;
-  return series.release();
+  return finalize(series);
 }
 #endiv

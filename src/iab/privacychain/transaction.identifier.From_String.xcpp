@@ -24,7 +24,7 @@ namespace iab::privacychain::transaction::identifier {
 struct iab::privacychain::transaction::identifier::From_String {
   inline explicit From_String(Identifier &ref) : ref{ref} { };
   using Size = std::size_t;
-  using Value = Identifier::ancestor::value_type; // old_school only
+  using Value = Identifier::Ancestor::value_type; // old_school only
   using Reference = decltype(std::declval<Identifier>()[0]);
   using Const_Reference = decltype(std::declval<Identifier const>()[0]);
   inline auto operator[](Size i) -> Reference { return ref[i]; }

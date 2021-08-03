@@ -14,9 +14,9 @@ namespace iab::privacychain::operation {
   // Usage:
   //
   //   class my::Operation : public operation::Basis {
-  //     ancestor = operation::Basis;
+  //     using Ancestor = operation::Basis;
   //   public:
-  //     explicit Operation(Context const &context) : ancestor{context} { }
+  //     explicit Operation(Context const &context) : Ancestor{context} { }
   //   };
   //
   class Basis;

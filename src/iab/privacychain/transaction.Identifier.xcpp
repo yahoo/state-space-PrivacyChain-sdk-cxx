@@ -27,17 +27,17 @@ namespace iab::privacychain::transaction {
 #forward iab.privacychain.transaction.identifier.From_String
 #import std.array
 class iab::privacychain::transaction::Identifier : private std::array<bool, 256> {
-  using ancestor = std::array<bool, 256>;
+  using Ancestor = std::array<bool, 256>;
   // DO NOT DO THIS ---> static_assert(64 == sizeof (std::array<unsigned char, 64>)) <--- DO NOT DO THIS
   // DO NOT DO THIS ---> static_assert(64 == std::array<std::byte, 64>) <--- DO NOT DO THIS
-  // DO NOT DO THIS ---> static_assert(64 == sizeof (ancestor)) <--- DO NOT DO THIS
+  // DO Not DO THIS ---> static_assert(64 == sizeof (Ancestor)) <--- DO NOT DO THIS
   friend auto operator==(Identifier const &, Identifier const &) -> bool;
   friend auto operator!=(Identifier const &, Identifier const &) -> bool;
   friend class identifier::From_String; // because from_string(...) can't be a friend and also return Outcome<Identifier>
   friend class tests::unit::transaction::Identifier;
 public:
   inline Identifier();
-  using ancestor::array;
+  using Ancestor::array;
 };
 #import std.true_type
 template<> struct iab::privacychain::traits::Is_Dejsonizable<iab::privacychain::transaction::Identifier> : public std::true_type { };

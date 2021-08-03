@@ -1,4 +1,5 @@
 dnl This is a GNU -*- autoconf -*- specification that is processed by Autoconf.
+dnl Copyright Verizon Media Inc.
 dnl Copyright 2020, Verizon Media Inc.
 dnl Copyright 2019, Oath Inc.
 dnl Licensed under the terms of the Apache-2.0 license.
@@ -11,7 +12,7 @@ dnl make check &&
 dnl make install &&
 dnl echo OK DONE
 dnl
-AC_INIT([privacychain-sdk-c++], [0.1.0], [state-space@verizonmedia.com])
+AC_INIT([privacychain-sdk-c++], [0.2.0], [state-space@verizonmedia.com])
 TF_INIT(AC_PACKAGE_NAME, AC_PACKAGE_VERSION, AC_PACKAGE_BUGREPORT)
 
 dnl These options are also in the Makefile.am in AUTOMAKE_OPTIONS
@@ -76,20 +77,21 @@ TF_WITH_STD([scold]) dnl the core modules system
 TF_WITH_MODULE([json])
 TF_WITH_MODULE([langu]) dnl else module-shell
 TF_WITH_MODULE([nonstd])
-TF_WITH_MODULE([posix])
 TF_WITH_MODULE([rabinpoly])
+TF_WITH_MODULE([sys])
+TF_WITH_MODULE([rigging]) dnl a.k.a. unit-rigging -> rigging-unit -> rigging (only); mention in Makefile.am TESTING_AREAS
+
+dnl [[deprecating]] these are being subsumed into the v2.0-series work of one or more of langu, nonstd, options, sys
+TF_WITH_MODULE([cppunit]) dnl And mention in $(TESTING_AREAS) in Makefile.am
+TF_WITH_MODULE([posix])
 TF_WITH_MODULE([shell]) dnl but prefer module-langu for langu::ish::shell
 TF_WITH_MODULE([std])
 TF_WITH_MODULE([string]) dnl a.k.a. c-string
-TF_WITH_MODULE([sys])
-# And mention these in $(TESTING_AREAS) in Makefile.am
-TF_WITH_MODULE([cppunit])
-TF_WITH_MODULE([rigging]) dnl a.k.a. unit-rigging -> rigging-unit
 
 TF_MSG_VERBOSE([compiler-specific (alphabetical)])
-TF_WITH_NONSTD([cppunit])
-TF_WITH_NONSTD([gcc]) dnl but modern gcc-7.1.0 & beyond is fine
-TF_WITH_NONSTD([jsoncpp]) dnl but modern jsoncpp-1.8.4 is fine
+TF_WITH_NONSTD([cppunit]) dnl ... circa cppunit-1.14 or 1.16 is good
+TF_WITH_NONSTD([gcc]) dnl ....... but modern gcc-11.2 & beyond is fine
+TF_WITH_NONSTD([jsoncpp]) dnl ... but modern jsoncpp-1.8.4 is fine
 
 AM_PROG_AR
 LT_PREREQ([2.4.2])

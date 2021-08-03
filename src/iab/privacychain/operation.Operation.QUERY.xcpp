@@ -2,7 +2,7 @@
 // Copyright 2019, Oath Inc.
 // Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/PrivacyChain-sdk-c++/blob/master/LICENSE for terms.
 #divert <fpp>
-#forward iab.privacychain.operation.Operation
+#import iab.privacychain.operation.Operation.template
 namespace iab::privacychain::operation {
   //
   // A read (only) query on the data base; also see Operation<INVOKE>.
@@ -35,7 +35,7 @@ namespace iab::privacychain::operation {
 #import iab.privacychain.operation.Basis
 namespace iab::privacychain::operation {
   template<> class Operation<QUERY> : public Basis {
-    using ancestor = Basis;
+    using Ancestor = Basis;
   public:
     inline explicit Operation(Context &);
     auto run(Function const &, Key const &) -> Outcome<Record> override;
@@ -45,7 +45,7 @@ namespace iab::privacychain::operation {
 #endiv
 #divert <ipp>
 namespace iab::privacychain::operation {
-  Operation<QUERY>::Operation(Context &context) : ancestor{context} { }
+  Operation<QUERY>::Operation(Context &context) : Ancestor{context} { }
 }
 #endiv
 #divert <cpp>

@@ -2,12 +2,9 @@
 // Copyright 2019, Oath Inc.
 // Licensed under the terms of the Apache-2.0 license. See LICENSE file in https://github.com/yahoo/PrivacyChain-sdk-c++/blob/master/LICENSE for terms.
 #divert <fpp>
-#import std.string
-#import std.string_literals
-#import std.string_view
-#import std.string_view_literals
+#import tests.unit
+#import iab.privacychain // contains [[nodirectory]].constructor
 namespace tests::unit::constructor {
-  using namespace std::string_literals;
-  using namespace std::string_view_literals;
+  namespace library = ::iab::privacychain::constructor;
 }
 #endiv
