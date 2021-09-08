@@ -124,11 +124,11 @@ As always, before you deploy code into a production-facing environment you shoul
 Please refer to [the contributing.md file](Contributing.md) for information about how to get involved. We welcome issues, questions, and pull requests. Pull Requests are welcome.
 
 ## Maintainers
-- Wendell Baker <wbaker@verizonmedia.com>
-- The State Space Team at Verizon Media <state-space@verizonmedia.com>
+- Wendell Baker <wbaker@yahooinc.com>
+- The State Space Team at Yahoo <state-space@yahooinc.com>
 - The [IAB PrivacyChain Engineering Working Group](https://iabtechlab.com/working-groups/blockchain-working-group/).
 
-You may contact us at least at <state-space@verizonmedia.com>
+You may contact us at least at <state-space@yahooinc.com>
 
 ## License
 
