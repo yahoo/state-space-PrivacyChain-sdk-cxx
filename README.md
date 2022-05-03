@@ -47,7 +47,7 @@ Examples of components implementing this interface are [Apanolio](https://github
 
 ### The "Southside" Service
 
-The "Soutside Services" or "Southbound Interface" offers database access to a number of database technology.  The expected and preferred database technology, of course, is the distributed shared ledger database of the [Hyperledger Fabric](https://www.hyperledger.org/projects/fabric).
+The "Southside Services" or "Southbound Interface" offers database access to a number of database technology.  The expected and preferred database technology, of course, is the distributed shared ledger database of the [Hyperledger Fabric](https://www.hyperledger.org/projects/fabric).
 
 This repo provides a client library (a.k.a. a "software development kit") which implements the soutbound interface into Hyperledger Fabric.  It requires the [Hyperledger Fabric C++ SDK](https://github.com/yahoo/hyperledger-fabric-sdk-c++).  The components in this repository provide domain-specific interfaces to the underlying database. These features include schema versioning and evolution as well as the ability to process different consent representations.  The current consent representation is the [IAB Transparency and Consent Framework](https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework) as encoded for [Version 1.1](https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/Consent%20string%20and%20vendor%20list%20formats%20v1.1%20Final.md).
 
@@ -121,8 +121,9 @@ As always, before you deploy code into a production-facing environment you shoul
 
 ## Contribute
 
-Please refer to [the contributing.md file](Contributing.md) for information about how to get involved. We welcome issues, questions, and pull requests. Pull Requests are welcome.
+Please refer to [contribution instructions](Contributing.md) for information about how to get involved. We welcome issues, questions, and pull requests. Pull Requests are welcome.
 
+Current work with modern-generation tooling, <em>e.g.</em> circa Fedora 36+ and GCC 12+, is occurring around the <em>v0.2-themed</em> feature branches.
 ## Maintainers
 - Wendell Baker <wbaker@yahooinc.com>
 - The State Space Team at Yahoo <state-space@yahooinc.com>
